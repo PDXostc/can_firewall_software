@@ -57,13 +57,13 @@
 //#define CONFIG_SYSCLK_SOURCE        SYSCLK_SRC_PLL0
 //#define CONFIG_SYSCLK_SOURCE        SYSCLK_SRC_PLL1
 //#define CONFIG_SYSCLK_SOURCE        SYSCLK_SRC_RC8M
-//#define CONFIG_SYSCLK_SOURCE          SYSCLK_SRC_RC120M
+//#define CONFIG_SYSCLK_SOURCE        SYSCLK_SRC_RC120M
 
 /* Fbus = Fsys / (2 ^ BUS_div) */
-#define CONFIG_SYSCLK_CPU_DIV         0
-#define CONFIG_SYSCLK_PBA_DIV         0
-#define CONFIG_SYSCLK_PBB_DIV         0
-#define CONFIG_SYSCLK_PBC_DIV         0
+#define CONFIG_SYSCLK_CPU_DIV         1
+#define CONFIG_SYSCLK_PBA_DIV         1
+#define CONFIG_SYSCLK_PBB_DIV         1
+#define CONFIG_SYSCLK_PBC_DIV         1
 
 //#define CONFIG_USBCLK_SOURCE        USBCLK_SRC_OSC0
 //#define CONFIG_USBCLK_SOURCE        USBCLK_SRC_OSC1
