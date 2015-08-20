@@ -28,120 +28,325 @@
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfFrameworkConfig>
       <framework-data>
-        <options>
-          <option id="avr32.drivers.canif" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.services.network.can" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="common.boards" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="common.services.ioport" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.cpu" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.cpu.cycle_counter" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.cpu.sau" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.utils.debug" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="common.services.delay" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.gpio" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.intc" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.pdca" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.pm" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.scif" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.spi" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.tc" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.twim" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="common.utils.unit_test" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.usart" value="Add" config="" content-id="Atmel.ASF" />
-        </options>
-        <configurations>
-          <configuration key="config.avr32.utils.trampoline" value="yes" default="yes" content-id="Atmel.ASF" />
-          <configuration key="config.avr32.utils.gccstartup" value="yes" default="yes" content-id="Atmel.ASF" />
-          <configuration key="config.utils.interrupt.intc" value="yes" default="yes" content-id="Atmel.ASF" />
-          <configuration key="config.avr32.drivers.intc.exception" value="yes" default="yes" content-id="Atmel.ASF" />
-        </configurations>
-        <files>
-          <file path="src/ASF/avr32/drivers/intc/exception.S" framework="" version="" source="avr32/drivers/intc/exception.S" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/intc/intc.c" framework="" version="" source="avr32/drivers/intc/intc.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/intc/intc.h" framework="" version="" source="avr32/drivers/intc/intc.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/compiler.h" framework="" version="" source="avr32/utils/compiler.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/header_files/uc3d_defines_fix.h" framework="" version="" source="avr32/utils/header_files/uc3d_defines_fix.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/header_files/uc3l3_l4_defines_fix.h" framework="" version="" source="avr32/utils/header_files/uc3l3_l4_defines_fix.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/make/Makefile.avr32.in" framework="" version="" source="avr32/utils/make/Makefile.avr32.in" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/make/Makefile.avr32program.in" framework="" version="" source="avr32/utils/make/Makefile.avr32program.in" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/make/Makefile.batchisp.in" framework="" version="" source="avr32/utils/make/Makefile.batchisp.in" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/preprocessor/mrepeat.h" framework="" version="" source="avr32/utils/preprocessor/mrepeat.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/preprocessor/preprocessor.h" framework="" version="" source="avr32/utils/preprocessor/preprocessor.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/preprocessor/stringz.h" framework="" version="" source="avr32/utils/preprocessor/stringz.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/preprocessor/tpaste.h" framework="" version="" source="avr32/utils/preprocessor/tpaste.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/startup/startup_uc3.S" framework="" version="" source="avr32/utils/startup/startup_uc3.S" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/startup/trampoline_uc3.S" framework="" version="" source="avr32/utils/startup/trampoline_uc3.S" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/startup/trampoline_uc3.h" framework="" version="" source="avr32/utils/startup/trampoline_uc3.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/status_codes.h" framework="" version="" source="avr32/utils/status_codes.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/main.c" framework="" version="" source="common/applications/user_application/main.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/config/conf_board.h" framework="" version="" source="common/applications/user_application/user_board/config/conf_board.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/boards/board.h" framework="" version="" source="common/boards/board.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/boards/user_board/init.c" framework="" version="" source="common/boards/user_board/init.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/boards/user_board/user_board.h" framework="" version="" source="common/boards/user_board/user_board.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/interrupt.h" framework="" version="" source="common/utils/interrupt.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/interrupt/interrupt_avr32.h" framework="" version="" source="common/utils/interrupt/interrupt_avr32.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/parts.h" framework="" version="" source="common/utils/parts.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/canif/canif.c" framework="" version="3.26.0" source="avr32\drivers\canif\canif.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/canif/canif.h" framework="" version="3.26.0" source="avr32\drivers\canif\canif.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/Config/conf_can.h" framework="" version="3.26.0" source="avr32\drivers\canif\module_config\conf_can.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/cpu/cycle_counter/cycle_counter.h" framework="" version="3.26.0" source="avr32\drivers\cpu\cycle_counter\cycle_counter.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/flashc/flashc.c" framework="" version="3.26.0" source="avr32\drivers\flashc\flashc.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/flashc/flashc.h" framework="" version="3.26.0" source="avr32\drivers\flashc\flashc.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/gpio/gpio.c" framework="" version="3.26.0" source="avr32\drivers\gpio\gpio.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/gpio/gpio.h" framework="" version="3.26.0" source="avr32\drivers\gpio\gpio.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/services/network/can/can.c" framework="" version="3.26.0" source="avr32\services\network\can\can.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/services/network/can/can.h" framework="" version="3.26.0" source="avr32\services\network\can\can.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/pll.c" framework="" version="3.26.0" source="common\services\clock\uc3c\pll.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/sysclk.c" framework="" version="3.26.0" source="common\services\clock\uc3c\sysclk.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/osc.c" framework="" version="3.26.0" source="common\services\clock\uc3c\osc.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/pll.h" framework="" version="3.26.0" source="common\services\clock\uc3c\pll.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/genclk.h" framework="" version="3.26.0" source="common\services\clock\genclk.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/osc.h" framework="" version="3.26.0" source="common\services\clock\osc.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/genclk.h" framework="" version="3.26.0" source="common\services\clock\uc3c\genclk.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/osc.h" framework="" version="3.26.0" source="common\services\clock\uc3c\osc.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/sysclk.h" framework="" version="3.26.0" source="common\services\clock\uc3c\sysclk.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/sysclk.h" framework="" version="3.26.0" source="common\services\clock\sysclk.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/pll.h" framework="" version="3.26.0" source="common\services\clock\pll.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/Config/conf_clock.h" framework="" version="3.26.0" source="common\services\clock\uc3c\module_config\conf_clock.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/delay/delay.h" framework="" version="3.26.0" source="common\services\delay\delay.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/ioport/ioport.h" framework="" version="3.26.0" source="common\services\ioport\ioport.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/ioport/uc3/ioport.h" framework="" version="3.26.0" source="common\services\ioport\uc3\ioport.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/cpu/avr32_reset_cause.h" framework="" version="3.26.0" source="avr32\drivers\cpu\avr32_reset_cause.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/cpu/sau/sau.c" framework="" version="3.26.0" source="avr32\drivers\cpu\sau\sau.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/cpu/sau/sau.h" framework="" version="3.26.0" source="avr32\drivers\cpu\sau\sau.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pdca/pdca.c" framework="" version="3.26.0" source="avr32\drivers\pdca\pdca.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pdca/pdca.h" framework="" version="3.26.0" source="avr32\drivers\pdca\pdca.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/spi/spi.c" framework="" version="3.26.0" source="avr32\drivers\spi\spi.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/spi/spi.h" framework="" version="3.26.0" source="avr32\drivers\spi\spi.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/tc/tc.c" framework="" version="3.26.0" source="avr32\drivers\tc\tc.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/tc/tc.h" framework="" version="3.26.0" source="avr32\drivers\tc\tc.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/twim/twim.c" framework="" version="3.26.0" source="avr32\drivers\twim\twim.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/twim/twim.h" framework="" version="3.26.0" source="avr32\drivers\twim\twim.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/Config/conf_twim.h" framework="" version="3.26.0" source="avr32\drivers\twim\module_config\conf_twim.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/usart/usart.c" framework="" version="3.26.0" source="avr32\drivers\usart\usart.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/usart/usart.h" framework="" version="3.26.0" source="avr32\drivers\usart\usart.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/debug/debug.c" framework="" version="3.26.0" source="avr32\utils\debug\debug.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/debug/debug.h" framework="" version="3.26.0" source="avr32\utils\debug\debug.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pm/pm_uc3c.c" framework="" version="3.26.0" source="avr32\drivers\pm\pm_uc3c.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pm/power_clocks_lib.c" framework="" version="3.26.0" source="avr32\drivers\pm\power_clocks_lib.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pm/power_clocks_lib.h" framework="" version="3.26.0" source="avr32\drivers\pm\power_clocks_lib.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pm/pm_uc3c.h" framework="" version="3.26.0" source="avr32\drivers\pm\pm_uc3c.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pm/sleep.h" framework="" version="3.26.0" source="avr32\drivers\pm\sleep.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/scif/scif_uc3c.c" framework="" version="3.26.0" source="avr32\drivers\scif\scif_uc3c.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/scif/scif_uc3c.h" framework="" version="3.26.0" source="avr32\drivers\scif\scif_uc3c.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/unit_test/suite.c" framework="" version="3.26.0" source="common\utils\unit_test\suite.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/unit_test/suite.h" framework="" version="3.26.0" source="common\utils\unit_test\suite.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/stdio/read.c" framework="" version="3.26.0" source="common\utils\stdio\read.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/stdio/write.c" framework="" version="3.26.0" source="common\utils\stdio\write.c" changed="False" content-id="Atmel.ASF" />
-        </files>
-        <documentation help="http://asf.atmel.com/docs/3.26.0/common.applications.user_application.user_board.uc3c/html/index.html" />
-        <offline-documentation help="" />
-        <dependencies>
-          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.26.0" />
-        </dependencies>
-        <project id="common.applications.user_application.user_board.uc3c" value="Add" config="" content-id="Atmel.ASF" />
-        <board id="board.user_board.uc3c" value="Add" config="" content-id="Atmel.ASF" />
-      </framework-data>
+  <options>
+    <option id="avr32.drivers.canif" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.cpu" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.cpu.cycle_counter" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.cpu.sau" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.gpio" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.intc" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.pdca" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.pm" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.scif" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.spi" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.tc" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.twim" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.usart" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.services.network.can" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.utils.debug" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common.boards" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common.services.delay" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common.services.ioport" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common.utils.unit_test" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.services.dsplib" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.utils.print_funcs" value="Add" config="" content-id="Atmel.ASF" />
+  </options>
+  <configurations>
+    <configuration key="config.avr32.utils.trampoline" value="yes" default="yes" content-id="Atmel.ASF" />
+    <configuration key="config.avr32.utils.gccstartup" value="yes" default="yes" content-id="Atmel.ASF" />
+    <configuration key="config.utils.interrupt.intc" value="yes" default="yes" content-id="Atmel.ASF" />
+    <configuration key="config.avr32.drivers.intc.exception" value="yes" default="yes" content-id="Atmel.ASF" />
+    <configuration key="config.avr32.services.dsplib.optimized" value="device_optimized" default="device_optimized" content-id="Atmel.ASF" />
+    <configuration key="config.avr32.services.dsplib.optimization" value="speed" default="speed" content-id="Atmel.ASF" />
+  </configurations>
+  <files>
+    <file path="src/ASF/avr32/drivers/intc/exception.S" framework="" version="" source="avr32/drivers/intc/exception.S" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/intc/intc.c" framework="" version="" source="avr32/drivers/intc/intc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/intc/intc.h" framework="" version="" source="avr32/drivers/intc/intc.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/compiler.h" framework="" version="" source="avr32/utils/compiler.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/header_files/uc3d_defines_fix.h" framework="" version="" source="avr32/utils/header_files/uc3d_defines_fix.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/header_files/uc3l3_l4_defines_fix.h" framework="" version="" source="avr32/utils/header_files/uc3l3_l4_defines_fix.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/make/Makefile.avr32.in" framework="" version="" source="avr32/utils/make/Makefile.avr32.in" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/make/Makefile.avr32program.in" framework="" version="" source="avr32/utils/make/Makefile.avr32program.in" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/make/Makefile.batchisp.in" framework="" version="" source="avr32/utils/make/Makefile.batchisp.in" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/preprocessor/mrepeat.h" framework="" version="" source="avr32/utils/preprocessor/mrepeat.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/preprocessor/preprocessor.h" framework="" version="" source="avr32/utils/preprocessor/preprocessor.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/preprocessor/stringz.h" framework="" version="" source="avr32/utils/preprocessor/stringz.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/preprocessor/tpaste.h" framework="" version="" source="avr32/utils/preprocessor/tpaste.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/startup/startup_uc3.S" framework="" version="" source="avr32/utils/startup/startup_uc3.S" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/startup/trampoline_uc3.S" framework="" version="" source="avr32/utils/startup/trampoline_uc3.S" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/startup/trampoline_uc3.h" framework="" version="" source="avr32/utils/startup/trampoline_uc3.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/status_codes.h" framework="" version="" source="avr32/utils/status_codes.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/main.c" framework="" version="" source="common/applications/user_application/main.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/config/conf_board.h" framework="" version="" source="common/applications/user_application/user_board/config/conf_board.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/boards/board.h" framework="" version="" source="common/boards/board.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/boards/user_board/init.c" framework="" version="" source="common/boards/user_board/init.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/boards/user_board/user_board.h" framework="" version="" source="common/boards/user_board/user_board.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/interrupt.h" framework="" version="" source="common/utils/interrupt.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/interrupt/interrupt_avr32.h" framework="" version="" source="common/utils/interrupt/interrupt_avr32.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/parts.h" framework="" version="" source="common/utils/parts.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/canif/canif.c" framework="" version="3.26.0" source="avr32\drivers\canif\canif.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/canif/canif.h" framework="" version="3.26.0" source="avr32\drivers\canif\canif.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/Config/conf_can.h" framework="" version="3.26.0" source="avr32\drivers\canif\module_config\conf_can.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/cpu/cycle_counter/cycle_counter.h" framework="" version="3.26.0" source="avr32\drivers\cpu\cycle_counter\cycle_counter.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/flashc/flashc.c" framework="" version="3.26.0" source="avr32\drivers\flashc\flashc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/flashc/flashc.h" framework="" version="3.26.0" source="avr32\drivers\flashc\flashc.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/gpio/gpio.c" framework="" version="3.26.0" source="avr32\drivers\gpio\gpio.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/gpio/gpio.h" framework="" version="3.26.0" source="avr32\drivers\gpio\gpio.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/network/can/can.c" framework="" version="3.26.0" source="avr32\services\network\can\can.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/network/can/can.h" framework="" version="3.26.0" source="avr32\services\network\can\can.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/pll.c" framework="" version="3.26.0" source="common\services\clock\uc3c\pll.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/sysclk.c" framework="" version="3.26.0" source="common\services\clock\uc3c\sysclk.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/osc.c" framework="" version="3.26.0" source="common\services\clock\uc3c\osc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/pll.h" framework="" version="3.26.0" source="common\services\clock\uc3c\pll.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/genclk.h" framework="" version="3.26.0" source="common\services\clock\genclk.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/osc.h" framework="" version="3.26.0" source="common\services\clock\osc.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/genclk.h" framework="" version="3.26.0" source="common\services\clock\uc3c\genclk.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/osc.h" framework="" version="3.26.0" source="common\services\clock\uc3c\osc.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/sysclk.h" framework="" version="3.26.0" source="common\services\clock\uc3c\sysclk.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/sysclk.h" framework="" version="3.26.0" source="common\services\clock\sysclk.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/pll.h" framework="" version="3.26.0" source="common\services\clock\pll.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/Config/conf_clock.h" framework="" version="3.26.0" source="common\services\clock\uc3c\module_config\conf_clock.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/delay/delay.h" framework="" version="3.26.0" source="common\services\delay\delay.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/ioport/ioport.h" framework="" version="3.26.0" source="common\services\ioport\ioport.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/ioport/uc3/ioport.h" framework="" version="3.26.0" source="common\services\ioport\uc3\ioport.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/cpu/avr32_reset_cause.h" framework="" version="3.26.0" source="avr32\drivers\cpu\avr32_reset_cause.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/cpu/sau/sau.c" framework="" version="3.26.0" source="avr32\drivers\cpu\sau\sau.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/cpu/sau/sau.h" framework="" version="3.26.0" source="avr32\drivers\cpu\sau\sau.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pdca/pdca.c" framework="" version="3.26.0" source="avr32\drivers\pdca\pdca.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pdca/pdca.h" framework="" version="3.26.0" source="avr32\drivers\pdca\pdca.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/spi/spi.c" framework="" version="3.26.0" source="avr32\drivers\spi\spi.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/spi/spi.h" framework="" version="3.26.0" source="avr32\drivers\spi\spi.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/tc/tc.c" framework="" version="3.26.0" source="avr32\drivers\tc\tc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/tc/tc.h" framework="" version="3.26.0" source="avr32\drivers\tc\tc.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/twim/twim.c" framework="" version="3.26.0" source="avr32\drivers\twim\twim.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/twim/twim.h" framework="" version="3.26.0" source="avr32\drivers\twim\twim.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/Config/conf_twim.h" framework="" version="3.26.0" source="avr32\drivers\twim\module_config\conf_twim.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/usart/usart.c" framework="" version="3.26.0" source="avr32\drivers\usart\usart.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/usart/usart.h" framework="" version="3.26.0" source="avr32\drivers\usart\usart.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/debug/debug.c" framework="" version="3.26.0" source="avr32\utils\debug\debug.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/debug/debug.h" framework="" version="3.26.0" source="avr32\utils\debug\debug.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pm/pm_uc3c.c" framework="" version="3.26.0" source="avr32\drivers\pm\pm_uc3c.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pm/power_clocks_lib.c" framework="" version="3.26.0" source="avr32\drivers\pm\power_clocks_lib.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pm/power_clocks_lib.h" framework="" version="3.26.0" source="avr32\drivers\pm\power_clocks_lib.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pm/pm_uc3c.h" framework="" version="3.26.0" source="avr32\drivers\pm\pm_uc3c.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pm/sleep.h" framework="" version="3.26.0" source="avr32\drivers\pm\sleep.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/scif/scif_uc3c.c" framework="" version="3.26.0" source="avr32\drivers\scif\scif_uc3c.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/scif/scif_uc3c.h" framework="" version="3.26.0" source="avr32\drivers\scif\scif_uc3c.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/unit_test/suite.c" framework="" version="3.26.0" source="common\utils\unit_test\suite.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/unit_test/suite.h" framework="" version="3.26.0" source="common\utils\unit_test\suite.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/stdio/read.c" framework="" version="3.26.0" source="common\utils\stdio\read.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/stdio/write.c" framework="" version="3.26.0" source="common\utils\stdio\write.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/debug/print_funcs.c" framework="" version="3.26.0" source="avr32\utils\debug\print_funcs.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/debug/print_funcs.h" framework="" version="3.26.0" source="avr32\utils\debug\print_funcs.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/error_management.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_print\error_management.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/benchmark/resources/ref_fft.sce" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\benchmark\resources\ref_fft.sce" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_complex_vect/docsrc/documentation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\print_complex_vect\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/benchmark/benchmark" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\benchmark\benchmark" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_complex_vect/print_complex_vect" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\print_complex_vect\print_complex_vect" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_get/error_management.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_get\error_management.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_get/error_management.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_get\error_management.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/error_management.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\error_management.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/format_data.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_extract\format_data.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/rs232.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\rs232.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/rs232.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\rs232.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/benchmark/benchmark_proc" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\benchmark\benchmark_proc" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/benchmark/docsrc/documentation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\benchmark\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/serial_scope/docsrc/scope.gif" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\serial_scope\docsrc\scope.gif" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/format_data.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_extract\format_data.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_real_vect/docsrc/documentation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\print_real_vect\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_real_vect/print_real_vect.sh" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\print_real_vect\print_real_vect.sh" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_real_vect/print_real_vect.cmd" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\print_real_vect\print_real_vect.cmd" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/twiddle_factors_generator/tf_gen.sce" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\twiddle_factors_generator\tf_gen.sce" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/adpcm_encoder/adpcm_encoder" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\adpcm_encoder\adpcm_encoder" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_get/docsrc/documentation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_get\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/ADPCM_IMA_DVI.exe" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\ADPCM_IMA_DVI.exe" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/resampling_coefficients_generation/docsrc/documentation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\resampling_coefficients_generation\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/docsrc/documentation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_print\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/script.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_print\script.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_encode/main.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\adpcm_encode\main.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/main.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\main.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/error_management.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\error_management.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/script.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_print\script.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/resampling_coefficients_generation/standalone_dsp16_resampling_firlpdesign.sce" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\resampling_coefficients_generation\standalone_dsp16_resampling_firlpdesign.sce" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/format_data.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_print\format_data.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_get/main.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_get\main.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_get/DataGet.exe" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_get\DataGet.exe" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/format_data.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_print\format_data.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/DataExtract.exe" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_extract\DataExtract.exe" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/docsrc/documentation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_encode/docsrc/documentation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\adpcm_encode\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/gui.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_print\gui.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/main.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_extract\main.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/gui.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_print\gui.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/docsrc/software.gif" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\docsrc\software.gif" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/benchmark/benchmark_loader.sce" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\benchmark\benchmark_loader.sce" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/docsrc/documentation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_extract\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/script.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_extract\script.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/script.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_extract\script.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/main.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_print\main.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/main.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_print\main.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/twiddle_factors_generator/docsrc/documentation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\twiddle_factors_generator\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/adpcm_encoder/docsrc/documentation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\adpcm_encoder\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/serial_scope/scope" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\serial_scope\scope" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/error_management.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_extract\error_management.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_encode/ADPCM_IMA_DVI.exe" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\adpcm_encode\ADPCM_IMA_DVI.exe" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/error_management.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_extract\error_management.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_get/rs232.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_get\rs232.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/scripts/serial_scope/docsrc/documentation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\scripts\serial_scope\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_get/rs232.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_get\rs232.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/DataPrint.exe" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_print\DataPrint.exe" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/error_management.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\utils\programs\data_print\error_management.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/include/dsp_types.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\include\dsp_types.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/include/dsp.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\include\dsp.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/include/target_optim.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\include\target_optim.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/docsrc/documentation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/docsrc/at32uc_benchmark.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\docsrc\at32uc_benchmark.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/at32uc_optim.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\at32uc_optim.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/filters/filt_dsp16_iirpart_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp16_iirpart_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/filters/filt_dsp32_iirpart_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp32_iirpart_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/filters/filt_dsp32_lms_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp32_lms_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/filters/filt_dsp16_iir_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp16_iir_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/filters/filt_dsp32_nlms_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp32_nlms_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/filters/filt_dsp32_iir_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp32_iir_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/filters/filt_dsp32_lms_fir_at32uc.S" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp32_lms_fir_at32uc.S" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/filters/filt_dsp16_lms_at32uc.S" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp16_lms_at32uc.S" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/filters/filt_dsp16_nlms_at32uc.S" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp16_nlms_at32uc.S" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/filters/filt_dsp32_nlms_fir_at32uc.S" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp32_nlms_fir_at32uc.S" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/operators/op_dsp16_ln_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\operators\op_dsp16_ln_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/operators/op_dsp16_sqrt_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\operators\op_dsp16_sqrt_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/transforms/trans_dsp16_complex_ifft_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\transforms\trans_dsp16_complex_ifft_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/transforms/trans_dsp16_real_complex_fft_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\transforms\trans_dsp16_real_complex_fft_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/transforms/trans_dsp16_complex_fft_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\transforms\trans_dsp16_complex_fft_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp32_sub_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_sub_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp16_dotdiv_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_dotdiv_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp32_neg_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_neg_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp16_realmul_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_realmul_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp16_sub_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_sub_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp16_realdiv_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_realdiv_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp32_realmul_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_realmul_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp32_max_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_max_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp16_convpart_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_convpart_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp16_neg_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_neg_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp32_convpart_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_convpart_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp16_dotmul_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_dotmul_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp16_complex_conj_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_complex_conj_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp32_add_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_add_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp16_add_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_add_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/at32uc/basic/vectors/vect_dsp32_min_at32uc.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_min_at32uc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/advanced/adpcm/adpcm.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\advanced\adpcm\adpcm.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/include/dsp_adpcm.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\include\dsp_adpcm.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/advanced/resampling/dsp16_resampling.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\advanced\resampling\dsp16_resampling.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/include/dsp_resampling.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\include\dsp_resampling.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/filters/filt_dsp16_lpfirdesign.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp16_lpfirdesign.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/filters/filt_dsp16_iir.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp16_iir.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/filters/filt_dsp16_nlms.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp16_nlms.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/filters/filt_dsp32_iir.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp32_iir.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/filters/filt_dsp32_iirpart.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp32_iirpart.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/filters/filt_dsp16_lms.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp16_lms.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/filters/filt_dsp16_iirpart.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp16_iirpart.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/filters/dsp16_filt_interpolation.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\filters\dsp16_filt_interpolation.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/filters/dsp16_filt_interpolation_coefsort.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\filters\dsp16_filt_interpolation_coefsort.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/filters/filt_dsp32_lms.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp32_lms.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/filters/filt_dsp32_nlms.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp32_nlms.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/filters/filt_nlms.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\filters\filt_nlms.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/include/dsp_filters.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\include\dsp_filters.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/filters/filt_lms.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\filters\filt_lms.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_dsp32_fix_sqrt.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_dsp32_fix_sqrt.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_dsp16_fix_sqrt.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_dsp16_fix_sqrt.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_kfix_sin.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_kfix_sin.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_fix_sin.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_fix_sin.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_fix_log2.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_fix_log2.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_dsp32_kfix_ln.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_dsp32_kfix_ln.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_fix_log10.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_fix_log10.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_fix_pow.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_fix_pow.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_fix_ln.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_fix_ln.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_fix_rand.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_fix_rand.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_dsp16_kfix_ln.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_dsp16_kfix_ln.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_fix_asin.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_fix_asin.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_kfix_cos.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_kfix_cos.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/operators/op_fix_exp.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\operators\op_fix_exp.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/include/dsp_operators.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\include\dsp_operators.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/signal_generation/gen_step.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_step.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/signal_generation/gen_rectangular.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_rectangular.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/signal_generation/gen_noise.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_noise.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/signal_generation/gen_ramp.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_ramp.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/signal_generation/gen_diraccomb.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_diraccomb.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/signal_generation/gen_sawtooth.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_sawtooth.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/signal_generation/gen_sinusoidal.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_sinusoidal.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/signal_generation/gen_dirac.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_dirac.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/signal_generation/gen_cosinusoidal.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_cosinusoidal.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/include/dsp_signal_generation.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\include\dsp_signal_generation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms/trans_dsp32_twiddle_factors.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp32_twiddle_factors.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms/trans_dsp16_twiddle_factors.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp16_twiddle_factors.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms/trans_dsp32_realcomplex_fft.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp32_realcomplex_fft.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms/trans_dsp16_realcomplex_fft.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp16_realcomplex_fft.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms/trans_dsp16_complex_ifft.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp16_complex_ifft.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms/trans_dsp16_complex_fft.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp16_complex_fft.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/include/dsp_transforms.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\include\dsp_transforms.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms/trans_dsp32_twiddle_factors.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp32_twiddle_factors.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms/trans_dsp16_twiddle_factors.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp16_twiddle_factors.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_dotdiv.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_dotdiv.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_neg.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_neg.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_add.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_add.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_neg.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_neg.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_add.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_add.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_max.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_max.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_intdiv.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_intdiv.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_max.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_max.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_pow.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_pow.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_pow.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_pow.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_add_and_saturate.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_add_and_saturate.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_min.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_min.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_min.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_min.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_intmul.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_intmul.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_sub.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_sub.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_realsub.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_realsub.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_realsub.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_realsub.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_sub.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_sub.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_realmul.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_realmul.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_realmul.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_realmul.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_add_and_saturate.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_add_and_saturate.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_intdiv.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_intdiv.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_complex_sub.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_complex_sub.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_complex_sub.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_complex_sub.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_complex_conj.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_complex_conj.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_realadd.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_realadd.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_complex_abs.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_complex_abs.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_realadd.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_realadd.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_complex_abs.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_complex_abs.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_complex_add.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_complex_add.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_intmul.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_intmul.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_complex_add.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_complex_add.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_realdiv.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_realdiv.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_dotmul.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_dotmul.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_realdiv.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_realdiv.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_dotmul.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_dotmul.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_convpart.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_convpart.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp32_convpart.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_convpart.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_convolution.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_convolution.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/vectors/vect_dsp16_dotdiv.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_dotdiv.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/include/dsp_vectors.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\include\dsp_vectors.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/windowing/win_welch.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\windowing\win_welch.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/windowing/win_hann.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\windowing\win_hann.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/windowing/win_rectangular.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\windowing\win_rectangular.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/windowing/win_gauss.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\windowing\win_gauss.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/windowing/win_dsp32_kaiser.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\windowing\win_dsp32_kaiser.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/windowing/win_bartlett.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\windowing\win_bartlett.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/windowing/win_blackman.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\windowing\win_blackman.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/windowing/win_dsp16_kaiser.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\windowing\win_dsp16_kaiser.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/windowing/win_hamming.c" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\windowing\win_hamming.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/generic/basic/windowing/win_gauss.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\generic\basic\windowing\win_gauss.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/dsp/dsplib/include/dsp_windowing.h" framework="" version="3.26.0" source="avr32\services\dsp\dsplib\include\dsp_windowing.h" changed="False" content-id="Atmel.ASF" />
+  </files>
+  <documentation help="http://asf.atmel.com/docs/3.26.0/common.applications.user_application.user_board.uc3c/html/index.html" />
+  <offline-documentation help="" />
+  <dependencies>
+    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.26.0" />
+  </dependencies>
+  <project id="common.applications.user_application.user_board.uc3c" value="Add" config="" content-id="Atmel.ASF" />
+  <board id="board.user_board.uc3c" value="Add" config="" content-id="Atmel.ASF" />
+</framework-data>
     </AsfFrameworkConfig>
     <avrtool>com.atmel.avrdbg.tool.avrdragon</avrtool>
     <com_atmel_avrdbg_tool_avrdragon>
@@ -160,263 +365,377 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
       <Avr32Gcc>
-        <avr32gcc.common.outputfiles.hex>True</avr32gcc.common.outputfiles.hex>
-        <avr32gcc.common.outputfiles.lss>True</avr32gcc.common.outputfiles.lss>
-        <avr32gcc.common.outputfiles.eep>True</avr32gcc.common.outputfiles.eep>
-        <avr32gcc.common.outputfiles.srec>True</avr32gcc.common.outputfiles.srec>
-        <avr32gcc.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>NDEBUG</Value>
-            <Value>BOARD=USER_BOARD</Value>
-            <Value>TEST_SUITE_DEFINE_ASSERT_MACRO</Value>
-            <Value>_ASSERT_ENABLE_</Value>
-          </ListValues>
-        </avr32gcc.compiler.symbols.DefSymbols>
-        <avr32gcc.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>../common/applications/user_application/user_board/config</Value>
-            <Value>../src/ASF/avr32/utils</Value>
-            <Value>../src/config</Value>
-            <Value>../src/ASF/common/boards</Value>
-            <Value>../src/ASF/avr32/utils/preprocessor</Value>
-            <Value>../src/ASF/avr32/drivers/intc</Value>
-            <Value>../src/ASF/common/utils</Value>
-            <Value>../src</Value>
-            <Value>../src/ASF/common/boards/user_board</Value>
-            <Value>../src/ASF/avr32/drivers/canif</Value>
-            <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
-            <Value>../src/ASF/avr32/drivers/flashc</Value>
-            <Value>../src/ASF/avr32/drivers/gpio</Value>
-            <Value>../src/ASF/avr32/services/network/can</Value>
-            <Value>../src/ASF/common/services/clock</Value>
-            <Value>../src/ASF/common/services/delay</Value>
-            <Value>../src/ASF/common/services/ioport</Value>
-            <Value>../src/ASF/avr32/drivers/cpu</Value>
-            <Value>../src/ASF/avr32/drivers/cpu/sau</Value>
-            <Value>../src/ASF/avr32/drivers/pdca</Value>
-            <Value>../src/ASF/avr32/drivers/spi</Value>
-            <Value>../src/ASF/avr32/drivers/tc</Value>
-            <Value>../src/ASF/avr32/drivers/twim</Value>
-            <Value>../src/ASF/avr32/drivers/usart</Value>
-            <Value>../src/ASF/avr32/utils/debug</Value>
-            <Value>../src/ASF/avr32/drivers/pm</Value>
-            <Value>../src/ASF/avr32/drivers/scif</Value>
-          </ListValues>
-        </avr32gcc.compiler.directories.IncludePaths>
-        <avr32gcc.compiler.optimization.level>Optimize for size (-Os)</avr32gcc.compiler.optimization.level>
-        <avr32gcc.compiler.optimization.OtherFlags>-fdata-sections</avr32gcc.compiler.optimization.OtherFlags>
-        <avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
-        <avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>True</avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>
-        <avr32gcc.compiler.warnings.AllWarnings>True</avr32gcc.compiler.warnings.AllWarnings>
-        <avr32gcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -fno-strict-aliasing -Wstrict-prototypes -Wmissing-prototypes -Werror-implicit-function-declaration -Wpointer-arith -mrelax -mno-cond-exec-before-reload</avr32gcc.compiler.miscellaneous.OtherFlags>
-        <avr32gcc.linker.general.DoNotUseStandardStartFiles>True</avr32gcc.linker.general.DoNotUseStandardStartFiles>
-        <avr32gcc.linker.libraries.Libraries>
-          <ListValues>
-            <Value>libm</Value>
-          </ListValues>
-        </avr32gcc.linker.libraries.Libraries>
-        <avr32gcc.linker.optimization.GarbageCollectUnusedSections>True</avr32gcc.linker.optimization.GarbageCollectUnusedSections>
-        <avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>True</avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>
-        <avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>True</avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>
-        <avr32gcc.linker.miscellaneous.LinkerFlags>-Wl,--relax -Wl,-e,_trampoline</avr32gcc.linker.miscellaneous.LinkerFlags>
-        <avr32gcc.assembler.general.AssemblerFlags>-mrelax</avr32gcc.assembler.general.AssemblerFlags>
-        <avr32gcc.assembler.general.IncludePaths>
-          <ListValues>
-            <Value>../common/applications/user_application/user_board/config</Value>
-            <Value>../src/ASF/avr32/utils</Value>
-            <Value>../src/config</Value>
-            <Value>../src/ASF/common/boards</Value>
-            <Value>../src/ASF/avr32/utils/preprocessor</Value>
-            <Value>../src/ASF/avr32/drivers/intc</Value>
-            <Value>../src/ASF/common/utils</Value>
-            <Value>../src</Value>
-            <Value>../src/ASF/common/boards/user_board</Value>
-            <Value>../src/ASF/avr32/drivers/canif</Value>
-            <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
-            <Value>../src/ASF/avr32/drivers/flashc</Value>
-            <Value>../src/ASF/avr32/drivers/gpio</Value>
-            <Value>../src/ASF/avr32/services/network/can</Value>
-            <Value>../src/ASF/common/services/clock</Value>
-            <Value>../src/ASF/common/services/delay</Value>
-            <Value>../src/ASF/common/services/ioport</Value>
-            <Value>../src/ASF/avr32/drivers/cpu</Value>
-            <Value>../src/ASF/avr32/drivers/cpu/sau</Value>
-            <Value>../src/ASF/avr32/drivers/pdca</Value>
-            <Value>../src/ASF/avr32/drivers/spi</Value>
-            <Value>../src/ASF/avr32/drivers/tc</Value>
-            <Value>../src/ASF/avr32/drivers/twim</Value>
-            <Value>../src/ASF/avr32/drivers/usart</Value>
-            <Value>../src/ASF/avr32/utils/debug</Value>
-            <Value>../src/ASF/avr32/drivers/pm</Value>
-            <Value>../src/ASF/avr32/drivers/scif</Value>
-          </ListValues>
-        </avr32gcc.assembler.general.IncludePaths>
-        <avr32gcc.preprocessingassembler.general.AssemblerFlags>-mrelax -DBOARD=USER_BOARD -DTEST_SUITE_DEFINE_ASSERT_MACRO -D_ASSERT_ENABLE_</avr32gcc.preprocessingassembler.general.AssemblerFlags>
-        <avr32gcc.preprocessingassembler.general.IncludePaths>
-          <ListValues>
-            <Value>../common/applications/user_application/user_board/config</Value>
-            <Value>../src/ASF/avr32/utils</Value>
-            <Value>../src/config</Value>
-            <Value>../src/ASF/common/boards</Value>
-            <Value>../src/ASF/avr32/utils/preprocessor</Value>
-            <Value>../src/ASF/avr32/drivers/intc</Value>
-            <Value>../src/ASF/common/utils</Value>
-            <Value>../src</Value>
-            <Value>../src/ASF/common/boards/user_board</Value>
-            <Value>../src/ASF/avr32/drivers/canif</Value>
-            <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
-            <Value>../src/ASF/avr32/drivers/flashc</Value>
-            <Value>../src/ASF/avr32/drivers/gpio</Value>
-            <Value>../src/ASF/avr32/services/network/can</Value>
-            <Value>../src/ASF/common/services/clock</Value>
-            <Value>../src/ASF/common/services/delay</Value>
-            <Value>../src/ASF/common/services/ioport</Value>
-            <Value>../src/ASF/avr32/drivers/cpu</Value>
-            <Value>../src/ASF/avr32/drivers/cpu/sau</Value>
-            <Value>../src/ASF/avr32/drivers/pdca</Value>
-            <Value>../src/ASF/avr32/drivers/spi</Value>
-            <Value>../src/ASF/avr32/drivers/tc</Value>
-            <Value>../src/ASF/avr32/drivers/twim</Value>
-            <Value>../src/ASF/avr32/drivers/usart</Value>
-            <Value>../src/ASF/avr32/utils/debug</Value>
-            <Value>../src/ASF/avr32/drivers/pm</Value>
-            <Value>../src/ASF/avr32/drivers/scif</Value>
-          </ListValues>
-        </avr32gcc.preprocessingassembler.general.IncludePaths>
-      </Avr32Gcc>
+  <avr32gcc.common.outputfiles.hex>True</avr32gcc.common.outputfiles.hex>
+  <avr32gcc.common.outputfiles.lss>True</avr32gcc.common.outputfiles.lss>
+  <avr32gcc.common.outputfiles.eep>True</avr32gcc.common.outputfiles.eep>
+  <avr32gcc.common.outputfiles.srec>True</avr32gcc.common.outputfiles.srec>
+  <avr32gcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>NDEBUG</Value>
+      <Value>BOARD=USER_BOARD</Value>
+      <Value>TEST_SUITE_DEFINE_ASSERT_MACRO</Value>
+      <Value>_ASSERT_ENABLE_</Value>
+      <Value>DSP_OPTIMIZATION=DSP_OPTI_SPEED</Value>
+      <Value>DSP_ADPCM</Value>
+      <Value>DSP_RESAMPLING</Value>
+      <Value>DSP_FILTERS</Value>
+      <Value>DSP_OPERATORS</Value>
+      <Value>DSP_SIGNAL_GENERATION</Value>
+      <Value>DSP_TRANSFORMS</Value>
+      <Value>DSP_VECTORS</Value>
+      <Value>DSP_WINDOWING</Value>
+    </ListValues>
+  </avr32gcc.compiler.symbols.DefSymbols>
+  <avr32gcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>../common/applications/user_application/user_board/config</Value>
+      <Value>../src/ASF/avr32/utils</Value>
+      <Value>../src/config</Value>
+      <Value>../src/ASF/common/boards</Value>
+      <Value>../src/ASF/avr32/utils/preprocessor</Value>
+      <Value>../src/ASF/avr32/drivers/intc</Value>
+      <Value>../src/ASF/common/utils</Value>
+      <Value>../src</Value>
+      <Value>../src/ASF/common/boards/user_board</Value>
+      <Value>../src/ASF/avr32/drivers/canif</Value>
+      <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
+      <Value>../src/ASF/avr32/drivers/flashc</Value>
+      <Value>../src/ASF/avr32/drivers/gpio</Value>
+      <Value>../src/ASF/avr32/services/network/can</Value>
+      <Value>../src/ASF/common/services/clock</Value>
+      <Value>../src/ASF/common/services/delay</Value>
+      <Value>../src/ASF/common/services/ioport</Value>
+      <Value>../src/ASF/avr32/drivers/cpu</Value>
+      <Value>../src/ASF/avr32/drivers/cpu/sau</Value>
+      <Value>../src/ASF/avr32/drivers/pdca</Value>
+      <Value>../src/ASF/avr32/drivers/spi</Value>
+      <Value>../src/ASF/avr32/drivers/tc</Value>
+      <Value>../src/ASF/avr32/drivers/twim</Value>
+      <Value>../src/ASF/avr32/drivers/usart</Value>
+      <Value>../src/ASF/avr32/utils/debug</Value>
+      <Value>../src/ASF/avr32/drivers/pm</Value>
+      <Value>../src/ASF/avr32/drivers/scif</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/include</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/at32uc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/generic/basic/filters</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_encode/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_get/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/adpcm_encoder/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/benchmark/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_complex_vect/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_real_vect/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/resampling_coefficients_generation/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/serial_scope/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/twiddle_factors_generator/docsrc</Value>
+    </ListValues>
+  </avr32gcc.compiler.directories.IncludePaths>
+  <avr32gcc.compiler.optimization.level>Optimize for size (-Os)</avr32gcc.compiler.optimization.level>
+  <avr32gcc.compiler.optimization.OtherFlags>-fdata-sections</avr32gcc.compiler.optimization.OtherFlags>
+  <avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+  <avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>True</avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>
+  <avr32gcc.compiler.warnings.AllWarnings>True</avr32gcc.compiler.warnings.AllWarnings>
+  <avr32gcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -fno-strict-aliasing -Wstrict-prototypes -Wmissing-prototypes -Werror-implicit-function-declaration -Wpointer-arith -mrelax -mno-cond-exec-before-reload</avr32gcc.compiler.miscellaneous.OtherFlags>
+  <avr32gcc.linker.general.DoNotUseStandardStartFiles>True</avr32gcc.linker.general.DoNotUseStandardStartFiles>
+  <avr32gcc.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </avr32gcc.linker.libraries.Libraries>
+  <avr32gcc.linker.optimization.GarbageCollectUnusedSections>True</avr32gcc.linker.optimization.GarbageCollectUnusedSections>
+  <avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>True</avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>
+  <avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>True</avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>
+  <avr32gcc.linker.miscellaneous.LinkerFlags>-Wl,--relax -Wl,-e,_trampoline</avr32gcc.linker.miscellaneous.LinkerFlags>
+  <avr32gcc.assembler.general.AssemblerFlags>-mrelax</avr32gcc.assembler.general.AssemblerFlags>
+  <avr32gcc.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>../common/applications/user_application/user_board/config</Value>
+      <Value>../src/ASF/avr32/utils</Value>
+      <Value>../src/config</Value>
+      <Value>../src/ASF/common/boards</Value>
+      <Value>../src/ASF/avr32/utils/preprocessor</Value>
+      <Value>../src/ASF/avr32/drivers/intc</Value>
+      <Value>../src/ASF/common/utils</Value>
+      <Value>../src</Value>
+      <Value>../src/ASF/common/boards/user_board</Value>
+      <Value>../src/ASF/avr32/drivers/canif</Value>
+      <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
+      <Value>../src/ASF/avr32/drivers/flashc</Value>
+      <Value>../src/ASF/avr32/drivers/gpio</Value>
+      <Value>../src/ASF/avr32/services/network/can</Value>
+      <Value>../src/ASF/common/services/clock</Value>
+      <Value>../src/ASF/common/services/delay</Value>
+      <Value>../src/ASF/common/services/ioport</Value>
+      <Value>../src/ASF/avr32/drivers/cpu</Value>
+      <Value>../src/ASF/avr32/drivers/cpu/sau</Value>
+      <Value>../src/ASF/avr32/drivers/pdca</Value>
+      <Value>../src/ASF/avr32/drivers/spi</Value>
+      <Value>../src/ASF/avr32/drivers/tc</Value>
+      <Value>../src/ASF/avr32/drivers/twim</Value>
+      <Value>../src/ASF/avr32/drivers/usart</Value>
+      <Value>../src/ASF/avr32/utils/debug</Value>
+      <Value>../src/ASF/avr32/drivers/pm</Value>
+      <Value>../src/ASF/avr32/drivers/scif</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/include</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/at32uc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/generic/basic/filters</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_encode/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_get/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/adpcm_encoder/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/benchmark/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_complex_vect/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_real_vect/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/resampling_coefficients_generation/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/serial_scope/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/twiddle_factors_generator/docsrc</Value>
+    </ListValues>
+  </avr32gcc.assembler.general.IncludePaths>
+  <avr32gcc.preprocessingassembler.general.AssemblerFlags>-mrelax -DBOARD=USER_BOARD -DTEST_SUITE_DEFINE_ASSERT_MACRO -D_ASSERT_ENABLE_ -DDSP_OPTIMIZATION=DSP_OPTI_SPEED -DDSP_ADPCM -DDSP_RESAMPLING -DDSP_FILTERS -DDSP_OPERATORS -DDSP_SIGNAL_GENERATION -DDSP_TRANSFORMS -DDSP_VECTORS -DDSP_WINDOWING</avr32gcc.preprocessingassembler.general.AssemblerFlags>
+  <avr32gcc.preprocessingassembler.general.IncludePaths>
+    <ListValues>
+      <Value>../common/applications/user_application/user_board/config</Value>
+      <Value>../src/ASF/avr32/utils</Value>
+      <Value>../src/config</Value>
+      <Value>../src/ASF/common/boards</Value>
+      <Value>../src/ASF/avr32/utils/preprocessor</Value>
+      <Value>../src/ASF/avr32/drivers/intc</Value>
+      <Value>../src/ASF/common/utils</Value>
+      <Value>../src</Value>
+      <Value>../src/ASF/common/boards/user_board</Value>
+      <Value>../src/ASF/avr32/drivers/canif</Value>
+      <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
+      <Value>../src/ASF/avr32/drivers/flashc</Value>
+      <Value>../src/ASF/avr32/drivers/gpio</Value>
+      <Value>../src/ASF/avr32/services/network/can</Value>
+      <Value>../src/ASF/common/services/clock</Value>
+      <Value>../src/ASF/common/services/delay</Value>
+      <Value>../src/ASF/common/services/ioport</Value>
+      <Value>../src/ASF/avr32/drivers/cpu</Value>
+      <Value>../src/ASF/avr32/drivers/cpu/sau</Value>
+      <Value>../src/ASF/avr32/drivers/pdca</Value>
+      <Value>../src/ASF/avr32/drivers/spi</Value>
+      <Value>../src/ASF/avr32/drivers/tc</Value>
+      <Value>../src/ASF/avr32/drivers/twim</Value>
+      <Value>../src/ASF/avr32/drivers/usart</Value>
+      <Value>../src/ASF/avr32/utils/debug</Value>
+      <Value>../src/ASF/avr32/drivers/pm</Value>
+      <Value>../src/ASF/avr32/drivers/scif</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/include</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/at32uc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/generic/basic/filters</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_encode/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_get/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/adpcm_encoder/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/benchmark/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_complex_vect/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_real_vect/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/resampling_coefficients_generation/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/serial_scope/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/twiddle_factors_generator/docsrc</Value>
+    </ListValues>
+  </avr32gcc.preprocessingassembler.general.IncludePaths>
+</Avr32Gcc>
     </ToolchainSettings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <Avr32Gcc>
-        <avr32gcc.common.outputfiles.hex>True</avr32gcc.common.outputfiles.hex>
-        <avr32gcc.common.outputfiles.lss>True</avr32gcc.common.outputfiles.lss>
-        <avr32gcc.common.outputfiles.eep>True</avr32gcc.common.outputfiles.eep>
-        <avr32gcc.common.outputfiles.srec>True</avr32gcc.common.outputfiles.srec>
-        <avr32gcc.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>DEBUG</Value>
-            <Value>BOARD=USER_BOARD</Value>
-            <Value>TEST_SUITE_DEFINE_ASSERT_MACRO</Value>
-            <Value>_ASSERT_ENABLE_</Value>
-          </ListValues>
-        </avr32gcc.compiler.symbols.DefSymbols>
-        <avr32gcc.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>../common/applications/user_application/user_board/config</Value>
-            <Value>../src/ASF/avr32/utils</Value>
-            <Value>../src/config</Value>
-            <Value>../src/ASF/common/boards</Value>
-            <Value>../src/ASF/avr32/utils/preprocessor</Value>
-            <Value>../src/ASF/avr32/drivers/intc</Value>
-            <Value>../src/ASF/common/utils</Value>
-            <Value>../src</Value>
-            <Value>../src/ASF/common/boards/user_board</Value>
-            <Value>../src/ASF/avr32/drivers/canif</Value>
-            <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
-            <Value>../src/ASF/avr32/drivers/flashc</Value>
-            <Value>../src/ASF/avr32/drivers/gpio</Value>
-            <Value>../src/ASF/avr32/services/network/can</Value>
-            <Value>../src/ASF/common/services/clock</Value>
-            <Value>../src/ASF/common/services/delay</Value>
-            <Value>../src/ASF/common/services/ioport</Value>
-            <Value>../src/ASF/avr32/drivers/cpu</Value>
-            <Value>../src/ASF/avr32/drivers/cpu/sau</Value>
-            <Value>../src/ASF/avr32/drivers/pdca</Value>
-            <Value>../src/ASF/avr32/drivers/spi</Value>
-            <Value>../src/ASF/avr32/drivers/tc</Value>
-            <Value>../src/ASF/avr32/drivers/twim</Value>
-            <Value>../src/ASF/avr32/drivers/usart</Value>
-            <Value>../src/ASF/avr32/utils/debug</Value>
-            <Value>../src/ASF/avr32/drivers/pm</Value>
-            <Value>../src/ASF/avr32/drivers/scif</Value>
-          </ListValues>
-        </avr32gcc.compiler.directories.IncludePaths>
-        <avr32gcc.compiler.optimization.level>Optimize for size (-Os)</avr32gcc.compiler.optimization.level>
-        <avr32gcc.compiler.optimization.OtherFlags>-fdata-sections</avr32gcc.compiler.optimization.OtherFlags>
-        <avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
-        <avr32gcc.compiler.optimization.PrepareDataForGarbageCollection>True</avr32gcc.compiler.optimization.PrepareDataForGarbageCollection>
-        <avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>True</avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>
-        <avr32gcc.compiler.optimization.DebugLevel>Maximum (-g3)</avr32gcc.compiler.optimization.DebugLevel>
-        <avr32gcc.compiler.warnings.AllWarnings>True</avr32gcc.compiler.warnings.AllWarnings>
-        <avr32gcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -fno-strict-aliasing -Wstrict-prototypes -Wmissing-prototypes -Werror-implicit-function-declaration -Wpointer-arith -mrelax -mno-cond-exec-before-reload</avr32gcc.compiler.miscellaneous.OtherFlags>
-        <avr32gcc.linker.general.DoNotUseStandardStartFiles>True</avr32gcc.linker.general.DoNotUseStandardStartFiles>
-        <avr32gcc.linker.libraries.Libraries>
-          <ListValues>
-            <Value>libm</Value>
-          </ListValues>
-        </avr32gcc.linker.libraries.Libraries>
-        <avr32gcc.linker.optimization.GarbageCollectUnusedSections>True</avr32gcc.linker.optimization.GarbageCollectUnusedSections>
-        <avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>True</avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>
-        <avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>True</avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>
-        <avr32gcc.linker.miscellaneous.LinkerFlags>-Wl,--relax -Wl,-e,_trampoline</avr32gcc.linker.miscellaneous.LinkerFlags>
-        <avr32gcc.assembler.general.AssemblerFlags>-mrelax</avr32gcc.assembler.general.AssemblerFlags>
-        <avr32gcc.assembler.general.IncludePaths>
-          <ListValues>
-            <Value>../common/applications/user_application/user_board/config</Value>
-            <Value>../src/ASF/avr32/utils</Value>
-            <Value>../src/config</Value>
-            <Value>../src/ASF/common/boards</Value>
-            <Value>../src/ASF/avr32/utils/preprocessor</Value>
-            <Value>../src/ASF/avr32/drivers/intc</Value>
-            <Value>../src/ASF/common/utils</Value>
-            <Value>../src</Value>
-            <Value>../src/ASF/common/boards/user_board</Value>
-            <Value>../src/ASF/avr32/drivers/canif</Value>
-            <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
-            <Value>../src/ASF/avr32/drivers/flashc</Value>
-            <Value>../src/ASF/avr32/drivers/gpio</Value>
-            <Value>../src/ASF/avr32/services/network/can</Value>
-            <Value>../src/ASF/common/services/clock</Value>
-            <Value>../src/ASF/common/services/delay</Value>
-            <Value>../src/ASF/common/services/ioport</Value>
-            <Value>../src/ASF/avr32/drivers/cpu</Value>
-            <Value>../src/ASF/avr32/drivers/cpu/sau</Value>
-            <Value>../src/ASF/avr32/drivers/pdca</Value>
-            <Value>../src/ASF/avr32/drivers/spi</Value>
-            <Value>../src/ASF/avr32/drivers/tc</Value>
-            <Value>../src/ASF/avr32/drivers/twim</Value>
-            <Value>../src/ASF/avr32/drivers/usart</Value>
-            <Value>../src/ASF/avr32/utils/debug</Value>
-            <Value>../src/ASF/avr32/drivers/pm</Value>
-            <Value>../src/ASF/avr32/drivers/scif</Value>
-          </ListValues>
-        </avr32gcc.assembler.general.IncludePaths>
-        <avr32gcc.assembler.debugging.DebugLevel>Default (-g)</avr32gcc.assembler.debugging.DebugLevel>
-        <avr32gcc.preprocessingassembler.general.AssemblerFlags>-mrelax -DBOARD=USER_BOARD -DTEST_SUITE_DEFINE_ASSERT_MACRO -D_ASSERT_ENABLE_</avr32gcc.preprocessingassembler.general.AssemblerFlags>
-        <avr32gcc.preprocessingassembler.general.IncludePaths>
-          <ListValues>
-            <Value>../common/applications/user_application/user_board/config</Value>
-            <Value>../src/ASF/avr32/utils</Value>
-            <Value>../src/config</Value>
-            <Value>../src/ASF/common/boards</Value>
-            <Value>../src/ASF/avr32/utils/preprocessor</Value>
-            <Value>../src/ASF/avr32/drivers/intc</Value>
-            <Value>../src/ASF/common/utils</Value>
-            <Value>../src</Value>
-            <Value>../src/ASF/common/boards/user_board</Value>
-            <Value>../src/ASF/avr32/drivers/canif</Value>
-            <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
-            <Value>../src/ASF/avr32/drivers/flashc</Value>
-            <Value>../src/ASF/avr32/drivers/gpio</Value>
-            <Value>../src/ASF/avr32/services/network/can</Value>
-            <Value>../src/ASF/common/services/clock</Value>
-            <Value>../src/ASF/common/services/delay</Value>
-            <Value>../src/ASF/common/services/ioport</Value>
-            <Value>../src/ASF/avr32/drivers/cpu</Value>
-            <Value>../src/ASF/avr32/drivers/cpu/sau</Value>
-            <Value>../src/ASF/avr32/drivers/pdca</Value>
-            <Value>../src/ASF/avr32/drivers/spi</Value>
-            <Value>../src/ASF/avr32/drivers/tc</Value>
-            <Value>../src/ASF/avr32/drivers/twim</Value>
-            <Value>../src/ASF/avr32/drivers/usart</Value>
-            <Value>../src/ASF/avr32/utils/debug</Value>
-            <Value>../src/ASF/avr32/drivers/pm</Value>
-            <Value>../src/ASF/avr32/drivers/scif</Value>
-          </ListValues>
-        </avr32gcc.preprocessingassembler.general.IncludePaths>
-        <avr32gcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</avr32gcc.preprocessingassembler.debugging.DebugLevel>
-      </Avr32Gcc>
+  <avr32gcc.common.outputfiles.hex>True</avr32gcc.common.outputfiles.hex>
+  <avr32gcc.common.outputfiles.lss>True</avr32gcc.common.outputfiles.lss>
+  <avr32gcc.common.outputfiles.eep>True</avr32gcc.common.outputfiles.eep>
+  <avr32gcc.common.outputfiles.srec>True</avr32gcc.common.outputfiles.srec>
+  <avr32gcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+      <Value>BOARD=USER_BOARD</Value>
+      <Value>TEST_SUITE_DEFINE_ASSERT_MACRO</Value>
+      <Value>_ASSERT_ENABLE_</Value>
+      <Value>DSP_OPTIMIZATION=DSP_OPTI_SPEED</Value>
+      <Value>DSP_ADPCM</Value>
+      <Value>DSP_RESAMPLING</Value>
+      <Value>DSP_FILTERS</Value>
+      <Value>DSP_OPERATORS</Value>
+      <Value>DSP_SIGNAL_GENERATION</Value>
+      <Value>DSP_TRANSFORMS</Value>
+      <Value>DSP_VECTORS</Value>
+      <Value>DSP_WINDOWING</Value>
+    </ListValues>
+  </avr32gcc.compiler.symbols.DefSymbols>
+  <avr32gcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>../common/applications/user_application/user_board/config</Value>
+      <Value>../src/ASF/avr32/utils</Value>
+      <Value>../src/config</Value>
+      <Value>../src/ASF/common/boards</Value>
+      <Value>../src/ASF/avr32/utils/preprocessor</Value>
+      <Value>../src/ASF/avr32/drivers/intc</Value>
+      <Value>../src/ASF/common/utils</Value>
+      <Value>../src</Value>
+      <Value>../src/ASF/common/boards/user_board</Value>
+      <Value>../src/ASF/avr32/drivers/canif</Value>
+      <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
+      <Value>../src/ASF/avr32/drivers/flashc</Value>
+      <Value>../src/ASF/avr32/drivers/gpio</Value>
+      <Value>../src/ASF/avr32/services/network/can</Value>
+      <Value>../src/ASF/common/services/clock</Value>
+      <Value>../src/ASF/common/services/delay</Value>
+      <Value>../src/ASF/common/services/ioport</Value>
+      <Value>../src/ASF/avr32/drivers/cpu</Value>
+      <Value>../src/ASF/avr32/drivers/cpu/sau</Value>
+      <Value>../src/ASF/avr32/drivers/pdca</Value>
+      <Value>../src/ASF/avr32/drivers/spi</Value>
+      <Value>../src/ASF/avr32/drivers/tc</Value>
+      <Value>../src/ASF/avr32/drivers/twim</Value>
+      <Value>../src/ASF/avr32/drivers/usart</Value>
+      <Value>../src/ASF/avr32/utils/debug</Value>
+      <Value>../src/ASF/avr32/drivers/pm</Value>
+      <Value>../src/ASF/avr32/drivers/scif</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/include</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/at32uc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/generic/basic/filters</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_encode/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_get/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/adpcm_encoder/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/benchmark/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_complex_vect/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_real_vect/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/resampling_coefficients_generation/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/serial_scope/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/twiddle_factors_generator/docsrc</Value>
+    </ListValues>
+  </avr32gcc.compiler.directories.IncludePaths>
+  <avr32gcc.compiler.optimization.level>Optimize for size (-Os)</avr32gcc.compiler.optimization.level>
+  <avr32gcc.compiler.optimization.OtherFlags>-fdata-sections</avr32gcc.compiler.optimization.OtherFlags>
+  <avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+  <avr32gcc.compiler.optimization.PrepareDataForGarbageCollection>True</avr32gcc.compiler.optimization.PrepareDataForGarbageCollection>
+  <avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>True</avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>
+  <avr32gcc.compiler.optimization.DebugLevel>Maximum (-g3)</avr32gcc.compiler.optimization.DebugLevel>
+  <avr32gcc.compiler.warnings.AllWarnings>True</avr32gcc.compiler.warnings.AllWarnings>
+  <avr32gcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -fno-strict-aliasing -Wstrict-prototypes -Wmissing-prototypes -Werror-implicit-function-declaration -Wpointer-arith -mrelax -mno-cond-exec-before-reload</avr32gcc.compiler.miscellaneous.OtherFlags>
+  <avr32gcc.linker.general.DoNotUseStandardStartFiles>True</avr32gcc.linker.general.DoNotUseStandardStartFiles>
+  <avr32gcc.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </avr32gcc.linker.libraries.Libraries>
+  <avr32gcc.linker.optimization.GarbageCollectUnusedSections>True</avr32gcc.linker.optimization.GarbageCollectUnusedSections>
+  <avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>True</avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>
+  <avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>True</avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>
+  <avr32gcc.linker.miscellaneous.LinkerFlags>-Wl,--relax -Wl,-e,_trampoline</avr32gcc.linker.miscellaneous.LinkerFlags>
+  <avr32gcc.assembler.general.AssemblerFlags>-mrelax</avr32gcc.assembler.general.AssemblerFlags>
+  <avr32gcc.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>../common/applications/user_application/user_board/config</Value>
+      <Value>../src/ASF/avr32/utils</Value>
+      <Value>../src/config</Value>
+      <Value>../src/ASF/common/boards</Value>
+      <Value>../src/ASF/avr32/utils/preprocessor</Value>
+      <Value>../src/ASF/avr32/drivers/intc</Value>
+      <Value>../src/ASF/common/utils</Value>
+      <Value>../src</Value>
+      <Value>../src/ASF/common/boards/user_board</Value>
+      <Value>../src/ASF/avr32/drivers/canif</Value>
+      <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
+      <Value>../src/ASF/avr32/drivers/flashc</Value>
+      <Value>../src/ASF/avr32/drivers/gpio</Value>
+      <Value>../src/ASF/avr32/services/network/can</Value>
+      <Value>../src/ASF/common/services/clock</Value>
+      <Value>../src/ASF/common/services/delay</Value>
+      <Value>../src/ASF/common/services/ioport</Value>
+      <Value>../src/ASF/avr32/drivers/cpu</Value>
+      <Value>../src/ASF/avr32/drivers/cpu/sau</Value>
+      <Value>../src/ASF/avr32/drivers/pdca</Value>
+      <Value>../src/ASF/avr32/drivers/spi</Value>
+      <Value>../src/ASF/avr32/drivers/tc</Value>
+      <Value>../src/ASF/avr32/drivers/twim</Value>
+      <Value>../src/ASF/avr32/drivers/usart</Value>
+      <Value>../src/ASF/avr32/utils/debug</Value>
+      <Value>../src/ASF/avr32/drivers/pm</Value>
+      <Value>../src/ASF/avr32/drivers/scif</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/include</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/at32uc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/generic/basic/filters</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_encode/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_get/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/adpcm_encoder/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/benchmark/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_complex_vect/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_real_vect/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/resampling_coefficients_generation/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/serial_scope/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/twiddle_factors_generator/docsrc</Value>
+    </ListValues>
+  </avr32gcc.assembler.general.IncludePaths>
+  <avr32gcc.assembler.debugging.DebugLevel>Default (-g)</avr32gcc.assembler.debugging.DebugLevel>
+  <avr32gcc.preprocessingassembler.general.AssemblerFlags>-mrelax -DBOARD=USER_BOARD -DTEST_SUITE_DEFINE_ASSERT_MACRO -D_ASSERT_ENABLE_ -DDSP_OPTIMIZATION=DSP_OPTI_SPEED -DDSP_ADPCM -DDSP_RESAMPLING -DDSP_FILTERS -DDSP_OPERATORS -DDSP_SIGNAL_GENERATION -DDSP_TRANSFORMS -DDSP_VECTORS -DDSP_WINDOWING</avr32gcc.preprocessingassembler.general.AssemblerFlags>
+  <avr32gcc.preprocessingassembler.general.IncludePaths>
+    <ListValues>
+      <Value>../common/applications/user_application/user_board/config</Value>
+      <Value>../src/ASF/avr32/utils</Value>
+      <Value>../src/config</Value>
+      <Value>../src/ASF/common/boards</Value>
+      <Value>../src/ASF/avr32/utils/preprocessor</Value>
+      <Value>../src/ASF/avr32/drivers/intc</Value>
+      <Value>../src/ASF/common/utils</Value>
+      <Value>../src</Value>
+      <Value>../src/ASF/common/boards/user_board</Value>
+      <Value>../src/ASF/avr32/drivers/canif</Value>
+      <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
+      <Value>../src/ASF/avr32/drivers/flashc</Value>
+      <Value>../src/ASF/avr32/drivers/gpio</Value>
+      <Value>../src/ASF/avr32/services/network/can</Value>
+      <Value>../src/ASF/common/services/clock</Value>
+      <Value>../src/ASF/common/services/delay</Value>
+      <Value>../src/ASF/common/services/ioport</Value>
+      <Value>../src/ASF/avr32/drivers/cpu</Value>
+      <Value>../src/ASF/avr32/drivers/cpu/sau</Value>
+      <Value>../src/ASF/avr32/drivers/pdca</Value>
+      <Value>../src/ASF/avr32/drivers/spi</Value>
+      <Value>../src/ASF/avr32/drivers/tc</Value>
+      <Value>../src/ASF/avr32/drivers/twim</Value>
+      <Value>../src/ASF/avr32/drivers/usart</Value>
+      <Value>../src/ASF/avr32/utils/debug</Value>
+      <Value>../src/ASF/avr32/drivers/pm</Value>
+      <Value>../src/ASF/avr32/drivers/scif</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/include</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/at32uc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/generic/basic/filters</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/generic/basic/transforms</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_encode/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/adpcm_streaming/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_extract/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_get/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/programs/data_print/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/adpcm_encoder/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/benchmark/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_complex_vect/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/print_real_vect/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/resampling_coefficients_generation/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/serial_scope/docsrc</Value>
+      <Value>../src/ASF/avr32/services/dsp/dsplib/utils/scripts/twiddle_factors_generator/docsrc</Value>
+    </ListValues>
+  </avr32gcc.preprocessingassembler.general.IncludePaths>
+  <avr32gcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</avr32gcc.preprocessingassembler.debugging.DebugLevel>
+</Avr32Gcc>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
@@ -439,6 +758,56 @@
     <Folder Include="src\ASF\avr32\drivers\twim\" />
     <Folder Include="src\ASF\avr32\drivers\usart\" />
     <Folder Include="src\ASF\avr32\services\" />
+    <Folder Include="src\ASF\avr32\services\dsp\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\at32uc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\filters\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\operators\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\transforms\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\at32uc\docsrc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\docsrc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\generic\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\generic\advanced\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\generic\advanced\adpcm\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\generic\advanced\resampling\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\signal_generation\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\transforms\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\windowing\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\include\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_encode\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_encode\docsrc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\docsrc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_extract\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_extract\docsrc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_get\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_get\docsrc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\docsrc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\adpcm_encoder\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\adpcm_encoder\docsrc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\benchmark\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\benchmark\docsrc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\benchmark\resources\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\print_complex_vect\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\print_complex_vect\docsrc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\print_real_vect\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\print_real_vect\docsrc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\resampling_coefficients_generation\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\resampling_coefficients_generation\docsrc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\serial_scope\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\serial_scope\docsrc\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\twiddle_factors_generator\" />
+    <Folder Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\twiddle_factors_generator\docsrc\" />
     <Folder Include="src\ASF\avr32\services\network\" />
     <Folder Include="src\ASF\avr32\services\network\can\" />
     <Folder Include="src\ASF\avr32\utils\" />
@@ -532,9 +901,606 @@
     <None Include="src\ASF\avr32\drivers\usart\usart.h">
       <SubType>compile</SubType>
     </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_encode\ADPCM_IMA_DVI.exe">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\ADPCM_IMA_DVI.exe">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\docsrc\software.gif">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_extract\DataExtract.exe">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_get\DataGet.exe">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\DataPrint.exe">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\error_management.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\adpcm_encoder\adpcm_encoder">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\benchmark\benchmark">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\benchmark\benchmark_loader.sce">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\benchmark\benchmark_proc">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\print_complex_vect\docsrc\documentation.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_get\error_management.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_get\error_management.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\error_management.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_extract\format_data.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\rs232.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\rs232.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\benchmark\docsrc\documentation.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_extract\format_data.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\print_real_vect\docsrc\documentation.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_get\docsrc\documentation.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\resampling_coefficients_generation\docsrc\documentation.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\docsrc\documentation.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\script.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_encode\main.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\main.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\error_management.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\script.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\format_data.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_get\main.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\format_data.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_streaming\docsrc\documentation.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\adpcm_encode\docsrc\documentation.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\gui.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_extract\main.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\gui.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_extract\docsrc\documentation.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_extract\script.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_extract\script.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\main.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\main.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\serial_scope\scope">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\twiddle_factors_generator\docsrc\documentation.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\adpcm_encoder\docsrc\documentation.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_extract\error_management.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_extract\error_management.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_get\rs232.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\serial_scope\docsrc\documentation.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_get\rs232.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\programs\data_print\error_management.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\include\dsp_types.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\include\dsp.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\include\target_optim.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\docsrc\documentation.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\at32uc\docsrc\at32uc_benchmark.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\at32uc\at32uc_optim.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp16_iirpart_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp16_iir_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp16_lms_at32uc.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp16_nlms_at32uc.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp32_iirpart_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp32_iir_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp32_lms_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp32_lms_fir_at32uc.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp32_nlms_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\filters\filt_dsp32_nlms_fir_at32uc.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\operators\op_dsp16_ln_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\operators\op_dsp16_sqrt_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\transforms\trans_dsp16_complex_fft_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\transforms\trans_dsp16_complex_ifft_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\transforms\trans_dsp16_real_complex_fft_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_add_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_complex_conj_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_convpart_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_dotdiv_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_dotmul_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_neg_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_realdiv_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_realmul_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp16_sub_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_add_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_convpart_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_max_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_min_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_neg_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_realmul_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\at32uc\basic\vectors\vect_dsp32_sub_at32uc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\advanced\adpcm\adpcm.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\include\dsp_adpcm.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\advanced\resampling\dsp16_resampling.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\include\dsp_resampling.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\dsp16_filt_interpolation.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\dsp16_filt_interpolation_coefsort.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp16_iir.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp16_iirpart.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp16_lms.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp16_lpfirdesign.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp16_nlms.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp32_iir.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp32_iirpart.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp32_lms.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\filt_dsp32_nlms.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\filt_nlms.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\include\dsp_filters.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\filters\filt_lms.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_dsp16_fix_sqrt.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_dsp16_kfix_ln.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_dsp32_fix_sqrt.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_dsp32_kfix_ln.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_fix_asin.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_fix_exp.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_fix_ln.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_fix_log10.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_fix_log2.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_fix_pow.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_fix_rand.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_fix_sin.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_kfix_cos.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\operators\op_kfix_sin.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\include\dsp_operators.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_cosinusoidal.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_dirac.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_diraccomb.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_noise.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_ramp.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_rectangular.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_sawtooth.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_sinusoidal.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\signal_generation\gen_step.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\include\dsp_signal_generation.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp16_complex_fft.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp16_complex_ifft.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp16_realcomplex_fft.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp16_twiddle_factors.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp16_twiddle_factors.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp32_realcomplex_fft.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp32_twiddle_factors.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\include\dsp_transforms.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\transforms\trans_dsp32_twiddle_factors.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_convolution.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_add.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_add_and_saturate.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_complex_abs.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_complex_add.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_complex_conj.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_complex_sub.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_convpart.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_dotdiv.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_dotmul.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_intdiv.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_intmul.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_max.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_min.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_neg.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_pow.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_realadd.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_realdiv.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_realmul.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_realsub.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp16_sub.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_add.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_add_and_saturate.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_complex_abs.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_complex_add.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_complex_sub.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_convpart.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_dotdiv.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_dotmul.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_intdiv.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_intmul.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_max.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_min.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_neg.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_pow.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_realadd.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_realdiv.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_realmul.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_realsub.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\vectors\vect_dsp32_sub.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\include\dsp_vectors.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\windowing\win_bartlett.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\windowing\win_blackman.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\windowing\win_dsp16_kaiser.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\windowing\win_dsp32_kaiser.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\windowing\win_gauss.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\windowing\win_gauss.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\windowing\win_hamming.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\windowing\win_hann.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\windowing\win_rectangular.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\services\dsp\dsplib\generic\basic\windowing\win_welch.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\include\dsp_windowing.h">
+      <SubType>compile</SubType>
+    </None>
     <Compile Include="src\ASF\avr32\services\network\can\can.c">
       <SubType>compile</SubType>
     </Compile>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\benchmark\resources\ref_fft.sce">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\print_complex_vect\print_complex_vect">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\print_real_vect\print_real_vect.cmd">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\print_real_vect\print_real_vect.sh">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\resampling_coefficients_generation\standalone_dsp16_resampling_firlpdesign.sce">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\serial_scope\docsrc\scope.gif">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\services\dsp\dsplib\utils\scripts\twiddle_factors_generator\tf_gen.sce">
+      <SubType>compile</SubType>
+    </None>
     <None Include="src\ASF\common\services\ioport\uc3\ioport.h">
       <SubType>compile</SubType>
     </None>
@@ -572,6 +1538,12 @@
       <SubType>compile</SubType>
     </Compile>
     <None Include="src\ASF\avr32\utils\debug\debug.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\utils\debug\print_funcs.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\utils\debug\print_funcs.h">
       <SubType>compile</SubType>
     </None>
     <Compile Include="src\ASF\common\services\clock\uc3c\osc.c">

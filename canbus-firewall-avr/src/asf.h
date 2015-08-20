@@ -71,6 +71,9 @@
 #include <compiler.h>
 #include <status_codes.h>
 
+// From module: DSPLIB - Common files
+#include <dsp.h>
+
 // From module: Debug macros and functions
 #include <debug.h>
 
@@ -125,5 +128,8 @@
 
 // From module: USART - Universal Synchronous/Asynchronous Receiver/Transmitter
 #include <usart.h>
+
+// From module: USART Debug strings
+#include <print_funcs.h>
 
 #endif // ASF_H
