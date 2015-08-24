@@ -42,29 +42,53 @@
 #include "print_funcs.h"
 //#include "conf_can_example.h"
 
+int testintunique = 0;
+
+const char  DBG_TEST_01[] = "ZXC_DEBUG_TEST \n";
+
+uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
+
 int main (void)
 {
 	/* Insert system clock initialization code here (sysclk_init()). */
     sysclk_init();
     
-    print_dbg("Clock initialized");
+	board_init();
+    
+    init_dbg_rs232(sysclk_get_pba_hz());
+    
+    
+    
+    /* test return of clocks */
+    
+    //while(true ) {
+        print_dbg("AAA\n");
+    //}
+    
+    clk_main = sysclk_get_main_hz();
+    clk_cpu = sysclk_get_cpu_hz();
+    //clk_periph = sysclk_get_peripheral_bus_hz());
+    
+    testintunique += 1;
+    
+    
+    print_dbg(DBG_TEST_01);
+    
+	/* Insert application code here, after the board has been initialized. */
     
     /* Setup generic clock for CAN */
     scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
             SCIF_GCCTRL_CPUCLOCK,
             AVR32_SCIF_GC_NO_DIV_CLOCK,
             0);
-    print_dbg("Generic clock setup");
+    print_dbg("Generic clock setup\n");
     
     /* Enable generic clock */
     scif_gc_enable(AVR32_SCIF_GCLK_CANIF);
     
-    print_dbg("Generic clock enabled");
+    print_dbg("Generic clock enabled\n");
     
+    //test for getting here
 
-	board_init();
-    
-    print_dbg("Board initialized");
 
-	/* Insert application code here, after the board has been initialized. */
 }
