@@ -43,10 +43,6 @@
 #include "conf_debug.h"
 //#include "conf_can_example.h"
 
-int testintunique = 0;
-
-const char  DBG_TEST_01[] = "ZXC_DEBUG_TEST \n";
-
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
 int main (void)
@@ -57,13 +53,23 @@ int main (void)
 	board_init();
     
     //init debug printing for usart
-    init_dbg_rs232(sysclk_get_pba_hz());    
-    PRINT_DBG_TEST
+    init_dbg_rs232(sysclk_get_pba_hz());
+      
+#if DBG_CLKS
     /* test return of clocks */
     //clk_main = sysclk_get_main_hz();
-    //clk_cpu = sysclk_get_cpu_hz(); 
-PRINT_DBG_CLKS
-    
+    //clk_cpu = sysclk_get_cpu_hz();
+
+switch (sysclk_get_cpu_hz())
+{
+    case 60000000:
+    print_dbg("CPU Clock: 60MHZ");
+    print_dbg("");
+    break;
+    default:
+    print_dbg("cpu mhz outside expectations");
+}    
+#endif
 	/* Insert application code here, after the board has been initialized. */
     
     /* Setup generic clock for CAN */
@@ -71,14 +77,16 @@ PRINT_DBG_CLKS
             SCIF_GCCTRL_CPUCLOCK,
             AVR32_SCIF_GC_NO_DIV_CLOCK,
             0);
+            
+#if DBG_CLKS
     print_dbg("Generic clock setup\n");
-    
+#endif
+
     /* Enable generic clock */
     scif_gc_enable(AVR32_SCIF_GCLK_CANIF);
     
+#if DBG_CLKS    
     print_dbg("Generic clock enabled\n");
-    
-    //test for getting here
-
+#endif
 
 }
