@@ -40,6 +40,7 @@
 #include "canif.h"
 #include "usart.h"
 #include "print_funcs.h"
+#include "conf_debug.h"
 //#include "conf_can_example.h"
 
 int testintunique = 0;
@@ -55,24 +56,13 @@ int main (void)
     
 	board_init();
     
-    init_dbg_rs232(sysclk_get_pba_hz());
-    
-    
-    
+    //init debug printing for usart
+    init_dbg_rs232(sysclk_get_pba_hz());    
+    PRINT_DBG_TEST
     /* test return of clocks */
-    
-    //while(true ) {
-        print_dbg("AAA\n");
-    //}
-    
-    clk_main = sysclk_get_main_hz();
-    clk_cpu = sysclk_get_cpu_hz();
-    //clk_periph = sysclk_get_peripheral_bus_hz());
-    
-    testintunique += 1;
-    
-    
-    print_dbg(DBG_TEST_01);
+    //clk_main = sysclk_get_main_hz();
+    //clk_cpu = sysclk_get_cpu_hz(); 
+PRINT_DBG_CLKS
     
 	/* Insert application code here, after the board has been initialized. */
     
