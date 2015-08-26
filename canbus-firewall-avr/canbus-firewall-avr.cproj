@@ -707,6 +707,9 @@
     <Compile Include="src\config\conf_debug.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\config\conf_messages.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\main.c">
       <SubType>compile</SubType>
     </Compile>
