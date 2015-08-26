@@ -1,33 +1,33 @@
 /**
- * \file
- *
- * \brief Empty user application template
- *
- */
+* \file
+*
+* \brief Empty user application template
+*
+*/
 
 /**
- * \mainpage User Application template doxygen documentation
- *
- * \par Empty user application template
- *
- * Bare minimum empty user application template
- *
- * \par Content
- *
- * -# Include the ASF header files (through asf.h)
- * -# "Insert system clock initialization code here" comment
- * -# Minimal main function that starts with a call to board_init()
- * -# "Insert application code here" comment
- *
- */
+* \mainpage User Application template doxygen documentation
+*
+* \par Empty user application template
+*
+* Bare minimum empty user application template
+*
+* \par Content
+*
+* -# Include the ASF header files (through asf.h)
+* -# "Insert system clock initialization code here" comment
+* -# Minimal main function that starts with a call to board_init()
+* -# "Insert application code here" comment
+*
+*/
 
 /*
- * Include header files for all drivers that have been imported from
- * Atmel Software Framework (ASF).
- */
+* Include header files for all drivers that have been imported from
+* Atmel Software Framework (ASF).
+*/
 /*
- * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
- */
+* Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+*/
 #include <asf.h>
 #include "compiler.h"
 #include "board.h"
@@ -41,52 +41,90 @@
 #include "usart.h"
 #include "print_funcs.h"
 #include "conf_debug.h"
+#include "conf_can.h"
+#include "conf_messages.h"
 //#include "conf_can_example.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
+// CAN MOB allocation into HSB RAM
+#if defined (__GNUC__) && defined (__AVR32__)
+volatile can_msg_t CAN_MOB_IVI[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
+volatile can_msg_t CAN_MOB_CAR[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
+#elif defined (__ICCAVR32__)
+volatile __no_init can_msg_t mob_ram_ch0[NB_MOB_CHANNEL] @0xA0000000;
+volatile __no_init can_msg_t mob_ram_ch1[NB_MOB_CHANNEL] @0xA0000000;
+#endif
+
+/* Call backs */
+void can_out_callback_ivi(U8 handle, U8 event){
+    //TODO
+    //stub
+}
+void can_out_callback_car(U8 handle, U8 event){
+    //TODO
+    //stub
+}
 int main (void)
 {
-	/* Insert system clock initialization code here (sysclk_init()). */
+    /* Insert system clock initialization code here (sysclk_init()). */
     sysclk_init();
     
-	board_init();
+    board_init();
     
     //init debug printing for usart
     init_dbg_rs232(sysclk_get_pba_hz());
-      
-#if DBG_CLKS
+    
+    #if DBG_CLKS
     /* test return of clocks */
     //clk_main = sysclk_get_main_hz();
     //clk_cpu = sysclk_get_cpu_hz();
 
-switch (sysclk_get_cpu_hz())
-{
-    case 60000000:
-    print_dbg("\n\rCPU Clock: 60MHZ\n\r");
-    print_dbg("");
-    break;
-    default:
-    print_dbg("\n\rcpu mhz outside expectations\n\r");
-}    
-#endif
-	/* Insert application code here, after the board has been initialized. */
+    switch (sysclk_get_cpu_hz())
+    {
+        case 60000000:
+        print_dbg("\n\rCPU Clock: 60MHZ\n\r");
+        print_dbg("");
+        break;
+        default:
+        print_dbg("\n\rcpu mhz outside expectations\n\r");
+    }
+    #endif
+    /* Insert application code here, after the board has been initialized. */
     
     /* Setup generic clock for CAN */
     scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-            SCIF_GCCTRL_CPUCLOCK,
-            AVR32_SCIF_GC_NO_DIV_CLOCK,
-            0);
-            
-#if DBG_CLKS
+    SCIF_GCCTRL_CPUCLOCK,
+    AVR32_SCIF_GC_NO_DIV_CLOCK,
+    0);
+    
+    #if DBG_CLKS
     print_dbg("\n\rGeneric clock setup\n\r");
-#endif
+    #endif
 
     /* Enable generic clock */
     scif_gc_enable(AVR32_SCIF_GCLK_CANIF);
     
-#if DBG_CLKS    
+    #if DBG_CLKS
     print_dbg("\n\rGeneric clock enabled\n\r");
-#endif
+    #endif
 
+    /* Create GPIO Mappings for CAN */
+    static const gpio_map_t CAN_GPIO_MAP = 
+    {
+        {            GPIO_PIN_CAN_RX_0, GPIO_FUNCTION_CAN_RX_0        },
+        {            GPIO_PIN_CAN_TX_0, GPIO_FUNCTION_CAN_TX_0        },
+        {            GPIO_PIN_CAN_RX_1, GPIO_FUNCTION_CAN_RX_1        },
+        {            GPIO_PIN_CAN_TX_1, GPIO_FUNCTION_CAN_TX_1        }
+    };
+    /* Assign GPIO to CAN */
+    gpio_enable_module(CAN_GPIO_MAP, sizeof(CAN_GPIO_MAP) / sizeof(CAN_GPIO_MAP[0]));
+    
+    // -- TODO: Interrupt Handling?
+    
+    /* Initialize CAN channels */
+    // IVI channel 0
+    can_init(CAN_CH_IVI, ((uint32_t)&CAN_MOB_IVI[0]), CANIF_CHANNEL_MODE_NORMAL, can_out_callback_ivi);
+    // CAR channel 1
+    can_init(CAN_CH_CAR, ((uint32_t)&CAN_MOB_CAR[0]), CANIF_CHANNEL_MODE_NORMAL, can_out_callback_car);
 }
