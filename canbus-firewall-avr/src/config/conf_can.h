@@ -83,4 +83,13 @@
 #define CAN1_INT_BOFF_LEVEL         AVR32_INTC_INT0
 #define CAN1_INT_WAKE_UP_LEVEL      AVR32_INTC_INT0
 
+// Name CAN channels
+// IVI to use CAN channel 0
+// CAR to use CAN channel 1
+#define CAN_CH_IVI     0
+#define CAN_CH_CAR     1
+
+#define CAN_MOB_IVI     mob_ram_ch0
+#define CAN_MOB_CAR     mob_ram_ch1
+
 #endif // _CONF_CAN_H
