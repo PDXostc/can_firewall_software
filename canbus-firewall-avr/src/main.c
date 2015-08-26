@@ -63,11 +63,11 @@ int main (void)
 switch (sysclk_get_cpu_hz())
 {
     case 60000000:
-    print_dbg("CPU Clock: 60MHZ");
+    print_dbg("\n\rCPU Clock: 60MHZ\n\r");
     print_dbg("");
     break;
     default:
-    print_dbg("cpu mhz outside expectations");
+    print_dbg("\n\rcpu mhz outside expectations\n\r");
 }    
 #endif
 	/* Insert application code here, after the board has been initialized. */
@@ -79,14 +79,14 @@ switch (sysclk_get_cpu_hz())
             0);
             
 #if DBG_CLKS
-    print_dbg("Generic clock setup\n");
+    print_dbg("\n\rGeneric clock setup\n\r");
 #endif
 
     /* Enable generic clock */
     scif_gc_enable(AVR32_SCIF_GCLK_CANIF);
     
 #if DBG_CLKS    
-    print_dbg("Generic clock enabled\n");
+    print_dbg("\n\rGeneric clock enabled\n\r");
 #endif
 
 }
