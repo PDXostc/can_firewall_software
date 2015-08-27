@@ -75,20 +75,16 @@ int main (void)
     //init debug printing for usart
     init_dbg_rs232(sysclk_get_pba_hz());
     
+    print_dbg("\r======INITIALIZED======\n\r");
+    
     #if DBG_CLKS
     /* test return of clocks */
     //clk_main = sysclk_get_main_hz();
     //clk_cpu = sysclk_get_cpu_hz();
-
-    switch (sysclk_get_cpu_hz())
-    {
-        case 60000000:
-        print_dbg("\n\rCPU Clock: 60MHZ\n\r");
-        print_dbg("");
-        break;
-        default:
-        print_dbg("\n\rcpu mhz outside expectations\n\r");
-    }
+    print_dbg("\n\rMain Clock Freq\n\r");
+    print_dbg_ulong(sysclk_get_main_hz());
+    print_dbg("\n\rCPU Freq\n\r");
+    print_dbg_ulong(sysclk_get_cpu_hz());
     #endif
     /* Insert application code here, after the board has been initialized. */
     
