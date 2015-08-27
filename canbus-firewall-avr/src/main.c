@@ -49,19 +49,19 @@ uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
 // CAN MOB allocation into HSB RAM
 #if defined (__GNUC__) && defined (__AVR32__)
-volatile can_msg_t CAN_MOB_IVI[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
-volatile can_msg_t CAN_MOB_CAR[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
+volatile can_msg_t CAN_MOB_NORTH[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
+volatile can_msg_t CAN_MOB_SOUTH[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
 #elif defined (__ICCAVR32__)
-volatile __no_init can_msg_t mob_ram_ch0[NB_MOB_CHANNEL] @0xA0000000;
-volatile __no_init can_msg_t mob_ram_ch1[NB_MOB_CHANNEL] @0xA0000000;
+volatile __no_init can_msg_t CAN_MOB_NORTH[NB_MOB_CHANNEL] @0xA0000000;
+volatile __no_init can_msg_t CAN_MOB_SOUTH[NB_MOB_CHANNEL] @0xA0000000;
 #endif
 
 /* Call backs */
-void can_out_callback_ivi(U8 handle, U8 event){
+void can_out_callback_north(U8 handle, U8 event){
     //TODO
     //stub
 }
-void can_out_callback_car(U8 handle, U8 event){
+void can_out_callback_south(U8 handle, U8 event){
     //TODO
     //stub
 }
@@ -112,10 +112,10 @@ int main (void)
     /* Create GPIO Mappings for CAN */
     static const gpio_map_t CAN_GPIO_MAP = 
     {
-        {            GPIO_PIN_CAN_RX_0, GPIO_FUNCTION_CAN_RX_0        },
-        {            GPIO_PIN_CAN_TX_0, GPIO_FUNCTION_CAN_TX_0        },
-        {            GPIO_PIN_CAN_RX_1, GPIO_FUNCTION_CAN_RX_1        },
-        {            GPIO_PIN_CAN_TX_1, GPIO_FUNCTION_CAN_TX_1        }
+        {            GPIO_PIN_CAN_RX_NORTH, GPIO_FUNCTION_CAN_RX_NORTH        },
+        {            GPIO_PIN_CAN_TX_NORTH, GPIO_FUNCTION_CAN_TX_NORTH        },
+        {            GPIO_PIN_CAN_RX_SOUTH, GPIO_FUNCTION_CAN_RX_SOUTH        },
+        {            GPIO_PIN_CAN_TX_SOUTH, GPIO_FUNCTION_CAN_TX_SOUTH        }
     };
     /* Assign GPIO to CAN */
     gpio_enable_module(CAN_GPIO_MAP, sizeof(CAN_GPIO_MAP) / sizeof(CAN_GPIO_MAP[0]));
@@ -124,7 +124,7 @@ int main (void)
     
     /* Initialize CAN channels */
     // IVI channel 0
-    can_init(CAN_CH_IVI, ((uint32_t)&CAN_MOB_IVI[0]), CANIF_CHANNEL_MODE_NORMAL, can_out_callback_ivi);
+    can_init(CAN_CH_NORTH, ((uint32_t)&CAN_MOB_NORTH[0]), CANIF_CHANNEL_MODE_NORMAL, can_out_callback_north);
     // CAR channel 1
-    can_init(CAN_CH_CAR, ((uint32_t)&CAN_MOB_CAR[0]), CANIF_CHANNEL_MODE_NORMAL, can_out_callback_car);
+    can_init(CAN_CH_SOUTH, ((uint32_t)&CAN_MOB_SOUTH[0]), CANIF_CHANNEL_MODE_NORMAL, can_out_callback_south);
 }

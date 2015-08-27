@@ -86,10 +86,10 @@
 // Name CAN channels
 // IVI to use CAN channel 0
 // CAR to use CAN channel 1
-#define CAN_CH_IVI     0
-#define CAN_CH_CAR     1
+#define CAN_CH_NORTH     0
+#define CAN_CH_SOUTH     1
 
-#define CAN_MOB_IVI     mob_ram_ch0
-#define CAN_MOB_CAR     mob_ram_ch1
+#define CAN_MOB_NORTH     mob_ram_ch0
+#define CAN_MOB_SOUTH     mob_ram_ch1
 
 #endif // _CONF_CAN_H
