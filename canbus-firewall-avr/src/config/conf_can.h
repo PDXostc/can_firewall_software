@@ -92,4 +92,6 @@
 #define CAN_MOB_NORTH     mob_ram_ch0
 #define CAN_MOB_SOUTH     mob_ram_ch1
 
+
+
 #endif // _CONF_CAN_H
