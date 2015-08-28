@@ -40,14 +40,20 @@ can_msg_t msg_tx_sot = {
 #endif
 
 // MOB Message Definition: Tx Message
-can_mob_t appli_tx_msg = {
+can_mob_t north_tx_msg[8] = {
   CAN_MOB_NOT_ALLOCATED,            // Handle: by default CAN_MOB_NOT_ALLOCATED
   &msg_tx_sot,                      // Pointer on CAN Message
   8,                                // Data length DLC
   CAN_DATA_FRAME,                   // Request type : CAN_DATA_FRAME or CAN_REMOTE_FRAME
   CAN_STATUS_NOT_COMPLETED          // Status: by default CAN_STATUS_NOT_COMPLETED
 };
-
+can_mob_t south_tx_msg[8] = {
+    CAN_MOB_NOT_ALLOCATED,            // Handle: by default CAN_MOB_NOT_ALLOCATED
+    &msg_tx_sot,                      // Pointer on CAN Message
+    8,                                // Data length DLC
+    CAN_DATA_FRAME,                   // Request type : CAN_DATA_FRAME or CAN_REMOTE_FRAME
+    CAN_STATUS_NOT_COMPLETED          // Status: by default CAN_STATUS_NOT_COMPLETED
+};
 // -----------------------------------------------------------------
 // CAN Message Definition: Rx Message
 #if defined (__ICCAVR32__)
@@ -68,15 +74,21 @@ can_msg_t msg_rx_listening = {
 };
 #endif
 
-// MOB Message Definition: Tx Message
-can_mob_t appli_rx_msg = {
+// MOB Message Definition: Rx Message
+can_mob_t north_rx_msg[8] = {
   CAN_MOB_NOT_ALLOCATED,            // Handle: by default CAN_MOB_NOT_ALLOCATED
   &msg_rx_listening,                // Pointer on CAN Message
   8,                                // Data length DLC
   CAN_DATA_FRAME,                   // Request type : CAN_DATA_FRAME or CAN_REMOTE_FRAME
   CAN_STATUS_NOT_COMPLETED          // Status: by default CAN_STATUS_NOT_COMPLETED
 };
-
+can_mob_t south_rx_msg[8] = {
+    CAN_MOB_NOT_ALLOCATED,            // Handle: by default CAN_MOB_NOT_ALLOCATED
+    &msg_rx_listening,                // Pointer on CAN Message
+    8,                                // Data length DLC
+    CAN_DATA_FRAME,                   // Request type : CAN_DATA_FRAME or CAN_REMOTE_FRAME
+    CAN_STATUS_NOT_COMPLETED          // Status: by default CAN_STATUS_NOT_COMPLETED
+};
 // -----------------------------------------------------------------
 // CAN Message Definition: Rx Remote Message
 #if defined (__ICCAVR32__)

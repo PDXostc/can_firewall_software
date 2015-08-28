@@ -49,21 +49,134 @@ uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
 // CAN MOB allocation into HSB RAM
 #if defined (__GNUC__) && defined (__AVR32__)
-volatile can_msg_t CAN_MOB_NORTH[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
-volatile can_msg_t CAN_MOB_SOUTH[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
+volatile can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
+volatile can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
 #elif defined (__ICCAVR32__)
-volatile __no_init can_msg_t CAN_MOB_NORTH[NB_MOB_CHANNEL] @0xA0000000;
-volatile __no_init can_msg_t CAN_MOB_SOUTH[NB_MOB_CHANNEL] @0xA0000000;
+volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA0000000;
+volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 #endif
 
+
 /* Call backs */
-void can_out_callback_north(U8 handle, U8 event){
+void can_out_callback_north_rx(U8 handle, U8 event){
     //TODO
     //stub
 }
-void can_out_callback_south(U8 handle, U8 event){
+void can_out_callback_north_tx(U8 handle, U8 event){
     //TODO
     //stub
+}
+void can_out_callback_south_rx(U8 handle, U8 event){
+    //TODO
+    //stub
+}
+void can_out_callback_south_tx(U8 handle, U8 event){
+    //TODO
+    //stub
+}
+void can_prepare_data_to_send_north(void){
+    //TODO
+    //stub
+    //Init channel north
+    can_init(CAN_CH_NORTH,
+    ((U32)&CAN_MOB_SOUTH_RX_NORTH_TX[0]),
+    CANIF_CHANNEL_MODE_NORMAL,
+    can_out_callback_north_tx);
+    //Allocate mob for TX
+    north_tx_msg[0].handle = can_mob_alloc(CAN_CH_NORTH);
+    
+    //Check no mob available
+    //if(south_tx_msg[0].handle==CAN_CMD_REFUSED){
+    ////--this was provided by the example...this won't infinite loop?
+    ////--check in debugger, inspect behavior
+    //while(true);
+    //}
+    //--example has conversion of data to meet adc standard from dsp lib.. not sure if necessary
+#if DBG_CAN_MSG
+    print_dbg("\r\nNorth_CAN_msg\n\r");
+    print_dbg_ulong(north_tx_msg[0].handle);
+    print_dbg_ulong(north_tx_msg[0].can_msg->data.u64);
+#endif
+    
+    can_tx(CAN_CH_NORTH,
+    north_tx_msg[0].handle,
+    north_tx_msg[0].dlc,
+    north_tx_msg[0].req_type,
+    north_tx_msg[0].can_msg);
+    
+    //or ??
+    //while(north_tx_msg[0].handle==CAN_CMD_REFUSED);
+}
+
+void can_prepare_data_to_receive_north(void){
+    //TODO
+    //stub
+    //Init channel north
+    can_init(CAN_CH_NORTH, 
+            ((U32)&CAN_MOB_NORTH_RX_SOUTH_TX[0]),
+            CANIF_CHANNEL_MODE_NORMAL,
+            can_out_callback_north_rx);
+    //Allocate mob for TX
+    north_rx_msg[0].handle = can_mob_alloc(CAN_CH_NORTH);
+    
+    //Check no mob available
+    //if(north_rx_msg[0].handle==CAN_CMD_REFUSED){
+        ////--this was provided by the example...this won't infinite loop?
+        ////--check in debugger, inspect behavior
+        //while(true);
+    //}
+    //--example has conversion of data to meet adc standard from dsp lib.. not sure if necessary
+    
+    can_rx(CAN_CH_NORTH,
+            north_rx_msg[0].handle,
+            north_rx_msg[0].req_type,
+            north_rx_msg[0].can_msg);
+    
+    //or ??
+    //while(north_tx_msg[0].handle==CAN_CMD_REFUSED);
+}
+
+void can_prepare_data_to_send_south(void){
+    //TODO
+    //stub
+     //Init channel north
+     can_init(CAN_CH_SOUTH,
+     ((U32)&CAN_MOB_NORTH_RX_SOUTH_TX[0]),
+     CANIF_CHANNEL_MODE_NORMAL,
+     can_out_callback_south_tx);
+     //Allocate mob for TX
+     south_tx_msg[0].handle = can_mob_alloc(CAN_CH_SOUTH);
+     
+     //Check no mob available
+     //if(south_tx_msg[0].handle==CAN_CMD_REFUSED){
+     ////--this was provided by the example...this won't infinite loop?
+     ////--check in debugger, inspect behavior
+     //while(true);
+     //}
+     //--example has conversion of data to meet adc standard from dsp lib.. not sure if necessary
+#if DBG_CAN_MSG
+     print_dbg("\r\nSouth_CAN_msg\n\r");
+     print_dbg_ulong(north_tx_msg[0].handle);
+     print_dbg_ulong(north_tx_msg[0].can_msg->data.u64);
+#endif
+
+     can_tx(CAN_CH_SOUTH,
+     south_tx_msg[0].handle,
+     south_tx_msg[0].dlc,
+     south_tx_msg[0].req_type,
+     south_tx_msg[0].can_msg);
+     
+     //or ??
+     //while(north_tx_msg[0].handle==CAN_CMD_REFUSED);
+}
+
+void can_prepare_data_to_receive_south(void){
+    //TODO
+    //stub
+}
+
+void process_test(can_mob_t *msg_in, can_mob_t *msg_out) {
+    
 }
 int main (void)
 {
@@ -116,11 +229,29 @@ int main (void)
     /* Assign GPIO to CAN */
     gpio_enable_module(CAN_GPIO_MAP, sizeof(CAN_GPIO_MAP) / sizeof(CAN_GPIO_MAP[0]));
     
-    // -- TODO: Interrupt Handling?
+    //test
+    int count = 0;
+    //while(true) {
+        print_dbg("\n\rData Send");
+        print_dbg_ulong(count);
+        can_prepare_data_to_send_north();
+        can_prepare_data_to_send_south();
+        count++;
+    //}
     
-    /* Initialize CAN channels */
-    // IVI channel 0
-    can_init(CAN_CH_NORTH, ((uint32_t)&CAN_MOB_NORTH[0]), CANIF_CHANNEL_MODE_NORMAL, can_out_callback_north);
-    // CAR channel 1
-    can_init(CAN_CH_SOUTH, ((uint32_t)&CAN_MOB_SOUTH[0]), CANIF_CHANNEL_MODE_NORMAL, can_out_callback_south);
+    // -- TODO: Interrupt Handling?
+    // -- global interrupts?
+    //TODO:
+    /*
+    * State machine process queue:
+    * RX both channels
+    * process msgs
+    * TX both channels
+    */
+    
+    ///* Initialize CAN channels */
+    //// IVI channel 0
+    //can_init(CAN_CH_NORTH, ((uint32_t)&CAN_MOB_NORTH_RX_SOUTH_TX[0]), CANIF_CHANNEL_MODE_NORMAL, can_out_callback_north);
+    //// CAR channel 1
+    //can_init(CAN_CH_SOUTH, ((uint32_t)&CAN_MOB_SOUTH_RX_NORTH_TX[0]), CANIF_CHANNEL_MODE_NORMAL, can_out_callback_south);
 }
