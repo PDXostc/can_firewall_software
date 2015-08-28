@@ -89,8 +89,8 @@
 #define CAN_CH_NORTH     0
 #define CAN_CH_SOUTH     1
 
-#define CAN_MOB_NORTH     mob_ram_ch0
-#define CAN_MOB_SOUTH     mob_ram_ch1
+#define CAN_MOB_NORTH_RX_SOUTH_TX     mob_ram_ch0
+#define CAN_MOB_SOUTH_RX_NORTH_TX     mob_ram_ch1
 
 
 
