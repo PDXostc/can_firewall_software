@@ -17,7 +17,8 @@
 #define DBG_CLKS        DBG_ON && 1
 #define DBG_CAN_MSG     DBG_ON && 1
 
-#define PRINT_DBG(x)        { if(DBG_ON) {print_dbg(const char *x);} }
-#define PRINT_DBG_TEST      { if(DBG_TEST) {print_dbg("Test\n");} }
+//#define PRINT_DBG(x)        { if(DBG_ON) {print_dbg(const char *x);} }
+//#define PRINT_DBG_TEST      { if(DBG_TEST) {print_dbg("Test\n");} }
+#define PRINT_NEWLINE       { if(DBG_ON) {print_dbg("\n\r");} }
 
 #endif /* CONF_DEBUG_H_ */
