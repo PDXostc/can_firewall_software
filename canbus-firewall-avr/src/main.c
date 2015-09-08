@@ -57,20 +57,19 @@ volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA00000
 volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 #endif
 
+//SRAM Allocation for loaded filter rulesets
+static can_msg_t can_ruleset_north[16];
+static can_msg_t can_ruleset_south[16];
+
+//pointer to working rulesets, incoming
+static rule_working_t *rule_working = NULL;
+static num_rules_working = 0;
+
 //booleans for rx/tx
 volatile bool message_received_north = false;
 volatile bool message_received_south = false;
 volatile bool message_transmitted_north = false;
 volatile bool message_transmitted_south = false;
-
-//sanity check rewrite, listen on both channels
-
-/** USART interrupt handler, fired each time a character is received. */
-#if defined (__GNUC__)
-__attribute__((__interrupt__))
-#elif defined (__ICCAVR32__)
-__interrupt
-#endif
 
 /* Call backs */
 void can_out_callback_north_rx(U8 handle, U8 event){    
@@ -296,10 +295,6 @@ void can_prepare_data_to_receive_south(void){
     //while(north_tx_msg[0].handle==CAN_CMD_REFUSED);
 }
 
-void process_test(can_mob_t *msg_in, can_mob_t *msg_out) {
-    
-}
-
 void run_test_loop(void) {
         //function scratch area, will be rewritten as needed by the current test we are running
         //not great practice, used for rapid proto
@@ -369,25 +364,12 @@ int main (void)
     print_dbg_ulong(sysclk_get_cpu_hz());
     #endif
     /* Insert application code here, after the board has been initialized. */
-#if 0    
-    /* Setup generic clock for CAN */
-    scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-    SCIF_GCCTRL_CPUCLOCK,
-    AVR32_SCIF_GC_NO_DIV_CLOCK,
-    0);
-#elif 1
+
     /* Setup generic clock for CAN */
     scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
     SCIF_GCCTRL_PBCCLOCK,
     AVR32_SCIF_GC_DIV_CLOCK,
     8);
-#else
-    /* Setup generic clock for CAN */
-    scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-    SCIF_GCCTRL_RC8M,
-    AVR32_SCIF_GC_USES_RCOSC8,
-    0);
-#endif
 
     #if DBG_CLKS
     print_dbg("\n\rGeneric clock setup\n\r");
@@ -400,12 +382,9 @@ int main (void)
     print_dbg("\n\rGeneric clock enabled\n\r");
     print_dbg_ulong(sysclk_get_peripheral_bus_hz(AVR32_CANIF_ADDRESS));
     #endif
+    
     /* Disable all interrupts. */
     Disable_global_interrupt();
-
-    INTC_register_interrupt(&can_out_callback_south_rx, AVR32_CANIF_RXOK_IRQ_1, CAN1_INT_RX_LEVEL);
-    CANIF_enable_interrupt(1);
-    //INTC_register_interrupt(&can_out_callback_south_tx, AVR32_CANIF_TXOK_IRQ_1, CAN1_INT_TX_LEVEL);
 
     /* Initialize interrupt vectors. */
     INTC_init_interrupts();
@@ -423,41 +402,14 @@ int main (void)
       
     /* Enable all interrupts. */
     Enable_global_interrupt();
-    //test
-    //initial setup
-    //can_prepare_data_to_receive_north();
-    //can_prepare_data_to_receive_south();
-#if DBG_ON
-    print_dbg("\n\rPrepared to receive init...\n\r");
-    print_dbg("\n\rPrepared to send init...\n\r");
-#endif
-    //can_prepare_data_to_send_north();
+
     can_prepare_data_to_send_south();
-    int count = 0;
-//#if 1
+ 
     while(true) {
-    //print_dbg("\n\rData Send");
-    //print_dbg_ulong(count);
+
     run_test_loop();
 
-    //can_prepare_data_to_receive_north();
-    //can_prepare_data_to_receive_south();
-    //can_prepare_data_to_send_north();
-    //can_prepare_data_to_send_south();
-    count++;
     }
-//#endif
-    
-    
-    // -- TODO: Interrupt Handling?
-    // -- global interrupts?
-    //TODO:
-    /*
-        * State machine process queue:
-        * RX both channels
-        * process msgs
-        * TX both channels
-        */
     
     //Special Case: New Rule Acquisition
     //Intercept CAN frame carrying New Rule payload
