@@ -57,6 +57,42 @@ volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA00000
 volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 #endif
 
+//north ruleset in userpage
+#if defined (__GNUC_)
+__attribute__((__section__(".userpage")))
+#elif defined(__ICCAVR32__)
+__no_init
+// This code is added so that this example can be programmed through
+// batchisp and a bootloader. Else, IAR will set this variable as
+// loadable and batchisp will err because this variable is out of the
+// flash memory range (it's in the user page).
+// GCC will init this variable at run time not during the programming
+// of the application.
+#endif
+static can_msg_t flash_can_ruleset_north[16]
+#if defined (__ICAVR32__)
+@ "USERDATA32_C"
+#endif
+;
+
+//south ruleset in userpage
+#if defined (__GNUC_)
+__attribute__((__section__(".userpage")))
+#elif defined(__ICCAVR32__)
+__no_init
+// This code is added so that this example can be programmed through
+// batchisp and a bootloader. Else, IAR will set this variable as
+// loadable and batchisp will err because this variable is out of the
+// flash memory range (it's in the user page).
+// GCC will init this variable at run time not during the programming
+// of the application.
+#endif
+static can_msg_t flash_can_ruleset_south[16]
+#if defined (__ICAVR32__)
+@ "USERDATA32_C"
+#endif
+;
+
 //SRAM Allocation for loaded filter rulesets
 static can_msg_t can_ruleset_north[16];
 static can_msg_t can_ruleset_south[16];
@@ -414,6 +450,12 @@ int main (void)
     //setup
     init();    
     init_can();
+    
+    //test: read out existing userpage from flash
+    
+    //test: load userpage rules found in flash to rulesets
+    
+    //test: set new values to userpage
     
     
     
