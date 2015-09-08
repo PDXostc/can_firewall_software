@@ -165,4 +165,12 @@ can_mob_t appli_remote_rx_msg = {
 };
 
 
+void print_message(can_msg_t *msg) {
+    print_dbg("\n\rCan Message:\n\r");
+    print_dbg("\n\ID:  \n\r");
+    print_dbg_char_hex(msg->id);
+    print_dbg("\n\:Data:  \n\r");
+    print_dbg_char_hex(msg->data);
+}
+
 #endif /* CONF_MESSAGES_H_ */

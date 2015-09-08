@@ -14,6 +14,9 @@
 uint8_t get_frame_prio(Union64* data);
 
 
+void print_ruleset_from_userpage(void) {
+    
+}
 
 
 #endif /* RULES_H_ */
