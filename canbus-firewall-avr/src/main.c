@@ -65,6 +65,10 @@ static can_msg_t can_ruleset_south[16];
 static rule_working_t *rule_working = NULL;
 static num_rules_working = 0;
 
+//physical security shunt, override to true during software testing
+//if this is true, we can accept new rules
+static bool detected_shunt = DETECTED_SHUNT;
+
 //booleans for rx/tx
 volatile bool message_received_north = false;
 volatile bool message_received_south = false;
@@ -410,6 +414,7 @@ int main (void)
     //setup
     init();    
     init_can();
+    
     
     
     //Special Case: New Rule Acquisition

@@ -31,4 +31,7 @@
 
 #define CANIF_OSC_DIV           8 //when setting up the generic clock for can, divide from pbc clock by this
 
+#define OVERRIDE_DETECTED_SHUNT   true
+#define DETECTED_SHUNT            OVERRIDE_DETECTED_SHUNT
+
 #endif // CONF_BOARD_H
