@@ -451,6 +451,8 @@ int main (void)
     init();    
     init_can();
     
+    can_prepare_data_to_receive_south();
+    
     //test: read out existing userpage from flash
     
     //test: load userpage rules found in flash to rulesets

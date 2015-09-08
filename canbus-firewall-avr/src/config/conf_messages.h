@@ -170,7 +170,7 @@ void print_message(can_msg_t *msg) {
     print_dbg("\n\ID:  \n\r");
     print_dbg_char_hex(msg->id);
     print_dbg("\n\:Data:  \n\r");
-    print_dbg_char_hex(msg->data);
+    print_dbg_char_hex(msg->data.u64);
 }
 
 #endif /* CONF_MESSAGES_H_ */
