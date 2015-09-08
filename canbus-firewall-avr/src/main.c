@@ -343,8 +343,7 @@ void run_test_loop(void) {
         
 }
 
-int main (void)
-{
+void init(void) {
     /* Insert system clock initialization code here (sysclk_init()). */
     sysclk_init();
     
@@ -362,14 +361,16 @@ int main (void)
     print_dbg_ulong(sysclk_get_main_hz());
     print_dbg("\n\rCPU Freq\n\r");
     print_dbg_ulong(sysclk_get_cpu_hz());
-    #endif
-    /* Insert application code here, after the board has been initialized. */
+    #endif    
+}
 
+void init_can(void) {
     /* Setup generic clock for CAN */
+    /* Remember to calibrate this correctly to our external osc*/
     scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
     SCIF_GCCTRL_PBCCLOCK,
     AVR32_SCIF_GC_DIV_CLOCK,
-    8);
+    CANIF_OSC_DIV);
 
     #if DBG_CLKS
     print_dbg("\n\rGeneric clock setup\n\r");
@@ -399,17 +400,17 @@ int main (void)
     };
     /* Assign GPIO to CAN */
     gpio_enable_module(CAN_GPIO_MAP, sizeof(CAN_GPIO_MAP) / sizeof(CAN_GPIO_MAP[0]));
-      
+    
     /* Enable all interrupts. */
     Enable_global_interrupt();
+}
 
-    can_prepare_data_to_send_south();
- 
-    while(true) {
-
-    run_test_loop();
-
-    }
+int main (void)
+{
+    //setup
+    init();    
+    init_can();
+    
     
     //Special Case: New Rule Acquisition
     //Intercept CAN frame carrying New Rule payload

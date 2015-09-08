@@ -29,4 +29,6 @@
 #define BOARD_OSC32_STARTUP_US  71000
 #define BOARD_OSC32_IS_XTAL     true
 
+#define CANIF_OSC_DIV           8 //when setting up the generic clock for can, divide from pbc clock by this
+
 #endif // CONF_BOARD_H
