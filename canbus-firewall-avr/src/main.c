@@ -163,12 +163,10 @@ void can_out_callback_south_rx(U8 handle, U8 event){
      //print what we got
      #if DBG_CAN_MSG
      print_dbg("\n\rReceived can message on SOUTH line:\n\r");
-     print_dbg_ulong(south_rx_msg01.can_msg->data.u64);
+     //print_dbg_ulong(south_rx_msg01.can_msg->data.u64);
      PRINT_NEWLINE
-    print_dbg_ulong((unsigned long)can_get_mob_id(CAN_CH_SOUTH, south_rx_msg01.handle));
-    print_dbg("\n\r");
-    print_dbg_ulong((unsigned long)can_get_mob_id(CAN_CH_SOUTH, south_rx_msg02.handle));
-    print_dbg("\n\r");
+     print_can_message(south_rx_msg01.can_msg);
+     print_can_message(south_rx_msg02.can_msg);
      #endif
      //release mob in hsb
      can_mob_free(CAN_CH_SOUTH, handle);
@@ -186,10 +184,8 @@ void can_out_callback_south_tx(U8 handle, U8 event){
         CANIF_mob_clear_status(1,handle); //   and reset MOb status
     }
     event = CAN_STATUS_COMPLETED;
-    #if 0
-    print_dbg("\r\nSouth_CAN_msg\n\r");
-    print_dbg_ulong(south_tx_msg[0].handle);
-    print_dbg_ulong(south_tx_msg[0].can_msg->data.u64);
+    #if 1
+    print_can_message(south_tx_msg[0].can_msg);
     #endif
     // Transmission Only
     can_mob_free(CAN_CH_SOUTH,handle);
@@ -452,7 +448,11 @@ int main (void)
     init_can();
     
     can_prepare_data_to_receive_south();
-    
+    //can_prepare_data_to_send_south();
+    while (1)
+    {
+        run_test_loop();
+    }
     //test: read out existing userpage from flash
     
     //test: load userpage rules found in flash to rulesets
