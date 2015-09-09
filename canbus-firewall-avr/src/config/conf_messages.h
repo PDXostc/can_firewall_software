@@ -134,6 +134,18 @@ can_mob_t south_rx_msg02 = {
         CAN_STATUS_NOT_COMPLETED
     },          // Status: by default CAN_STATUS_NOT_COMPLETED
 };
+
+//--------------------------------------------New Rule Msg
+can_msg_t new_rule_msg = {
+    {
+        {
+            .id = 0x7FE,                      // Identifier, should be last number in address space
+            .id_mask  = 0x7FF,                // Mask, should check all bits
+        },
+    },
+    .data.u64 = 0x0LL,                 // Data, should be uninitialized
+};
+
 // -----------------------------------------------------------------
 // CAN Message Definition: Rx Remote Message
 #if defined (__ICCAVR32__)
