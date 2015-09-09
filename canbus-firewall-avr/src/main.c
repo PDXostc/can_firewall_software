@@ -44,6 +44,7 @@
 #include "conf_can.h"
 #include "conf_messages.h"
 #include "conf_rules.h"
+#include "rules.h"
 //#include "conf_can_example.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
@@ -56,6 +57,8 @@ volatile can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] __attribute__ ((sec
 volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 #endif
+
+#define SIZE_RULESET        16
 
 //north ruleset in userpage
 #if defined (__GNUC_)
