@@ -60,24 +60,6 @@ volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA00000
 
 #define SIZE_RULESET        16
 
-//north ruleset in userpage
-#if defined (__GNUC__)
-__attribute__((__section__(".flash_nvram")))
-#elif defined(__ICCAVR32__)
-__no_init
-// This code is added so that this example can be programmed through
-// batchisp and a bootloader. Else, IAR will set this variable as
-// loadable and batchisp will err because this variable is out of the
-// flash memory range (it's in the user page).
-// GCC will init this variable at run time not during the programming
-// of the application.
-#endif
-static can_msg_t flash_can_ruleset_north[16]
-#if defined (__ICAVR32__)
-@ "USERDATA32_C"
-#endif
-;
-
 //sanity test
 #if defined (__GNUC__)
 __attribute__((__section__(".userpage")))
@@ -114,34 +96,30 @@ static int user_flash_saved_value = 2468
 #endif
 ;
 
-
-//south ruleset in userpage
+//north ruleset in nvram
 #if defined (__GNUC__)
 __attribute__((__section__(".flash_nvram")))
-#elif defined(__ICCAVR32__)
-__no_init
-// This code is added so that this example can be programmed through
-// batchisp and a bootloader. Else, IAR will set this variable as
-// loadable and batchisp will err because this variable is out of the
-// flash memory range (it's in the user page).
-// GCC will init this variable at run time not during the programming
-// of the application.
 #endif
-static can_msg_t flash_can_ruleset_south[16]
+static rule_t flash_can_ruleset_north[16]
 #if defined (__ICAVR32__)
-@ "USERDATA32_C"
-#endif
-;
-
-//! NVRAM data structure located in the flash array.
-#if defined (__GNUC__)
-__attribute__((__section__(".flash_nvram")))
-#endif
-static flash_nvram_can_ruleset_north[16]
-#if defined (__ICCAVR32__)
 @ "FLASH_NVRAM"
 #endif
 ;
+
+//south ruleset in nvram
+#if defined (__GNUC__)
+__attribute__((__section__(".flash_nvram")))
+#endif
+static rule_t flash_can_ruleset_south[16]
+#if defined (__ICAVR32__)
+@ "FLASH_NVRAM"
+#endif
+;
+
+//north ruleset in nvram
+__attribute__((__section__(".0x8000000"))) static rule_t flash_nvram_can_ruleset_north;
+
+
 
 //SRAM Allocation for loaded filter rulesets
 static rule_t can_ruleset_north[16];
@@ -536,6 +514,7 @@ int main (void)
 //test: let's look at the variable addresses
 int *user_flash_address = &user_flash_saved_value;
 int *flash_address = &flash_saved_value;
+int *flash_nvram_address = &flash_nvram_can_ruleset_north;
 
     //test: read out existing userpage from flash
  
@@ -557,7 +536,9 @@ int *flash_address = &flash_saved_value;
     
     print_dbg("\n\rRule from Flash\n\r");
     print_rule(&flash_can_ruleset_south);
-    #endif
+#endif
+    
+    #if 0
     //test: load userpage rules found in flash to rulesets
     print_dbg_ulong((unsigned long) saved_value);
     print_dbg_ulong((unsigned long) flash_saved_value);
@@ -575,21 +556,19 @@ int *flash_address = &flash_saved_value;
     
     print_dbg_ulong((unsigned long)flash_saved_value);
     print_dbg_ulong((unsigned long)flash_saved_value);
+#endif
     
-#if 0  
-    //test: save to flash nvram
-        //test save single rule to user page
-    save_rule(&fake_rule, &flash_nvram_can_ruleset_north[1]);
-    save_rule(&control_rule, &flash_nvram_can_ruleset_north[1]);
+#if 1  
+    //test: save to flash nvram    
+    //test save single rule to flash
+    print_dbg("\n\rRule from Flash\n\r");
+    print_rule(&flash_can_ruleset_north[0]);
+    print_rule(&flash_can_ruleset_north[1]);
     
-    print_dbg("\n\rRule from Flash NVRAM\n\r");
-    print_rule(&flash_nvram_can_ruleset_north[0]);
-    print_rule(&flash_nvram_can_ruleset_north[1]);
-    //test: set new values to userpage
+    flashc_memcpy((void *)&flash_nvram_can_ruleset_north, &fake_rule, sizeof(fake_rule), true);
     
-    //test save single rule to user page
-    save_rule(&fake_rule, &flash_can_ruleset_north[1]);
-    save_rule(&control_rule, &flash_can_ruleset_north[1]);
+    save_rule(&fake_rule, &flash_nvram_can_ruleset_north);
+    save_rule(&control_rule, &flash_nvram_can_ruleset_north);
     
     print_dbg("\n\rRule from Flash\n\r");
     print_rule(&flash_can_ruleset_north[0]);
