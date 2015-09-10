@@ -61,8 +61,8 @@ volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA00000
 #define SIZE_RULESET        16
 
 //north ruleset in userpage
-#if defined (__GNUC_)
-__attribute__((__section__(".userpage")))
+#if defined (__GNUC__)
+__attribute__((__section__(".flash_nvram")))
 #elif defined(__ICCAVR32__)
 __no_init
 // This code is added so that this example can be programmed through
@@ -78,9 +78,46 @@ static can_msg_t flash_can_ruleset_north[16]
 #endif
 ;
 
-//south ruleset in userpage
-#if defined (__GNUC_)
+//sanity test
+#if defined (__GNUC__)
 __attribute__((__section__(".userpage")))
+#elif defined(__ICCAVR32__)
+__no_init
+// This code is added so that this example can be programmed through
+// batchisp and a bootloader. Else, IAR will set this variable as
+// loadable and batchisp will err because this variable is out of the
+// flash memory range (it's in the user page).
+// GCC will init this variable at run time not during the programming
+// of the application.
+#endif
+static int flash_saved_value = 98765
+#if defined (__ICAVR32__)
+@ "FLASH_NVRAM"
+#endif
+;
+
+//sanity test
+#if defined (__GNUC__)
+__attribute__((__section__(".userpage")))
+#elif defined(__ICCAVR32__)
+__no_init
+// This code is added so that this example can be programmed through
+// batchisp and a bootloader. Else, IAR will set this variable as
+// loadable and batchisp will err because this variable is out of the
+// flash memory range (it's in the user page).
+// GCC will init this variable at run time not during the programming
+// of the application.
+#endif
+static int user_flash_saved_value = 2468
+#if defined (__ICAVR32__)
+@ "USERDATA32_C"
+#endif
+;
+
+
+//south ruleset in userpage
+#if defined (__GNUC__)
+__attribute__((__section__(".flash_nvram")))
 #elif defined(__ICCAVR32__)
 __no_init
 // This code is added so that this example can be programmed through
@@ -96,13 +133,23 @@ static can_msg_t flash_can_ruleset_south[16]
 #endif
 ;
 
+//! NVRAM data structure located in the flash array.
+#if defined (__GNUC__)
+__attribute__((__section__(".flash_nvram")))
+#endif
+static flash_nvram_can_ruleset_north[16]
+#if defined (__ICCAVR32__)
+@ "FLASH_NVRAM"
+#endif
+;
+
 //SRAM Allocation for loaded filter rulesets
-static can_msg_t can_ruleset_north[16];
-static can_msg_t can_ruleset_south[16];
+static rule_t can_ruleset_north[16];
+static rule_t can_ruleset_south[16];
 
 //pointer to working rulesets, incoming
 static rule_working_t *rule_working = NULL;
-static num_rules_working = 0;
+static num_rules_working = SIZE_RULESET;
 
 //physical security shunt, override to true during software testing
 //if this is true, we can accept new rules
@@ -113,6 +160,28 @@ volatile bool message_received_north = false;
 volatile bool message_received_south = false;
 volatile bool message_transmitted_north = false;
 volatile bool message_transmitted_south = false;
+
+rule_t fake_rule = 
+{
+    .prio = 0xff,
+    .mask = 0xff,
+    .filter = 0xff,
+    .xform = 0xff,
+    .idoperand = 0xff,
+    .dtoperand = 0xff
+};
+
+rule_t control_rule =
+{
+    .prio = 0x01ff,
+    .mask = 0x02ff,
+    .filter = 0x03ff,
+    .xform = 0x04ff,
+    .idoperand = 0x05ff,
+    .dtoperand = 0x06ff
+};
+
+int saved_value = 12345;
 
 /* Call backs */
 void can_out_callback_north_rx(U8 handle, U8 event){    
@@ -388,6 +457,9 @@ void init(void) {
     
     board_init();
     
+    //set flash wait state according to cpu
+    flashc_set_flash_waitstate_and_readmode(sysclk_get_cpu_hz());
+        
     //init debug printing for usart
     init_dbg_rs232(sysclk_get_pba_hz());
     //init_dbg_rs232(sysclk_get_cpu_hz());
@@ -450,20 +522,79 @@ int main (void)
     init();    
     init_can();
     
+#if 0
+    
     can_prepare_data_to_receive_south();
     //can_prepare_data_to_send_south();
     while (1)
     {
         run_test_loop();
     }
+    
+#endif
+
+//test: let's look at the variable addresses
+int *user_flash_address = &user_flash_saved_value;
+int *flash_address = &flash_saved_value;
+
     //test: read out existing userpage from flash
+ 
+ //force control print of single rule
+ can_ruleset_north[0] = fake_rule;
+ can_ruleset_north[1] = control_rule;
+    
+    //test print single rule
+    print_dbg("\n\n\rRule From RAM\n\r");
+    print_rule(&can_ruleset_north[0]);
+    print_rule(&can_ruleset_north[1]);
+    
+    print_dbg("\n\rRule from Flash\n\r");
+    print_rule(&flash_can_ruleset_north[0]);
+    print_rule(&flash_can_ruleset_north[1]);
+  #if 0  
+    print_dbg("\n\n\rRule From RAM\n\r");
+    print_rule(&can_ruleset_south);
+    
+    print_dbg("\n\rRule from Flash\n\r");
+    print_rule(&flash_can_ruleset_south);
+    #endif
+    //test: load userpage rules found in flash to rulesets
+    print_dbg_ulong((unsigned long) saved_value);
+    print_dbg_ulong((unsigned long) flash_saved_value);
+    print_dbg_ulong((unsigned long) user_flash_saved_value);
+    
+    //test of saving to flash to make sure...
+    flashc_memcpy((void *)&user_flash_saved_value,&flash_saved_value, sizeof(flash_saved_value), true);
+    
+    print_dbg("\n\n\r+++++GOT PAST++++\n\n\r");
     
     //test: load userpage rules found in flash to rulesets
+    print_dbg_ulong((unsigned long) saved_value);
+    print_dbg_ulong((unsigned long) flash_saved_value);
+    print_dbg_ulong((unsigned long) user_flash_saved_value);
     
+    print_dbg_ulong((unsigned long)flash_saved_value);
+    print_dbg_ulong((unsigned long)flash_saved_value);
+    
+#if 0  
+    //test: save to flash nvram
+        //test save single rule to user page
+    save_rule(&fake_rule, &flash_nvram_can_ruleset_north[1]);
+    save_rule(&control_rule, &flash_nvram_can_ruleset_north[1]);
+    
+    print_dbg("\n\rRule from Flash NVRAM\n\r");
+    print_rule(&flash_nvram_can_ruleset_north[0]);
+    print_rule(&flash_nvram_can_ruleset_north[1]);
     //test: set new values to userpage
     
+    //test save single rule to user page
+    save_rule(&fake_rule, &flash_can_ruleset_north[1]);
+    save_rule(&control_rule, &flash_can_ruleset_north[1]);
     
-    
+    print_dbg("\n\rRule from Flash\n\r");
+    print_rule(&flash_can_ruleset_north[0]);
+    print_rule(&flash_can_ruleset_north[1]);
+#endif
     //Special Case: New Rule Acquisition
     //Intercept CAN frame carrying New Rule payload
     //determine that mask and filter combination meets requirements to match New Rule Frame to New Rule Creation Rule (stored in flash)
@@ -494,6 +625,13 @@ int main (void)
     //
     //state: receiving rules --
     
+    //wait for end while debugging
+    
+    #if 0
+    while(true){
+        delay_ms(1000);
+    }
+    #endif
 
     
 }

@@ -1,11 +1,11 @@
 /*
- * rules.c
- *
- * Created: 8/31/2015 2:45:32 PM
- *  Author: smiller6
- *
- * Rule evaluation implementation
- */ 
+* rules.c
+*
+* Created: 8/31/2015 2:45:32 PM
+*  Author: smiller6
+*
+* Rule evaluation implementation
+*/
 
 #include "rules.h"
 
@@ -47,4 +47,27 @@ void print_ruleset(rule_t *ruleset, int numrules) {
         i--;
     }
     
+}
+
+bool save_rule(rule_t *source_rule, rule_t *dest_rule)
+{
+    #if DBG_FLASH
+    print_dbg("\n\r Saving rule to flash...\n\r");
+    #endif
+
+    bool success = false;
+    
+    flashc_memcpy((void *)&dest_rule->prio,      &source_rule->prio,      sizeof(source_rule->prio),      true);
+    flashc_memcpy((void *)&dest_rule->mask,      &source_rule->mask,      sizeof(source_rule->mask),      true);
+    flashc_memcpy((void *)&dest_rule->filter,    &source_rule->filter,    sizeof(source_rule->filter),    true);
+    flashc_memcpy((void *)&dest_rule->xform,     &source_rule->xform,     sizeof(source_rule->xform),     true);
+    flashc_memcpy((void *)&dest_rule->idoperand, &source_rule->idoperand, sizeof(source_rule->idoperand), true);
+    flashc_memcpy((void *)&dest_rule->dtoperand, &source_rule->dtoperand, sizeof(source_rule->dtoperand), true);
+    
+    //methods should have returned an assert if unsuccessful
+    #if 0
+    print_dbg("\n\r Rule Saved.\n\r");
+    #endif
+    success = true;
+    return success;
 }

@@ -1,9 +1,9 @@
 /*
- * rules.h
- *
- * Created: 8/31/2015 4:40:34 PM
- *  Author: smiller6
- */ 
+* rules.h
+*
+* Created: 8/31/2015 4:40:34 PM
+*  Author: smiller6
+*/
 
 
 #ifndef RULES_H_
@@ -112,7 +112,31 @@ typedef struct {
 
 uint8_t get_frame_prio(Union64* data);
 
-
+/*! \brief Print a given rule using debug output to usart.
+*
+* \param *rule Pointer to rule structure.
+*/
 extern void print_rule(rule_t *rule);
+
+/* \brief Print a set of rules
+*
+* \param *ruleset Array of rules
+* \param numrules Number of rules to be printed
+*/
 extern void print_ruleset(rule_t *ruleset, int numrules);
+
+/*! \brief Creates and returns a rule structure from a rule working set
+* \param *working Pointer to a rule in progress structure
+* \return  rule_t Created rule structure
+*/
+extern rule_t create_rule_from_working_set(rule_working_t *working);
+
+/*! \brief Saves a rule to a location in flash memory
+* Assumes flash memory is the destination, and that the rules are consistent in structure
+* \param Rule structure to copy from
+* \param Rule structure to copy to
+* \return bool Successful copy
+*/
+extern bool save_rule(rule_t *source_rule, rule_t *dest_rule);
+
 #endif /* RULES_H_ */
