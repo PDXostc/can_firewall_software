@@ -13,27 +13,53 @@
 
 /* Useful extraction methods for getting what we need out of the CAN frame data field */
  inline void get_frame_prio(const Union64 *data, uint8_t *prio) {
-    *prio = ((data->u64 & DATA_PRIO_MASK)>>DATA_PRIO_OFFSET); /* prio mask */
+    get_frame_data_u8(data, prio, DATA_PRIO_MASK, DATA_PRIO_OFFSET);
 }
 
 inline void get_frame_cmd(const Union64 *data, uint8_t *cmd)
 {
-    *cmd = ((data->u64 & DATA_CMD_MASK)>>DATA_CMD_OFFSET);
+    get_frame_data_u8(data, cmd, DATA_CMD_MASK, DATA_CMD_OFFSET);
 }
 
 inline void get_frame_mask(const Union64 *data, uint32_t *mask)
 {
-    *mask = ((data->u64 & DATA_MASK_MASK)>>DATA_MASK_OFFSET);
+    get_frame_data_u32(data, mask, DATA_MASK_MASK, DATA_MASK_OFFSET);
 }
 
 inline void get_frame_filter(const Union64 *data, uint32_t *filter)
 {
-    *filter = ((data->u64 & DATA_FILTER_MASK)>>DATA_FILTER_OFFSET);
+    get_frame_data_u32(data, filter, DATA_FILTER_MASK, DATA_FILTER_OFFSET);
 }
 
 inline void get_frame_xform(const Union64 *data, uint8_t *xform)
 {
-    *xform = ((data->u64 & DATA_XFORM_MASK)>>DATA_XFORM_OFFSET);
+    get_frame_data_u8(data, xform, DATA_XFORM_MASK, DATA_XFORM_OFFSET);
+}
+
+inline void get_frame_id_operand(const Union64 *data, uint32_t *idoperand)
+{
+    get_frame_data_u32(data, idoperand, DATA_ID_OPERAND_MASK, DATA_ID_OPERAND_OFFSET);
+}
+
+inline void get_frame_data_u8(const Union64 *data, uint8_t *target, unsigned long long mask, int offset)
+{
+    Assert(sizeof(*target) == sizeof(uint8_t));
+    *target = ((data->u64 & mask)>>offset);
+}
+inline void get_frame_data_u16(const Union64 *data, uint16_t *target, unsigned long long mask, int offset)
+{
+    Assert(sizeof(*target) == sizeof(uint16_t));
+    *target = ((data->u64 & mask)>>offset);
+}
+inline void get_frame_data_u32(const Union64 *data, uint32_t *target, unsigned long long mask, int offset)
+{
+    Assert(sizeof(*target) == sizeof(uint32_t));
+    *target = ((data->u64 & mask)>>offset);
+}
+inline void get_frame_data_u64(const Union64 *data, uint64_t *target, unsigned long long mask, int offset)
+{
+    Assert(sizeof(*target) == sizeof(uint64_t));
+    *target = ((data->u64 & mask)>>offset);
 }
 
 void print_rule(rule_t *rule) {

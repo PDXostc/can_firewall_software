@@ -144,7 +144,8 @@ typedef struct {
 
 /**
  * \brief Extract prio information from can frame data field
- * 
+ * Prio indicates the overall priority index intended for the final rule. All preparation frames
+ * corresponding to a given rule should have the same prio number.
  * \param data Pointer to CAN frame data field
  * \param prio Pointer to struct entry
  * 
@@ -153,6 +154,8 @@ typedef struct {
 extern inline void get_frame_prio(const Union64 *data, uint8_t *prio);
 /**
  * \brief Extract cmd information from can frame data field
+ * CMD corresponds to rule preparation number, ie what data we should expect to see in the 
+ * rest of the data field. 
  * 
  * \param data Pointer to CAN frame data field
  * \param cmd Pointer to struct entry
@@ -161,7 +164,7 @@ extern inline void get_frame_prio(const Union64 *data, uint8_t *prio);
  */
 extern inline void get_frame_cmd(const Union64 *data, uint8_t *cmd);
 /**
- * \brief Extract filter information from can frame data field
+ * \brief Extract mask information from can frame data field
  * 
  * \param data Pointer to CAN frame data field
  * \param mask Pointer to struct entry
@@ -171,7 +174,7 @@ extern inline void get_frame_cmd(const Union64 *data, uint8_t *cmd);
 extern inline void get_frame_mask(const Union64 *data, uint32_t *mask);
 
 /**
- * \brief Extract prio information from can frame data field
+ * \brief Extract filter information from can frame data field
  * 
  * \param data Pointer to CAN frame data field
  * \param filter Pointer to struct entry
@@ -198,7 +201,12 @@ extern inline void get_frame_xform(const Union64 *data, uint8_t *xform);
  * 
  * \return extern void
  */
-extern inline void get_frame_idoperand(const Union64 *data, uint32_t *idoperand);
+extern inline void get_frame_id_operand(const Union64 *data, uint32_t *idoperand);
+
+extern inline void get_frame_data_u8(const Union64 *data, uint8_t *target, unsigned long long mask, int offset);
+extern inline void get_frame_data_u16(const Union64 *data, uint16_t *target, unsigned long long mask, int offset);
+extern inline void get_frame_data_u32(const Union64 *data, uint32_t *target, unsigned long long mask, int offset);
+extern inline void get_frame_data_u64(const Union64 *data, uint64_t *target, unsigned long long mask, int offset);
 
 /*! \brief Print a given rule using debug output to usart.
 *
