@@ -41,16 +41,14 @@ void print_rule(rule_t *rule) {
 
 void print_ruleset(rule_t *ruleset, int numrules) {
     if(numrules <= 0) return;
-    int i = numrules -1;
     
-    while(i >= 0) {
+    for(int i = 0; i < numrules; i++) {
         print_rule(&ruleset[i]);
-        i--;
     }
     
 }
 
-bool save_rule(rule_t *source_rule, rule_t *dest_rule)
+bool save_rule_to_flash(rule_t *source_rule, rule_t *dest_rule)
 {
     #if DBG_FLASH
     print_dbg("\n\r Saving rule to flash...\n\r");
@@ -66,10 +64,20 @@ bool save_rule(rule_t *source_rule, rule_t *dest_rule)
     flashc_memcpy((void *)&dest_rule->dtoperand, &source_rule->dtoperand, sizeof(source_rule->dtoperand), true);
     
     //methods should have returned an assert if unsuccessful
-    #if 0
+    #if DBG_FLASH
     print_dbg("\n\r Rule Saved.\n\r");
     #endif
     success = true;
+    return success;
+}
+
+bool save_ruleset_to_flash(rule_t *source, rule_t *dest, int num)
+{
+    if((num < 0) || (num == 0)) return false;
+    bool success = false;        
+    for(int i = 0; i < num; i++ ) {
+        success = save_rule_to_flash(&source[i], &dest[i]);
+    }
     return success;
 }
 
@@ -93,4 +101,17 @@ rule_t create_rule_from_working_set(rule_working_t *working) {
     new_rule.dtoperand |= working->prep_02.dtoperand01;
     
     return new_rule;
+}
+
+inline void load_rule(rule_t *source_rule, rule_t *dest_rule)
+{
+    *dest_rule = *source_rule;
+}
+
+void load_ruleset(rule_t *source, rule_t *dest, int num)
+{
+    if((num < 0) || (num == 0)) return;
+    for(int i = 0; i < num; i++) {
+        load_rule(&source[i], &dest[i]);
+    }
 }

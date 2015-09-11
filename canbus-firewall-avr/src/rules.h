@@ -133,10 +133,32 @@ extern rule_t create_rule_from_working_set(rule_working_t *working);
 
 /*! \brief Saves a rule to a location in flash memory
 * Assumes flash memory is the destination, and that the rules are consistent in structure
-* \param Rule structure to copy from
-* \param Rule structure to copy to
+* \param source_rule structure to copy from
+* \param dest_rule structure to copy to
 * \return bool Successful copy
 */
-extern bool save_rule(rule_t *source_rule, rule_t *dest_rule);
+extern bool save_rule_to_flash(rule_t *source_rule, rule_t *dest_rule);
 
+/*! \breif Save ruleset, multiple rules from one location to another, assumes saving to flash memory
+ * Simple copy
+ * \param source collection of rules to copy from
+ * \param dest collection of rules to copy to
+ * \param num number of rules to be copied
+ */
+extern bool save_ruleset_to_flash(rule_t *source, rule_t *dest, int num);
+
+/*! \breif Load a rule from one location to another
+ *  Simple copy
+ * \param source_rule structure to copy from
+ * \param dest_rule structure to copy to
+ */
+extern inline void load_rule(rule_t *source_rule, rule_t *dest_rule);
+
+/*! \breif Load ruleset, multiple rules from one location to another
+ * Simple copy
+ * \param source collection of rules to copy from
+ * \param dest collection of rules to copy to
+ * \param num number of rules to be copied
+ */
+extern void load_ruleset(rule_t *source, rule_t *dest, int num);
 #endif /* RULES_H_ */
