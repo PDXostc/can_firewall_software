@@ -9,14 +9,31 @@
 
 #include "rules.h"
 
-/* Defines for extraction methods */
-#define DATA_PRIO_MASK      0xFF00000000000000
-#define DATA_PRIO_OFFSET    55
+
 
 /* Useful extraction methods for getting what we need out of the CAN frame data field */
-uint8_t get_frame_prio(Union64* data) {
-    uint8_t prio;
-    return prio = ((data->u64 & DATA_PRIO_MASK)>>DATA_PRIO_OFFSET); /* prio mask */
+ inline void get_frame_prio(const Union64 *data, uint8_t *prio) {
+    *prio = ((data->u64 & DATA_PRIO_MASK)>>DATA_PRIO_OFFSET); /* prio mask */
+}
+
+inline void get_frame_cmd(const Union64 *data, uint8_t *cmd)
+{
+    *cmd = ((data->u64 & DATA_CMD_MASK)>>DATA_CMD_OFFSET);
+}
+
+inline void get_frame_mask(const Union64 *data, uint32_t *mask)
+{
+    *mask = ((data->u64 & DATA_MASK_MASK)>>DATA_MASK_OFFSET);
+}
+
+inline void get_frame_filter(const Union64 *data, uint32_t *filter)
+{
+    *filter = ((data->u64 & DATA_FILTER_MASK)>>DATA_FILTER_OFFSET);
+}
+
+inline void get_frame_xform(const Union64 *data, uint8_t *xform)
+{
+    *xform = ((data->u64 & DATA_XFORM_MASK)>>DATA_XFORM_OFFSET);
 }
 
 void print_rule(rule_t *rule) {

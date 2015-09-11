@@ -12,6 +12,38 @@
 #include "asf.h"
 
 
+/* Defines for extraction methods */
+#define REF_                        0x0807060504030201
+#define DATA_PRIO_MASK              0xFF00000000000000                            
+#define DATA_PRIO_OFFSET            56
+
+#define DATA_CMD_MASK               0x00FF000000000000
+#define DATA_CMD_OFFSET             48
+
+#define DATA_MASK_MASK              0x0000FFFFFFFF0000
+#define DATA_MASK_OFFSET            16
+
+#define DATA_XFORM_MASK             0x000000000000FF00
+#define DATA_XFORM_OFFSET           8
+
+#define DATA_FILTER_MASK            0x0000FFFFFFFF0000
+#define DATA_FILTER_OFFSET          16
+
+#define DATA_DT_OPERAND_01_MASK     0x000000000000FFFF
+#define DATA_DT_OPERAND_01_OFFSET   0
+
+#define DATA_DT_OPERAND_02_MASK     0x0000FFFFFFFFFFFF
+#define DATA_DT_OPERAND_02_OFFSET   0
+
+#define DATA_ID_OPERAND_MASK        0x0000FFFFFFFF0000
+#define DATA_ID_OPERAND_OFFSET      16
+
+#define DATA_HMAC_1_MASK            0x000000000000FFFF
+#define DATA_HMAC_1_OFFSET          0
+
+#define DATA_HMAC_2_MASK            0x0000FFFFFFFFFFFF
+#define DATA_HMAC_2_OFFSET          0
+
 //Memory structures, proposed
 
 //+ New Rule Working Set
@@ -110,7 +142,63 @@ typedef struct {
 
 
 
-uint8_t get_frame_prio(Union64* data);
+/**
+ * \brief Extract prio information from can frame data field
+ * 
+ * \param data Pointer to CAN frame data field
+ * \param prio Pointer to struct entry
+ * 
+ * \return extern void
+ */
+extern inline void get_frame_prio(const Union64 *data, uint8_t *prio);
+/**
+ * \brief Extract cmd information from can frame data field
+ * 
+ * \param data Pointer to CAN frame data field
+ * \param cmd Pointer to struct entry
+ * 
+ * \return extern void
+ */
+extern inline void get_frame_cmd(const Union64 *data, uint8_t *cmd);
+/**
+ * \brief Extract filter information from can frame data field
+ * 
+ * \param data Pointer to CAN frame data field
+ * \param mask Pointer to struct entry
+ * 
+ * \return extern void
+ */
+extern inline void get_frame_mask(const Union64 *data, uint32_t *mask);
+
+/**
+ * \brief Extract prio information from can frame data field
+ * 
+ * \param data Pointer to CAN frame data field
+ * \param filter Pointer to struct entry
+ * 
+ * \return extern void
+ */
+extern inline void get_frame_filter(const Union64 *data, uint32_t *filter);
+
+/**
+ * \brief Extract Transform information from can frame data field
+ * 
+ * \param data      Pointer to CAN frame data field
+ * \param xform    Pointer to struct entry
+ * 
+ * \return extern void
+ */
+extern inline void get_frame_xform(const Union64 *data, uint8_t *xform);
+
+/**
+ * \brief Extract Identifier Operand information from can frame data field
+ * 
+ * \param data          Pointer to CAN frame data field
+ * \param idoperand   Pointer to struct entry
+ * 
+ * \return extern void
+ */
+extern inline void get_frame_idoperand(const Union64 *data, uint32_t *idoperand);
 
 /*! \brief Print a given rule using debug output to usart.
 *
