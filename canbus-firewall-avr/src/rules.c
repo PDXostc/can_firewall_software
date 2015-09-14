@@ -44,22 +44,22 @@ inline void get_frame_id_operand(const Union64 *data, uint32_t *idoperand)
 inline void get_frame_data_u8(const Union64 *data, uint8_t *target, unsigned long long mask, int offset)
 {
     Assert(sizeof(*target) == sizeof(uint8_t));
-    *target = ((data->u64 & mask)>>offset);
+    *target = (uint8_t)((data->u64 & mask)>>offset);
 }
 inline void get_frame_data_u16(const Union64 *data, uint16_t *target, unsigned long long mask, int offset)
 {
     Assert(sizeof(*target) == sizeof(uint16_t));
-    *target = ((data->u64 & mask)>>offset);
+    *target = (uint16_t)((data->u64 & mask)>>offset);
 }
 inline void get_frame_data_u32(const Union64 *data, uint32_t *target, unsigned long long mask, int offset)
 {
     Assert(sizeof(*target) == sizeof(uint32_t));
-    *target = ((data->u64 & mask)>>offset);
+    *target = (uint32_t)((data->u64 & mask)>>offset);
 }
 inline void get_frame_data_u64(const Union64 *data, uint64_t *target, unsigned long long mask, int offset)
 {
     Assert(sizeof(*target) == sizeof(uint64_t));
-    *target = ((data->u64 & mask)>>offset);
+    *target = (uint64_t)((data->u64 & mask)>>offset);
 }
 
 void print_rule(rule_t *rule) {
