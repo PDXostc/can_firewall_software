@@ -32,8 +32,14 @@
 #define DATA_DT_OPERAND_01_MASK     0x000000000000FFFF
 #define DATA_DT_OPERAND_01_OFFSET   0
 
-#define DATA_DT_OPERAND_02_MASK     0x0000FFFFFFFFFFFF
-#define DATA_DT_OPERAND_02_OFFSET   0
+#define DATA_DT_OPERAND_02_MASK     0x00000000FFFF0000
+#define DATA_DT_OPERAND_02_OFFSET   16
+
+#define DATA_DT_OPERAND_03_MASK     0x0000FFFF00000000
+#define DATA_DT_OPERAND_03_OFFSET   32
+
+#define DATA_DT_OPERAND_04_MASK     0xFFFF000000000000
+#define DATA_DT_OPERAND_04_OFFSET   48
 
 #define DATA_ID_OPERAND_MASK        0x0000FFFFFFFF0000
 #define DATA_ID_OPERAND_OFFSET      16
@@ -144,7 +150,7 @@ typedef struct {
  * 
  * \return extern void
  */
-extern inline void get_frame_prio(const Union64 *data, uint8_t *prio);
+extern inline void get_frame_prio(const Union64 *data, uint8_t *prio_out);
 /**
  * \brief Extract cmd information from can frame data field
  * CMD corresponds to rule preparation number, ie what data we should expect to see in the 
@@ -155,7 +161,7 @@ extern inline void get_frame_prio(const Union64 *data, uint8_t *prio);
  * 
  * \return extern void
  */
-extern inline void get_frame_cmd(const Union64 *data, uint8_t *cmd);
+extern inline void get_frame_cmd(const Union64 *data, uint8_t *cmd_out);
 /**
  * \brief Extract mask information from can frame data field
  * 
@@ -164,7 +170,7 @@ extern inline void get_frame_cmd(const Union64 *data, uint8_t *cmd);
  * 
  * \return extern void
  */
-extern inline void get_frame_mask(const Union64 *data, uint32_t *mask);
+extern inline void get_frame_mask(const Union64 *data, uint32_t *mask_out);
 
 /**
  * \brief Extract filter information from can frame data field
@@ -174,7 +180,7 @@ extern inline void get_frame_mask(const Union64 *data, uint32_t *mask);
  * 
  * \return extern void
  */
-extern inline void get_frame_filter(const Union64 *data, uint32_t *filter);
+extern inline void get_frame_filter(const Union64 *data, uint32_t *filter_out);
 
 /**
  * \brief Extract Transform information from can frame data field
@@ -184,7 +190,7 @@ extern inline void get_frame_filter(const Union64 *data, uint32_t *filter);
  * 
  * \return extern void
  */
-extern inline void get_frame_xform(const Union64 *data, uint8_t *xform);
+extern inline void get_frame_xform(const Union64 *data, uint8_t *xform_out);
 
 /**
  * \brief Extract Identifier Operand information from can frame data field
@@ -194,7 +200,55 @@ extern inline void get_frame_xform(const Union64 *data, uint8_t *xform);
  * 
  * \return extern void
  */
-extern inline void get_frame_id_operand(const Union64 *data, uint32_t *idoperand);
+extern inline void get_frame_id_operand(const Union64 *data, uint32_t *idoperand_out);
+
+/**
+ * \brief Extract data operand information from CAN frame data field
+ * Function will target bits 0:15 for return
+ * Desired data will be packed, user responsibility to provide correct mask
+ * 
+ * \param data      Pointer to CAN frame data field
+ * \param dtoperand_out     Pointer to struct array
+ * 
+ * \return extern void
+ */
+extern inline void get_frame_dt_operand_01(const Union64 *data, uint16_t *dtoperand_out);
+
+/**
+ * \brief Extract data operand information from CAN frame data field
+ * Function will target bits 16:31 for return
+ * Desired data will be packed, user responsibility to provide correct mask
+ * 
+ * \param data      Pointer to CAN frame data field
+ * \param dtoperand_out     Pointer to struct array
+ * 
+ * \return extern void
+ */
+extern inline void get_frame_dt_operand_02(const Union64 *data, uint16_t *dtoperand_out);
+
+/**
+ * \brief Extract data operand information from CAN frame data field
+ * Function will target bits 32:47 for return
+ * Desired data will be packed, user responsibility to provide correct mask
+ * 
+ * \param data      Pointer to CAN frame data field
+ * \param dtoperand_out     Pointer to struct array
+ * 
+ * \return extern void
+ */
+extern inline void get_frame_dt_operand_03(const Union64 *data, uint16_t *dtoperand_out);
+
+/**
+ * \brief Extract data operand information from CAN frame data field
+ * Function will target bits 48:63 for return
+ * Desired data will be packed, user responsibility to provide correct mask
+ * 
+ * \param data      Pointer to CAN frame data field
+ * \param dtoperand_out     Pointer to struct array
+ * 
+ * \return extern void
+ */
+extern inline void get_frame_dt_operand_04(const Union64 *data, uint16_t *dtoperand_out);
 
 extern inline void get_frame_data_u8(const Union64 *data, uint8_t *target, unsigned long long mask, int offset);
 extern inline void get_frame_data_u16(const Union64 *data, uint16_t *target, unsigned long long mask, int offset);
