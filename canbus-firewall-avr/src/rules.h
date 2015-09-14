@@ -110,12 +110,6 @@ typedef struct {
     uint16_t hmac[3];// = {0x0605,0x0403,0x0201};
 } rule_prep_09_t;
 
-//prep rule 10 frame
-typedef struct {
-    uint16_t hmac[3];// = {0x0605,0x0403,0x0201};
-    //unused 0x0201
-} rule_prep_10_t;
-
 typedef struct {
     uint32_t sequence;// = 0x000000; //init to zero so it is never higher than we expect
     //unused 0x0201
@@ -126,17 +120,16 @@ typedef struct {
     uint8_t prio;
     uint16_t bitfield_completed;
     //structs for rules in progress
-    rule_prep_01_t prep_01;
-    rule_prep_02_t prep_02;
-    rule_prep_03_t prep_03;
-    rule_prep_04_t prep_04;
-    rule_prep_05_t prep_05;
-    rule_prep_06_t prep_06;
-    rule_prep_07_t prep_07;
-    rule_prep_08_t prep_08;
-    rule_prep_09_t prep_09;
-    rule_prep_10_t prep_10;
-    rule_store_t store;
+    rule_prep_01_t mask_xform;
+    rule_prep_02_t filter_dtoperand_01;
+    rule_prep_03_t dt_operand_02;
+    rule_prep_04_t id_operand_hmac_01;
+    rule_prep_05_t hmac_02;
+    rule_prep_06_t hmac_03;
+    rule_prep_07_t hmac_04;
+    rule_prep_08_t hmac_05;
+    rule_prep_09_t hmac_06;
+    rule_store_t store_sequence;
 } rule_working_t;
 
 

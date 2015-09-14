@@ -128,20 +128,20 @@ rule_t create_rule_from_working_set(rule_working_t *working) {
     rule_t new_rule;
     
     new_rule.prio =         working->prio;
-    new_rule.mask =         working->prep_01.mask;
-    new_rule.filter =       working->prep_02.filter;
-    new_rule.xform =        working->prep_01.xform;
-    new_rule.idoperand =    working->prep_04.idoperand;
+    new_rule.mask =         working->mask_xform.mask;
+    new_rule.filter =       working->filter_dtoperand_01.filter;
+    new_rule.xform =        working->mask_xform.xform;
+    new_rule.idoperand =    working->id_operand_hmac_01.idoperand;
 
     //There's probably a much more efficient way to accomplish loading the uint16 parcels into the uint64    
 
-    new_rule.dtoperand = working->prep_03.dtoperand02[0];
+    new_rule.dtoperand = working->dt_operand_02.dtoperand02[0];
     new_rule.dtoperand = new_rule.dtoperand << 16;
-    new_rule.dtoperand |= working->prep_03.dtoperand02[1];
+    new_rule.dtoperand |= working->dt_operand_02.dtoperand02[1];
     new_rule.dtoperand = new_rule.dtoperand << 16;
-    new_rule.dtoperand |= working->prep_03.dtoperand02[2];
+    new_rule.dtoperand |= working->dt_operand_02.dtoperand02[2];
     new_rule.dtoperand = new_rule.dtoperand << 16;
-    new_rule.dtoperand |= working->prep_02.dtoperand01;
+    new_rule.dtoperand |= working->filter_dtoperand_01.dtoperand01;
     
     return new_rule;
 }
