@@ -53,15 +53,40 @@
 
 //! Define the number of MOB per channel. It is a fixed value: 16.
 #define NB_MOB_CHANNEL     16
+//! Setup the usage of Autobaud feature, here the stack does not support it
+#define CAN_AUTOBAUD       false
 //! Setup the usage of CAN Under interruption
 #define CAN_LIB_UNDER_INTERRUPT
-
+//beware, pres is actually a divisor
+#if 0
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_SJW         1
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRES        1
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS         2
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS         1
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS1        1
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS2        1
+#elif 0 //test in progress field
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_SJW         1
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRES        8
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS         4
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS1        6
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS2        1
+#elif 1 //good @ 100k baud
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_SJW         1
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRES        1
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS         5
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS1        3
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS2        3
+#elif 0 //good @ 100k baud
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_SJW         1
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRES        1
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS         3
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS1        4
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS2        4
+#endif
 
 #define BAUDRATE        CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
 #define BAUDRATE_HZ     1000000
@@ -82,5 +107,16 @@
 #define CAN1_INT_ERR_LEVEL          AVR32_INTC_INT0
 #define CAN1_INT_BOFF_LEVEL         AVR32_INTC_INT0
 #define CAN1_INT_WAKE_UP_LEVEL      AVR32_INTC_INT0
+
+// Name CAN channels
+// IVI to use CAN channel 0
+// CAR to use CAN channel 1
+#define CAN_CH_NORTH     0
+#define CAN_CH_SOUTH     1
+
+#define CAN_MOB_NORTH_RX_SOUTH_TX     mob_ram_ch0
+#define CAN_MOB_SOUTH_RX_NORTH_TX     mob_ram_ch1
+
+
 
 #endif // _CONF_CAN_H

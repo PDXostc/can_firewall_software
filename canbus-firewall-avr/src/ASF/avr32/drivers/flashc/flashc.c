@@ -893,6 +893,10 @@ volatile void *flashc_memcpy(volatile void *dst, const void *src, size_t nbytes,
 	uint8_t* dest_add=(uint8_t*)dst;
 	const uint8_t* src_buf=(const uint8_t*)src;
 
+    //TODO: remove these debug lines
+    //print_dbg("\n\r");
+    //print_dbg_char_hex(dst);
+    
 	// Copy area must be in flash array or flash user page
 	Assert( (((uint8_t *)dst >= AVR32_FLASH)
 			&& (((uint8_t *)dst + nbytes) <= (AVR32_FLASH + flashc_get_flash_size())))
