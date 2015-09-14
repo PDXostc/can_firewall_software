@@ -61,6 +61,21 @@ inline void get_frame_dt_operand_04(const Union64 *data, uint16_t *dtoperand_out
     get_frame_data_u16(data, dtoperand_out, DATA_DT_OPERAND_04_MASK, DATA_DT_OPERAND_04_OFFSET);
 }
 
+inline void get_frame_hmac_01(const Union64 *data, uint16_t *dtoperand_out)
+{
+    get_frame_data_u16(data, dtoperand_out, DATA_HMAC_01_MASK, DATA_HMAC_01_OFFSET);
+}
+
+inline void get_frame_hmac_02(const Union64 *data, uint16_t *dtoperand_out)
+{
+    get_frame_data_u16(data, dtoperand_out, DATA_HMAC_02_MASK, DATA_HMAC_02_OFFSET);
+}
+
+inline void get_frame_hmac_03(const Union64 *data, uint16_t *dtoperand_out)
+{
+    get_frame_data_u16(data, dtoperand_out, DATA_HMAC_03_MASK, DATA_HMAC_03_OFFSET);
+}
+
 inline void get_frame_data_u8(const Union64 *data, uint8_t *target, unsigned long long mask, int offset)
 {
     Assert(sizeof(*target) == sizeof(uint8_t));

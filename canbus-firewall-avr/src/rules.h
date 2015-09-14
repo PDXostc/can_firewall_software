@@ -38,17 +38,20 @@
 #define DATA_DT_OPERAND_03_MASK     0x0000FFFF00000000
 #define DATA_DT_OPERAND_03_OFFSET   32
 
-#define DATA_DT_OPERAND_04_MASK     0xFFFF000000000000
-#define DATA_DT_OPERAND_04_OFFSET   48
+#define DATA_DT_OPERAND_04_MASK     0x0000FFFF00000000
+#define DATA_DT_OPERAND_04_OFFSET   32
 
 #define DATA_ID_OPERAND_MASK        0x0000FFFFFFFF0000
 #define DATA_ID_OPERAND_OFFSET      16
 
-#define DATA_HMAC_1_MASK            0x000000000000FFFF
-#define DATA_HMAC_1_OFFSET          0
+#define DATA_HMAC_01_MASK            0x000000000000FFFF
+#define DATA_HMAC_01_OFFSET          0
 
-#define DATA_HMAC_2_MASK            0x0000FFFFFFFFFFFF
-#define DATA_HMAC_2_OFFSET          0
+#define DATA_HMAC_02_MASK            0x00000000FFFF0000
+#define DATA_HMAC_02_OFFSET          16
+
+#define DATA_HMAC_03_MASK            0x0000FFFF00000000
+#define DATA_HMAC_03_OFFSET          32
 
 //Memory structures, proposed
 
@@ -249,6 +252,42 @@ extern inline void get_frame_dt_operand_03(const Union64 *data, uint16_t *dtoper
  * \return extern void
  */
 extern inline void get_frame_dt_operand_04(const Union64 *data, uint16_t *dtoperand_out);
+
+/**
+ * \brief Extract hmac information from CAN frame data field
+ * Function will target bits 0:15 for return
+ * Desired data will be packed, user responsibility to provide correct mask
+ * 
+ * \param data      Pointer to CAN frame data field
+ * \param dtoperand_out     Pointer to struct array
+ * 
+ * \return extern void
+ */
+extern inline void get_frame_hmac_01(const Union64 *data, uint16_t *hmac_out);
+
+/**
+ * \brief Extract hmac information from CAN frame data field
+ * Function will target bits 16:31 for return
+ * Desired data will be packed, user responsibility to provide correct mask
+ * 
+ * \param data      Pointer to CAN frame data field
+ * \param dtoperand_out     Pointer to struct array
+ * 
+ * \return extern void
+ */
+extern inline void get_frame_hmac_02(const Union64 *data, uint16_t *hmac_out);
+
+/**
+ * \brief Extract hmac information from CAN frame data field
+ * Function will target bits 32:47 for return
+ * Desired data will be packed, user responsibility to provide correct mask
+ * 
+ * \param data      Pointer to CAN frame data field
+ * \param dtoperand_out     Pointer to struct array
+ * 
+ * \return extern void
+ */
+extern inline void get_frame_hmac_03(const Union64 *data, uint16_t *hmac_out);
 
 extern inline void get_frame_data_u8(const Union64 *data, uint8_t *target, unsigned long long mask, int offset);
 extern inline void get_frame_data_u16(const Union64 *data, uint16_t *target, unsigned long long mask, int offset);
