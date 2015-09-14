@@ -44,14 +44,27 @@
 #define DATA_ID_OPERAND_MASK        0x0000FFFFFFFF0000
 #define DATA_ID_OPERAND_OFFSET      16
 
-#define DATA_HMAC_01_MASK            0x000000000000FFFF
-#define DATA_HMAC_01_OFFSET          0
+#define DATA_HMAC_01_MASK           0x000000000000FFFF
+#define DATA_HMAC_01_OFFSET         0
 
-#define DATA_HMAC_02_MASK            0x00000000FFFF0000
-#define DATA_HMAC_02_OFFSET          16
+#define DATA_HMAC_02_MASK           0x00000000FFFF0000
+#define DATA_HMAC_02_OFFSET         16
 
-#define DATA_HMAC_03_MASK            0x0000FFFF00000000
-#define DATA_HMAC_03_OFFSET          32
+#define DATA_HMAC_03_MASK           0x0000FFFF00000000
+#define DATA_HMAC_03_OFFSET         32
+
+/* Defines for bitfield tracker of received preparation rule frames */
+#define BITFIELD_FRAME_RCVD                  1  //set bit true when received corresponding frame
+#define BITFIELD_NUM_POSITIONS               9  //number of positions we expect the field to account for
+#define BITFIELD_POSITION_PREP_01            0  //following offsets/positions of bits for each prep frame
+#define BITFIELD_POSITION_PREP_02            1
+#define BITFIELD_POSITION_PREP_03            2
+#define BITFIELD_POSITION_PREP_04            3
+#define BITFIELD_POSITION_PREP_05            4
+#define BITFIELD_POSITION_PREP_06            5
+#define BITFIELD_POSITION_PREP_07            6
+#define BITFIELD_POSITION_PREP_08            7
+#define BITFIELD_POSITION_PREP_09            8
 
 //Memory structures, proposed
 
@@ -293,6 +306,8 @@ extern inline void get_frame_data_u8(const Union64 *data, uint8_t *target, unsig
 extern inline void get_frame_data_u16(const Union64 *data, uint16_t *target, unsigned long long mask, int offset);
 extern inline void get_frame_data_u32(const Union64 *data, uint32_t *target, unsigned long long mask, int offset);
 extern inline void get_frame_data_u64(const Union64 *data, uint64_t *target, unsigned long long mask, int offset);
+
+extern inline void set_bitfield_received(uint16_t *bitfield, int position);
 
 /*! \brief Print a given rule using debug output to usart.
 *

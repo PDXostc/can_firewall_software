@@ -97,6 +97,11 @@ inline void get_frame_data_u64(const Union64 *data, uint64_t *target, unsigned l
     *target = (uint64_t)((data->u64 & mask)>>offset);
 }
 
+inline void set_bitfield_received(uint16_t *bitfield, int position)
+{
+    *bitfield |= (uint16_t)(BITFIELD_FRAME_RCVD << position);
+}
+
 void print_rule(rule_t *rule) {
     print_dbg("\n\n\r____RULE____\n\r");
     
