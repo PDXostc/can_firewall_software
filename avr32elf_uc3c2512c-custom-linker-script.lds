@@ -9,7 +9,7 @@ SEARCH_DIR("/home/toolsbuild/jenkins-knuth/workspace/avr32-gnu-toolchain/avr32-g
 MEMORY
 {
     FLASH (rxai!w) : ORIGIN = 0x80000000, LENGTH = 512K-10K-8K
-		RSVDFLASH (rxai!w) : ORIGIN = 0x80000000+512K-10K-8K, LENGTH = 10K
+		FLASHRSVD (rxai!w) : ORIGIN = 0x80000000+512K-10K-8K, LENGTH = 10K
     CPUSRAM (wxa!ri) : ORIGIN = 0x00000004, LENGTH = 0xFFFC
     USERPAGE : ORIGIN = 0x80800000, LENGTH = 512
     FACTORYPAGE : ORIGIN = 0x80800200, LENGTH = 512
@@ -21,7 +21,7 @@ SECTIONS
   /* Read-only sections, merged into text segment: */
   PROVIDE (__executable_start = 0x80000000); . = 0x80000000;
 	/* Next line should not be necessary for use of flash for storing rules */
-	/* .rsvd_flash : { *(.rsvd_flash) } >RSVDFLASH AT>RSVDFLASH */
+	/* .flash-rsvd : { *(.flash-rsvd) } >FLASHRSVD AT>FLASHRSVD */
   .interp         : { *(.interp) } >FLASH AT>FLASH
   .reset : {  *(.reset) } >FLASH AT>FLASH
   .hash           : { *(.hash) } >FLASH AT>FLASH
@@ -203,7 +203,7 @@ SECTIONS
   .userpage :  { *(.userpage .userpage.*)  } >USERPAGE AT>USERPAGE
   .factorypage :  { *(.factorypage .factorypage.*)  } >FACTORYPAGE AT>FACTORYPAGE
 	.flash : { *(.flash .flash.*) } >FLASH AT>FLASH
-	.rsvd_flash : { *(.rsvd_flash .rsvd_flash.*) } >RSVDFLASH AT>RSVDFLASH
+	.flash-rsvd : { *(.flash-rsvd .flash-rsvd.*) } >FLASHRSVD AT>FLASHRSVD
   .flashvault_flash_size : { KEEP(*(.flashvault_flash_size .flashvault_flash_size.*)) } > FLASHVAULT_FLASH_SIZE
   .flashvault_ram_size   : { KEEP(*(.flashvault_ram_size .flashvault_ram_size.*)) } > FLASHVAULT_RAM_SIZE
   /DISCARD/ : { *(.note.GNU-stack) }
