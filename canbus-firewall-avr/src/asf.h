@@ -61,12 +61,18 @@
 // From module: CPU Cycle Counter
 #include <cycle_counter.h>
 
+// From module: CPU Reset Cause
+#include <avr32_reset_cause.h>
+
 // From module: Common build items for user board support templates
 #include <user_board.h>
 
 // From module: Compiler abstraction layer and code utilities
 #include <compiler.h>
 #include <status_codes.h>
+
+// From module: Debug macros and functions
+#include <debug.h>
 
 // From module: Delay routines
 #include <delay.h>
@@ -80,6 +86,9 @@
 // From module: Generic board support
 #include <board.h>
 
+// From module: Generic components of unit test framework
+#include <unit_test/suite.h>
+
 // From module: INTC - Interrupt Controller
 #include <intc.h>
 
@@ -89,10 +98,32 @@
 // From module: Interrupt management - UC3 implementation
 #include <interrupt.h>
 
+// From module: PDCA - Peripheral DMA Controller
+#include <pdca.h>
+
+// From module: PM Power Manager - UC3 C0/C1/C2 implementation
+#include <power_clocks_lib.h>
+#include <sleep.h>
+
 // From module: Part identification macros
 #include <parts.h>
 
+// From module: SCIF System Control Interface - UC3C implementation
+#include <scif_uc3c.h>
+
+// From module: SPI - Serial Peripheral Interface
+#include <spi.h>
+
 // From module: System Clock Control - UC3 C implementation
 #include <sysclk.h>
+
+// From module: TC - Timer/Counter
+#include <tc.h>
+
+// From module: TWI - Two-Wire Master Interface
+#include <twim.h>
+
+// From module: USART - Universal Synchronous/Asynchronous Receiver/Transmitter
+#include <usart.h>
 
 #endif // ASF_H
