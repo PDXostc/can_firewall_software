@@ -415,6 +415,11 @@
         <avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>True</avr32gcc.linker.optimization.PutReadOnlyDataInWritableDataSection>
         <avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>True</avr32gcc.linker.optimization.AllowDirectReferencesToDataSection>
         <avr32gcc.linker.miscellaneous.LinkerFlags>-Wl,--relax -Wl,-e,_trampoline</avr32gcc.linker.miscellaneous.LinkerFlags>
+        <avr32gcc.linker.miscellaneous.OtherOptions>
+          <ListValues>
+            <Value>-T../../avr32elf_uc3c2512c-custom-linker-script.lds</Value>
+          </ListValues>
+        </avr32gcc.linker.miscellaneous.OtherOptions>
         <avr32gcc.assembler.general.AssemblerFlags>-mrelax</avr32gcc.assembler.general.AssemblerFlags>
         <avr32gcc.assembler.general.IncludePaths>
           <ListValues>
@@ -544,6 +549,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\rules.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\sleep.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\sleep.h">
       <SubType>compile</SubType>
     </Compile>
     <None Include="src\ASF\avr32\drivers\cpu\avr32_reset_cause.h">
