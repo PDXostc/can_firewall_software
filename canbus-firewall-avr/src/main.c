@@ -45,6 +45,7 @@
 #include "conf_messages.h"
 #include "conf_rules.h"
 #include "rules.h"
+#include "sleep.h"
 //#include "conf_can_example.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
@@ -611,6 +612,8 @@ int main (void)
     //state: receiving rules --
     
     //wait for end while debugging
+    
+    sleep_mode_start();
     
     #if 0
     while(true){
