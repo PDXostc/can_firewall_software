@@ -307,6 +307,14 @@ extern inline void get_frame_data_u16(const Union64 *data, uint16_t *target, uns
 extern inline void get_frame_data_u32(const Union64 *data, uint32_t *target, unsigned long long mask, int offset);
 extern inline void get_frame_data_u64(const Union64 *data, uint64_t *target, unsigned long long mask, int offset);
 
+/**
+ * \brief Set a bit in a given bitfield and position to 1, indicating a rule preparation frame was received successfully 
+ * 
+ * \param bitfield Pointer to the bitfield to OR with
+ * \param position Offset position to set value to
+ * 
+ * \return extern void
+ */
 extern inline void set_bitfield_received(uint16_t *bitfield, int position);
 
 /*! \brief Print a given rule using debug output to usart.
