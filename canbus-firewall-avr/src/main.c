@@ -60,66 +60,26 @@ volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA00000
 
 #define SIZE_RULESET        16
 
-//sanity test
-#if defined (__GNUC__)
-__attribute__((__section__(".userpage")))
-#elif defined(__ICCAVR32__)
-__no_init
-// This code is added so that this example can be programmed through
-// batchisp and a bootloader. Else, IAR will set this variable as
-// loadable and batchisp will err because this variable is out of the
-// flash memory range (it's in the user page).
-// GCC will init this variable at run time not during the programming
-// of the application.
-#endif
-static int flash_saved_value = 98765
-#if defined (__ICAVR32__)
-@ "FLASH_NVRAM"
-#endif
-;
-
-//sanity test
-#if defined (__GNUC__)
-__attribute__((__section__(".userpage")))
-#elif defined(__ICCAVR32__)
-__no_init
-// This code is added so that this example can be programmed through
-// batchisp and a bootloader. Else, IAR will set this variable as
-// loadable and batchisp will err because this variable is out of the
-// flash memory range (it's in the user page).
-// GCC will init this variable at run time not during the programming
-// of the application.
-#endif
-static int user_flash_saved_value = 2468
-#if defined (__ICAVR32__)
-@ "USERDATA32_C"
-#endif
-;
-
 //north ruleset in nvram
 #if defined (__GNUC__)
-__attribute__((__section__(".flash_nvram")))
+__attribute__((__section__(".flash_rsvd")))
 #endif
 static rule_t flash_can_ruleset_north[16]
 #if defined (__ICAVR32__)
-@ "FLASH_NVRAM"
+@ "FLASHRSVD"
 #endif
 ;
 
-//south ruleset in nvram
+//South ruleset in flash.
+//Section is customized in linker lds file in project folder
 #if defined (__GNUC__)
-__attribute__((__section__(".flash_nvram")))
+__attribute__((__section__(".flash_rsvd")))
 #endif
 static rule_t flash_can_ruleset_south[16]
 #if defined (__ICAVR32__)
-@ "FLASH_NVRAM"
+@ "FLASHRSVD"
 #endif
 ;
-
-//north ruleset in nvram
-__attribute__((__section__(".0x8000000"))) static rule_t flash_nvram_can_ruleset_north;
-
-
 
 //SRAM Allocation for loaded filter rulesets
 static rule_t can_ruleset_north[16];
@@ -139,7 +99,7 @@ volatile bool message_received_south = false;
 volatile bool message_transmitted_north = false;
 volatile bool message_transmitted_south = false;
 
-rule_t fake_rule = 
+rule_t fake_rule =
 {
     .prio = 0xff,
     .mask = 0xff,
@@ -159,10 +119,29 @@ rule_t control_rule =
     .dtoperand = 0x06ff
 };
 
-int saved_value = 12345;
+rule_working_t working_test = {
+    .prio = 0x99,
+    .bitfield_completed = 0,
+    .mask_xform = {
+        .mask = 0xff,
+        .xform = 0xF0
+    },
+    .filter_dtoperand_01 = {
+        .filter = 0x04030201,
+        .dtoperand01 = 0x0201
+    },
+    .dt_operand_02 = {
+        .dtoperand02 = {0x0807, 0x0605, 0x0403}
+    },
+    .id_operand_hmac_01 = {
+        .idoperand = 0x04030201
+    }
+};
+
+Union64 data_frame_test;
 
 /* Call backs */
-void can_out_callback_north_rx(U8 handle, U8 event){    
+void can_out_callback_north_rx(U8 handle, U8 event){
     //message has been received, move data from hsb mob to local mob
     north_rx_msg[0].can_msg->data.u64 = can_get_mob_data(CAN_CH_NORTH, handle).u64;
     north_rx_msg[0].can_msg->id = can_get_mob_id(CAN_CH_NORTH, handle);
@@ -170,11 +149,11 @@ void can_out_callback_north_rx(U8 handle, U8 event){
     north_rx_msg[0].status = event;
     
     //print what we got
-#if DBG_CAN_MSG
+    #if DBG_CAN_MSG
     print_dbg("\n\rReceived can message on NORTH line:\n\r");
     print_dbg_ulong(north_rx_msg[0].can_msg->data.u64);
     PRINT_NEWLINE
-#endif
+    #endif
     //release mob in hsb
     can_mob_free(CAN_CH_NORTH, handle);
     //set ready to evaluate message
@@ -184,11 +163,11 @@ void can_out_callback_north_rx(U8 handle, U8 event){
 void can_out_callback_north_tx(U8 handle, U8 event){
     //TODO
     //stub
-     #if 0
-     print_dbg("\r\nNorth_CAN_msg\n\r");
-     print_dbg_ulong(north_tx_msg[0].handle);
-     print_dbg_ulong(north_tx_msg[0].can_msg->data.u64);
-     #endif
+    #if 0
+    print_dbg("\r\nNorth_CAN_msg\n\r");
+    print_dbg_ulong(north_tx_msg[0].handle);
+    print_dbg_ulong(north_tx_msg[0].can_msg->data.u64);
+    #endif
     // Transmission Only
     can_mob_free(CAN_CH_NORTH,handle);
     message_transmitted_north = true;
@@ -204,25 +183,25 @@ void can_out_callback_south_rx(U8 handle, U8 event){
     }
     event = CAN_STATUS_COMPLETED;
     
-     //message has been received, move data from hsb mob to local mob
-     south_rx_msg01.can_msg->data.u64 = can_get_mob_data(CAN_CH_SOUTH, handle).u64;
-     south_rx_msg01.can_msg->id = can_get_mob_id(CAN_CH_SOUTH, handle);
-     south_rx_msg01.dlc = can_get_mob_dlc(CAN_CH_SOUTH, handle);
-     south_rx_msg01.status = event;
-     
-     //print what we got
-     #if DBG_CAN_MSG
-     print_dbg("\n\rReceived can message on SOUTH line:\n\r");
-     //print_dbg_ulong(south_rx_msg01.can_msg->data.u64);
-     PRINT_NEWLINE
-     print_can_message(south_rx_msg01.can_msg);
-     print_can_message(south_rx_msg02.can_msg);
-     #endif
-     //release mob in hsb
-     can_mob_free(CAN_CH_SOUTH, handle);
-     //set ready to evaluate message
-     //TODO: state machine call
-     message_received_south = true;
+    //message has been received, move data from hsb mob to local mob
+    south_rx_msg01.can_msg->data.u64 = can_get_mob_data(CAN_CH_SOUTH, handle).u64;
+    south_rx_msg01.can_msg->id = can_get_mob_id(CAN_CH_SOUTH, handle);
+    south_rx_msg01.dlc = can_get_mob_dlc(CAN_CH_SOUTH, handle);
+    south_rx_msg01.status = event;
+    
+    //print what we got
+    #if DBG_CAN_MSG
+    print_dbg("\n\rReceived can message on SOUTH line:\n\r");
+    //print_dbg_ulong(south_rx_msg01.can_msg->data.u64);
+    PRINT_NEWLINE
+    print_can_message(south_rx_msg01.can_msg);
+    print_can_message(south_rx_msg02.can_msg);
+    #endif
+    //release mob in hsb
+    can_mob_free(CAN_CH_SOUTH, handle);
+    //set ready to evaluate message
+    //TODO: state machine call
+    message_received_south = true;
 }
 void can_out_callback_south_tx(U8 handle, U8 event){
     //TODO
@@ -258,7 +237,7 @@ void can_prepare_data_to_send_north(void){
     //
     //}
     //--example has conversion of data to meet adc standard from dsp lib.. not sure if necessary
-   
+    
     
     can_tx(CAN_CH_NORTH,
     north_tx_msg[0].handle,
@@ -364,7 +343,7 @@ void can_prepare_data_to_receive_south(void){
     
     //Check no mob available
     //if(south_rx_msg01.handle==CAN_CMD_REFUSED || south_rx_msg02.handle==CAN_CMD_REFUSED){
-        //while(1);
+    //while(1);
     //}
     //--example has conversion of data to meet adc standard from dsp lib.. not sure if necessary
     
@@ -382,51 +361,51 @@ void can_prepare_data_to_receive_south(void){
 }
 
 void run_test_loop(void) {
-        //function scratch area, will be rewritten as needed by the current test we are running
-        //not great practice, used for rapid proto
-        if (message_received_north == true)
-        {
-            can_prepare_data_to_receive_north();
-            #if DBG_ON
-            print_dbg("\n\rPrepared to receive north...\n\r");
-            #endif
-        }
-        if (message_received_south == true)
-        {
-            can_prepare_data_to_receive_south();
-            #if DBG_ON
-            print_dbg("\n\rPrepared to receive south...\n\r");
-            #endif
-        }
-        
-        
-        if (message_transmitted_north == true)
-        {
-            can_prepare_data_to_send_north();
-            #if DBG_ON
-            print_dbg("\n\rPrepared to send north...\n\r");
-            #endif
-        }
-        if (message_transmitted_south == true)
-        {
-            can_prepare_data_to_send_south();
-            #if DBG_ON
-            print_dbg("\n\rPrepared to send south...\n\r");
-            #endif
-        }
-#if 0
-        print_dbg_ulong((unsigned long)can_get_mob_id(CAN_CH_SOUTH, south_rx_msg01.handle));
-        print_dbg("\n\r");
-        print_dbg_ulong((unsigned long)can_get_mob_id(CAN_CH_SOUTH, south_rx_msg02.handle));
-        print_dbg("\n\r");
-#endif
-        //print_dbg_ulong(south_rx_msg[0].can_msg->data.u64);
-        
-        //can_prepare_data_to_send_north();
-        //can_prepare_data_to_send_south();
-        //can_prepare_data_to_send_north();
-        delay_ms(1000);
-        
+    //function scratch area, will be rewritten as needed by the current test we are running
+    //not great practice, used for rapid proto
+    if (message_received_north == true)
+    {
+        can_prepare_data_to_receive_north();
+        #if DBG_ON
+        print_dbg("\n\rPrepared to receive north...\n\r");
+        #endif
+    }
+    if (message_received_south == true)
+    {
+        can_prepare_data_to_receive_south();
+        #if DBG_ON
+        print_dbg("\n\rPrepared to receive south...\n\r");
+        #endif
+    }
+    
+    
+    if (message_transmitted_north == true)
+    {
+        can_prepare_data_to_send_north();
+        #if DBG_ON
+        print_dbg("\n\rPrepared to send north...\n\r");
+        #endif
+    }
+    if (message_transmitted_south == true)
+    {
+        can_prepare_data_to_send_south();
+        #if DBG_ON
+        print_dbg("\n\rPrepared to send south...\n\r");
+        #endif
+    }
+    #if 0
+    print_dbg_ulong((unsigned long)can_get_mob_id(CAN_CH_SOUTH, south_rx_msg01.handle));
+    print_dbg("\n\r");
+    print_dbg_ulong((unsigned long)can_get_mob_id(CAN_CH_SOUTH, south_rx_msg02.handle));
+    print_dbg("\n\r");
+    #endif
+    //print_dbg_ulong(south_rx_msg[0].can_msg->data.u64);
+    
+    //can_prepare_data_to_send_north();
+    //can_prepare_data_to_send_south();
+    //can_prepare_data_to_send_north();
+    delay_ms(1000);
+    
 }
 
 void init(void) {
@@ -437,7 +416,7 @@ void init(void) {
     
     //set flash wait state according to cpu
     flashc_set_flash_waitstate_and_readmode(sysclk_get_cpu_hz());
-        
+    
     //init debug printing for usart
     init_dbg_rs232(sysclk_get_pba_hz());
     //init_dbg_rs232(sysclk_get_cpu_hz());
@@ -450,7 +429,7 @@ void init(void) {
     print_dbg_ulong(sysclk_get_main_hz());
     print_dbg("\n\rCPU Freq\n\r");
     print_dbg_ulong(sysclk_get_cpu_hz());
-    #endif    
+    #endif
 }
 
 void init_can(void) {
@@ -497,10 +476,10 @@ void init_can(void) {
 int main (void)
 {
     //setup
-    init();    
+    init();
     init_can();
     
-#if 0
+    #if 0
     
     can_prepare_data_to_receive_south();
     //can_prepare_data_to_send_south();
@@ -509,71 +488,98 @@ int main (void)
         run_test_loop();
     }
     
-#endif
+    #endif
+    
+    #if 1
+    
+    data_frame_test.u64 = 0x0807060504030201;
+    
+    //frame get prio test
+    uint8_t prio_test;
+    get_frame_data_u8(&data_frame_test, &working_test.prio, DATA_PRIO_MASK, DATA_PRIO_OFFSET);
+    print_dbg("\n\r Frame Prio: \n\r");
+    print_dbg_char_hex(prio_test);
+    
+    //frame get cmd test
+    uint8_t cmd_test;
+    get_frame_cmd(&data_frame_test, &cmd_test);
+    print_dbg("\n\r Frame cmd: \n\r");
+    print_dbg_char_hex(cmd_test);
+    
+    //frame mask test
+    uint32_t mask_test;
+    get_frame_mask(&data_frame_test, &working_test.mask_xform.mask);
+    print_dbg("\n\r Frame Mask: \n\r");
+    print_dbg_hex(mask_test);
+    
+    //frame filter test
+    uint32_t filter_test;
+    get_frame_filter(&data_frame_test, &working_test.filter_dtoperand_01.filter);
+    print_dbg("\n\r Frame Filter: \n\r");
+    print_dbg_hex(filter_test);
+    
+    //frame xform test
+    uint8_t xform_test;
+    get_frame_xform(&data_frame_test, &working_test.mask_xform.xform);
+    print_dbg("\n\r Frame xform: \n\r");
+    print_dbg_char_hex(xform_test);
 
-//test: let's look at the variable addresses
-int *user_flash_address = &user_flash_saved_value;
-int *flash_address = &flash_saved_value;
-int *flash_nvram_address = &flash_nvram_can_ruleset_north;
-
-    //test: read out existing userpage from flash
- 
- //force control print of single rule
- can_ruleset_north[0] = fake_rule;
- can_ruleset_north[1] = control_rule;
+    ////frame id_operand test
+    uint32_t id_operand_test;
+    get_frame_id_operand(&data_frame_test, &working_test.id_operand_hmac_01.idoperand);
+    print_dbg("\n\r Frame id_operand: \n\r");
+    print_dbg_hex(id_operand_test);
+    
+    int add_fake = &fake_rule;
+    int add_control = &control_rule;
+    int add_north01 = &can_ruleset_north[0];
+    int add_north02 = &can_ruleset_north[1];
+    
+    //force control print of single rule
+    load_rule(&fake_rule, &can_ruleset_north[0]);
+    load_rule(&control_rule, &can_ruleset_north[1]);
+    
+    add_fake = &fake_rule;
+    add_control = &control_rule;
+    add_north01 = &can_ruleset_north[0];
+    add_north02 = &can_ruleset_north[1];
     
     //test print single rule
     print_dbg("\n\n\rRule From RAM\n\r");
     print_rule(&can_ruleset_north[0]);
     print_rule(&can_ruleset_north[1]);
     
+    load_ruleset(&can_ruleset_north, &can_ruleset_south, 2);
+    
+    print_dbg("\n\rRules loaded using load rule\n\r");
+    print_ruleset(&can_ruleset_south, 2);
+    
+    #endif
+    
+    #if 1
+    
+    //test of creating new rule from working;
+    control_rule = create_rule_from_working_set(&working_test);
+    unsigned long long great_expectations = 578437695752307201;
+    
+    if(control_rule.dtoperand != great_expectations) {
+        print_dbg("\n\r...dtoperand fail...\n\r");
+    }
+    else if(control_rule.dtoperand == great_expectations) {
+        print_dbg("\n\r...dtoperand SUCCESS...\n\r");
+    }
+    
+    print_rule(&control_rule);
+    
+    save_rule_to_flash(&control_rule, &flash_can_ruleset_north);
     print_dbg("\n\rRule from Flash\n\r");
-    print_rule(&flash_can_ruleset_north[0]);
-    print_rule(&flash_can_ruleset_north[1]);
-  #if 0  
-    print_dbg("\n\n\rRule From RAM\n\r");
-    print_rule(&can_ruleset_south);
+    print_rule(&flash_can_ruleset_north);
     
+    save_rule_to_flash(&control_rule, &flash_can_ruleset_north);
     print_dbg("\n\rRule from Flash\n\r");
-    print_rule(&flash_can_ruleset_south);
-#endif
-    
-    #if 0
-    //test: load userpage rules found in flash to rulesets
-    print_dbg_ulong((unsigned long) saved_value);
-    print_dbg_ulong((unsigned long) flash_saved_value);
-    print_dbg_ulong((unsigned long) user_flash_saved_value);
-    
-    //test of saving to flash to make sure...
-    flashc_memcpy((void *)&user_flash_saved_value,&flash_saved_value, sizeof(flash_saved_value), true);
-    
-    print_dbg("\n\n\r+++++GOT PAST++++\n\n\r");
-    
-    //test: load userpage rules found in flash to rulesets
-    print_dbg_ulong((unsigned long) saved_value);
-    print_dbg_ulong((unsigned long) flash_saved_value);
-    print_dbg_ulong((unsigned long) user_flash_saved_value);
-    
-    print_dbg_ulong((unsigned long)flash_saved_value);
-    print_dbg_ulong((unsigned long)flash_saved_value);
-#endif
-    
-#if 1  
-    //test: save to flash nvram    
-    //test save single rule to flash
-    print_dbg("\n\rRule from Flash\n\r");
-    print_rule(&flash_can_ruleset_north[0]);
-    print_rule(&flash_can_ruleset_north[1]);
-    
-    flashc_memcpy((void *)&flash_nvram_can_ruleset_north, &fake_rule, sizeof(fake_rule), true);
-    
-    save_rule(&fake_rule, &flash_nvram_can_ruleset_north);
-    save_rule(&control_rule, &flash_nvram_can_ruleset_north);
-    
-    print_dbg("\n\rRule from Flash\n\r");
-    print_rule(&flash_can_ruleset_north[0]);
-    print_rule(&flash_can_ruleset_north[1]);
-#endif
+    print_rule(&flash_can_ruleset_north);
+    //print_rule(&flash_can_ruleset_north[1]);
+    #endif
     //Special Case: New Rule Acquisition
     //Intercept CAN frame carrying New Rule payload
     //determine that mask and filter combination meets requirements to match New Rule Frame to New Rule Creation Rule (stored in flash)
