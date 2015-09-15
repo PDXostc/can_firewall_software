@@ -126,6 +126,44 @@ void print_rule(rule_t *rule) {
     print_dbg("____END_RULE____");
 }
 
+void print_hmac_in_working_set(rule_working_t *working, bool split_newlines)
+{
+    print_dbg("\n\r HMAC: \n\r");
+    print_dbg_short_hex(working->id_operand_hmac_01.hmac);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_02.hmac[0]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_02.hmac[1]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_02.hmac[2]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_03.hmac[0]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_03.hmac[1]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_03.hmac[2]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_04.hmac[0]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_04.hmac[1]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_04.hmac[2]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_05.hmac[0]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_05.hmac[1]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_05.hmac[2]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_06.hmac[0]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_06.hmac[1]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg_short_hex(working->hmac_06.hmac[2]);
+    if(split_newlines) print_dbg("\n\r");
+    print_dbg("\n\rEND_HMAC+++\n\r");
+}
+
 void print_ruleset(rule_t *ruleset, int numrules) {
     if(numrules <= 0) return;
     

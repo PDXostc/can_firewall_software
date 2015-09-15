@@ -350,6 +350,17 @@ extern inline void set_bitfield_received(uint16_t *bitfield, int position);
 */
 extern void print_rule(rule_t *rule);
 
+/**
+ * \brief Print a complete HMAC string in working set
+ * Note: HMAC should be complete before printing
+ * 
+ * \param working Rule in progress
+ * \param split_newlines Should the output be split into new lines for each 16bit chunk?
+ * 
+ * \return extern void
+ */
+extern void print_hmac_in_working_set(rule_working_t *working, bool split_newlines);
+
 /* \brief Print a set of rules
 *
 * \param *ruleset Array of rules
