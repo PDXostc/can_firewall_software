@@ -12,7 +12,7 @@
 //should always initialize this one for tracking
 rules_in_progress_t rules_in_progress = {
     .num_rules_in_progress = 0,
-    .working_sets[MAX_RULES_IN_PROGRESS] = NULL
+    .working_sets = {NULL}
 };
 
 /* Useful extraction methods for getting what we need out of the CAN frame data field */
@@ -235,13 +235,13 @@ rule_t create_rule_from_working_set(rule_working_t *working) {
 
     //There's probably a much more efficient way to accomplish loading the uint16 parcels into the uint64    
 
-    new_rule.dtoperand = working->dt_operand_02.dtoperand02[0];
+    new_rule.dtoperand = working->filter_dtoperand_01.dtoperand01;
+    new_rule.dtoperand = new_rule.dtoperand << 16;
+    new_rule.dtoperand |= working->dt_operand_02.dtoperand02[0];
     new_rule.dtoperand = new_rule.dtoperand << 16;
     new_rule.dtoperand |= working->dt_operand_02.dtoperand02[1];
     new_rule.dtoperand = new_rule.dtoperand << 16;
-    new_rule.dtoperand |= working->dt_operand_02.dtoperand02[2];
-    new_rule.dtoperand = new_rule.dtoperand << 16;
-    new_rule.dtoperand |= working->filter_dtoperand_01.dtoperand01;
+    new_rule.dtoperand |= working->dt_operand_02.dtoperand02[2];    
     
     return new_rule;
 }

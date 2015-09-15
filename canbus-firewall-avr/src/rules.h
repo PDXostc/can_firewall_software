@@ -32,26 +32,26 @@
 #define DATA_DT_OPERAND_01_MASK     0x000000000000FFFF
 #define DATA_DT_OPERAND_01_OFFSET   0
 
-#define DATA_DT_OPERAND_02_MASK     0x00000000FFFF0000
-#define DATA_DT_OPERAND_02_OFFSET   16
+#define DATA_DT_OPERAND_02_MASK     0x0000FFFF00000000
+#define DATA_DT_OPERAND_02_OFFSET   32
 
-#define DATA_DT_OPERAND_03_MASK     0x0000FFFF00000000
-#define DATA_DT_OPERAND_03_OFFSET   32
+#define DATA_DT_OPERAND_03_MASK     0x00000000FFFF0000
+#define DATA_DT_OPERAND_03_OFFSET   16
 
-#define DATA_DT_OPERAND_04_MASK     0x0000FFFF00000000
-#define DATA_DT_OPERAND_04_OFFSET   32
+#define DATA_DT_OPERAND_04_MASK     0x000000000000FFFF
+#define DATA_DT_OPERAND_04_OFFSET   0
 
 #define DATA_ID_OPERAND_MASK        0x0000FFFFFFFF0000
 #define DATA_ID_OPERAND_OFFSET      16
 
-#define DATA_HMAC_01_MASK           0x000000000000FFFF
-#define DATA_HMAC_01_OFFSET         0
+#define DATA_HMAC_01_MASK           0x0000FFFF00000000
+#define DATA_HMAC_01_OFFSET         32
 
 #define DATA_HMAC_02_MASK           0x00000000FFFF0000
 #define DATA_HMAC_02_OFFSET         16
 
-#define DATA_HMAC_03_MASK           0x0000FFFF00000000
-#define DATA_HMAC_03_OFFSET         32
+#define DATA_HMAC_03_MASK           0x000000000000FFFF
+#define DATA_HMAC_03_OFFSET         0
 
 /* Command enumeration defines, directly corresponds to value of CMD byte in a preparation frame */
 #define CMD_PREP_01                         1
@@ -78,6 +78,7 @@
 #define BITFIELD_POSITION_PREP_07            6
 #define BITFIELD_POSITION_PREP_08            7
 #define BITFIELD_POSITION_PREP_09            8
+#define BITFIELD_COMPLETE                    0x1FF
 
 /* Rules in progress setting */
 #define MAX_RULES_IN_PROGRESS                16
@@ -120,7 +121,7 @@ typedef struct {
 //prep rule 04 frame
 typedef struct {
     uint32_t idoperand;// = 0x04030201;
-    uint16_t hmac[1];// = 0x0201;
+    uint16_t hmac;// = 0x0201;
 } rule_prep_04_t;
 
 //prep rule 05 frame
@@ -177,7 +178,7 @@ typedef struct {
  */
 typedef struct {
     int num_rules_in_progress;
-    rule_working_t *working_sets[];    
+    rule_working_t *working_sets[MAX_RULES_IN_PROGRESS];    
     }rules_in_progress_t;
 
 //expose working rules in progress structure
