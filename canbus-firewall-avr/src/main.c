@@ -59,28 +59,7 @@ volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA00000
 volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 #endif
 
-#define SIZE_RULESET        16
 
-//north ruleset in nvram
-#if defined (__GNUC__)
-__attribute__((__section__(".flash_rsvd")))
-#endif
-static rule_t flash_can_ruleset_north[16]
-#if defined (__ICAVR32__)
-@ "FLASHRSVD"
-#endif
-;
-
-//South ruleset in flash.
-//Section is customized in linker lds file in project folder
-#if defined (__GNUC__)
-__attribute__((__section__(".flash_rsvd")))
-#endif
-static rule_t flash_can_ruleset_south[16]
-#if defined (__ICAVR32__)
-@ "FLASHRSVD"
-#endif
-;
 
 //SRAM Allocation for loaded filter rulesets
 static rule_t can_ruleset_north[16];
@@ -474,137 +453,17 @@ void init_can(void) {
     Enable_global_interrupt();
 }
 
-
-bool handle_new_rule_data_cmd(uint64_t *data, int working_set_index)
+print_success(bool success)
 {
-    bool success = false;
-    if((working_set_index > -1) == false) return success = false;
-    uint8_t cmd = 0;
-    get_frame_cmd(data, &cmd);
-    switch(cmd){
-        case CMD_PREP_01:
-        //corresponds to mask and xform information
-        get_frame_mask(data, &rules_in_progress.working_sets[working_set_index]->mask_xform.mask);
-        get_frame_xform(data, &rules_in_progress.working_sets[working_set_index]->mask_xform.xform);
-        success = true;
-        break;
-        
-        case CMD_PREP_02:
-        //filter and dt_operand_01
-        get_frame_filter(data, &rules_in_progress.working_sets[working_set_index]->filter_dtoperand_01.filter);
-        get_frame_dt_operand_01(data, &rules_in_progress.working_sets[working_set_index]->filter_dtoperand_01.dtoperand01);
-        success = true;
-        break;
-        
-        case CMD_PREP_03:
-        get_frame_dt_operand_02(data, &rules_in_progress.working_sets[working_set_index]->dt_operand_02.dtoperand02[0]);
-        get_frame_dt_operand_03(data, &rules_in_progress.working_sets[working_set_index]->dt_operand_02.dtoperand02[1]);
-        get_frame_dt_operand_04(data, &rules_in_progress.working_sets[working_set_index]->dt_operand_02.dtoperand02[2]);
-        success = true;
-        break;
-        
-        case CMD_PREP_04:
-        get_frame_id_operand(data, &rules_in_progress.working_sets[working_set_index]->id_operand_hmac_01.idoperand);
-        get_frame_hmac_01(data, &rules_in_progress.working_sets[working_set_index]->id_operand_hmac_01.hmac);
-        success = true;
-        break;
-        
-        case CMD_PREP_05:
-        get_frame_hmac_01(data, &rules_in_progress.working_sets[working_set_index]->hmac_02.hmac[0]);
-        get_frame_hmac_02(data, &rules_in_progress.working_sets[working_set_index]->hmac_02.hmac[1]);
-        get_frame_hmac_03(data, &rules_in_progress.working_sets[working_set_index]->hmac_02.hmac[2]);
-        success = true;
-        break;
-        
-        case CMD_PREP_06:
-        get_frame_hmac_01(data, &rules_in_progress.working_sets[working_set_index]->hmac_03.hmac[0]);
-        get_frame_hmac_02(data, &rules_in_progress.working_sets[working_set_index]->hmac_03.hmac[1]);
-        get_frame_hmac_03(data, &rules_in_progress.working_sets[working_set_index]->hmac_03.hmac[2]);
-        success = true;
-        break;
-        
-        case CMD_PREP_07:
-        get_frame_hmac_01(data, &rules_in_progress.working_sets[working_set_index]->hmac_04.hmac[0]);
-        get_frame_hmac_02(data, &rules_in_progress.working_sets[working_set_index]->hmac_04.hmac[1]);
-        get_frame_hmac_03(data, &rules_in_progress.working_sets[working_set_index]->hmac_04.hmac[2]);
-        success = true;
-        break;
-        
-        case CMD_PREP_08:
-        get_frame_hmac_01(data, &rules_in_progress.working_sets[working_set_index]->hmac_05.hmac[0]);
-        get_frame_hmac_02(data, &rules_in_progress.working_sets[working_set_index]->hmac_05.hmac[1]);
-        get_frame_hmac_03(data, &rules_in_progress.working_sets[working_set_index]->hmac_05.hmac[2]);
-        success = true;
-        break;
-        
-        case CMD_PREP_09:
-        get_frame_hmac_01(data, &rules_in_progress.working_sets[working_set_index]->hmac_06.hmac[0]);
-        get_frame_hmac_02(data, &rules_in_progress.working_sets[working_set_index]->hmac_06.hmac[1]);
-        get_frame_hmac_03(data, &rules_in_progress.working_sets[working_set_index]->hmac_06.hmac[2]);
-        success = true;
-        break;
-        
-        case CMD_STORE:
-        //it's a store rule, panic!
-        
-        //to be written:
-        //success = verify_sequence & verify_hmac & store_rule_to_flash
-        
-        default:
-        success = false;
-    }
-    
-    return success;
-}
-
-//main function for processing incoming new rule data
-//assumes this data has already been identified as belonging to a new rule frame
-bool handle_new_rule_data(uint64_t *data)
-{
-    //successful handling
-    bool success = false;
-    //determine prio, ie which rule this frame should correspond to
-    uint8_t frame_prio = 0;
-    get_frame_prio(data, &frame_prio);
-    //start index, will be used to create or assign
-    int working_set_index = 0;
-    //found matching
-    bool prio_match = false;
-    //determine if there is already a working set for this rule prio
-    for(working_set_index; working_set_index < rules_in_progress.num_rules_in_progress; working_set_index++) {
-        if(rules_in_progress.working_sets[working_set_index] == NULL) break;
-        prio_match = (rules_in_progress.working_sets[working_set_index]->prio);
-        
-        if(prio_match == true) {
-            //break out and operate on this one corresponding to our prio
-            
-            break;
-        }
-    }
-    
-    //if we found a match from the loop, send it to be processed by cmd
-    if (prio_match == true)
+    if (success == true)
     {
-        success = handle_new_rule_data_cmd(data, working_set_index);
-    }
-    
-    //if no match was found, we must create a new working set, then send this on to be processed by cmd
-    if(prio_match == false)
+        print_dbg("\n\rSUCCESS\n\r");
+    } 
+    else
     {
-        working_set_index = create_working_set_managed();
-        
-        if (working_set_index > -1)
-        {
-            success = handle_new_rule_data_cmd(data, working_set_index);
-        } else {
-          //creation unsuccessful
-          success = false;  
-        }
+        print_dbg("\n\rFAIL\n\r");
     }
-    
-    return success;
 }
-
 
 int main (void)
 {
@@ -623,7 +482,67 @@ int main (void)
     
     #endif
     
-    #if 1
+    //sequence:
+    //throw our frames at the handle function
+    //should see one working set created
+    //store rule should trigger assemblage of working set to rule
+    //save rule
+    //print rule
+    int add_working_set = &rules_in_progress.working_sets;
+    int add_working_set_01 = rules_in_progress.working_sets[0];
+    int add_rules_in_progress = &rules_in_progress;
+    
+    bool success = false;
+    int count = 0;
+    uint8_t prio_test;
+    get_frame_prio(&msg_prep_01.data.u64, &prio_test);
+    print_dbg("\n\rExpect Prio: ");
+    print_dbg_char_hex(prio_test);
+    print_dbg("\n\r\n\r");
+    
+    success = handle_new_rule_data(&msg_prep_01.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_02.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_03.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_04.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_05.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_06.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_07.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_08.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_09.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_10.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    print_rule(&flash_can_ruleset[prio_test]);
+    delay_ms(1000);
+    #if 0
     
     data_frame_test.u64 = 0x0807060504030201;
     
@@ -698,7 +617,7 @@ int main (void)
     
     #endif
     
-    #if 1
+    #if 0
     
     //test of creating new rule from working;
     control_rule = create_rule_from_working_set(&working_test);
@@ -713,13 +632,13 @@ int main (void)
     
     print_rule(&control_rule);
     
-    save_rule_to_flash(&control_rule, &flash_can_ruleset_north);
+    save_rule_to_flash(&control_rule, &flash_can_ruleset);
     print_dbg("\n\rRule from Flash\n\r");
-    print_rule(&flash_can_ruleset_north);
+    print_rule(&flash_can_ruleset);
     
-    save_rule_to_flash(&control_rule, &flash_can_ruleset_north);
+    save_rule_to_flash(&control_rule, &flash_can_ruleset);
     print_dbg("\n\rRule from Flash\n\r");
-    print_rule(&flash_can_ruleset_north);
+    print_rule(&flash_can_ruleset);
     //print_rule(&flash_can_ruleset_north[1]);
     #endif
     //Special Case: New Rule Acquisition

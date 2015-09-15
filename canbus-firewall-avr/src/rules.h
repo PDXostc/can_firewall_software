@@ -10,7 +10,7 @@
 #define RULES_H_
 
 #include "asf.h"
-
+#include "conf_debug.h"
 
 /* Defines for extraction methods */
 #define REF_                        0x0807060504030201
@@ -82,6 +82,10 @@
 
 /* Rules in progress setting */
 #define MAX_RULES_IN_PROGRESS                16
+
+#define SIZE_RULESET        16
+
+
 
 //Memory structures, proposed
 
@@ -181,9 +185,19 @@ typedef struct {
     rule_working_t *working_sets[MAX_RULES_IN_PROGRESS];    
     }rules_in_progress_t;
 
-//expose working rules in progress structure
 extern rules_in_progress_t rules_in_progress;
 
+//north and south rulesetsare stored flash together, with the convention being first half is north, second half is south in nvram
+#if defined (__GNUC__)
+__attribute__((__section__(".flash_rsvd")))
+#endif
+extern rule_t flash_can_ruleset[(SIZE_RULESET*2)]
+#if defined (__ICAVR32__)
+@ "FLASHRSVD"
+#endif
+;
+
+extern rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 /**
  * \brief Extract prio information from can frame data field
  * Prio indicates the overall priority index intended for the final rule. All preparation frames
@@ -444,4 +458,55 @@ extern inline void load_rule(rule_t *source_rule, rule_t *dest_rule);
  * \param num number of rules to be copied
  */
 extern void load_ruleset(rule_t *source, rule_t *dest, int num);
+
+/**
+ * \brief STUB FOR NOW -- Will verify that the sequence number received is and should be greater than number stored
+ * 
+ * \param working Pointer to working set where rule in progress resides
+ * 
+ * \return extern bool Verified successfully
+ */
+extern bool verify_new_rule_sequence(rule_working_t *working);
+
+/**
+ * \brief STUB FOR NOW -- Will verify the message sender and contents using the hmac received from the preparation frames
+ * 
+ * \param working Pointer to working set rule in progress
+ * 
+ * \return extern bool Verified successfully
+ */
+extern bool verify_new_rule_hmac(rule_working_t *working);
+
+/**
+ * \brief Checks that the bitfield for the working set is marked complete for every frame expected to build a rule
+ * 
+ * \param working Pointer to working set rule in progress
+ * 
+ * \return extern bool Verified successfully
+ */
+extern bool verify_new_rule_complete(rule_working_t *working);
+
+/**
+ * \brief Handles the data provided by CMD byte. Performs extraction of data from field to working set structure.
+ * Also executes the Store Rule case functions for verifying the validity of our rule in progress.
+ * 
+ * \param data Pointer to data field received
+ * \param working_set_index Index of the pointer to the working set applicable for this rule
+ * 
+ * \return extern bool Case handled. Returns false if no case or if store rule not verified. 
+ */
+extern bool handle_new_rule_data_cmd(Union64 *data, int working_set_index);
+
+/**
+ * \brief Handles the data provided by a positively identified new rule frame. The frame prio byte will be examined,
+ * and if a corresponding working set for the prio is already in progress. If a corresponding rule in progress is not 
+ * found then a new working set will be created. In either event the data should be passed on to be handled according to
+ * CMD byte. In the rare event when a new working set cannot be created, the function should return false, to indicate 
+ * that the CAN frame responsible for the data should not yet be released and cleared.
+ * 
+ * \param data Pointer to data field received
+ * 
+ * \return extern bool
+ */
+extern bool handle_new_rule_data(Union64 *data);
 #endif /* RULES_H_ */

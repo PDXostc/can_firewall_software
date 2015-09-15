@@ -15,6 +15,8 @@ rules_in_progress_t rules_in_progress = {
     .working_sets = {NULL}
 };
 
+rule_t flash_can_ruleset[(SIZE_RULESET*2)];
+
 /* Useful extraction methods for getting what we need out of the CAN frame data field */
  inline void get_frame_prio(const Union64 *data, uint8_t *prio) {
     get_frame_data_u8(data, prio, DATA_PRIO_MASK, DATA_PRIO_OFFSET);
@@ -295,4 +297,185 @@ void load_ruleset(rule_t *source, rule_t *dest, int num)
     for(int i = 0; i < num; i++) {
         load_rule(&source[i], &dest[i]);
     }
+}
+
+bool verify_new_rule_sequence(rule_working_t *working)
+{
+    //TODO: actually check sequence
+    
+    //stub returns true
+    return true;
+}
+
+bool verify_new_rule_hmac(rule_working_t *working)
+{
+    //TODO:actually validate HMAC
+    
+    //stub returns true
+    return true;
+}
+
+bool verify_new_rule_complete(rule_working_t *working)
+{
+    //verify that all bits are set complete in a bitfield
+    return (working->bitfield_completed == BITFIELD_COMPLETE);
+}
+
+bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
+{
+    bool success = false;
+    if((working_set_index > -1) == false) return success = false;
+    uint8_t cmd = 0;
+    get_frame_cmd(data, &cmd);
+    switch(cmd){
+        case CMD_PREP_01:
+        //corresponds to mask and xform information
+        get_frame_mask(data, &rules_in_progress.working_sets[working_set_index]->mask_xform.mask);
+        get_frame_xform(data, &rules_in_progress.working_sets[working_set_index]->mask_xform.xform);
+        set_bitfield_received(&rules_in_progress.working_sets[working_set_index]->bitfield_completed, BITFIELD_POSITION_PREP_01);
+        success = true;
+        break;
+        
+        case CMD_PREP_02:
+        //filter and dt_operand_01
+        get_frame_filter(data, &rules_in_progress.working_sets[working_set_index]->filter_dtoperand_01.filter);
+        get_frame_dt_operand_01(data, &rules_in_progress.working_sets[working_set_index]->filter_dtoperand_01.dtoperand01);
+        set_bitfield_received(&rules_in_progress.working_sets[working_set_index]->bitfield_completed, BITFIELD_POSITION_PREP_02);
+        success = true;
+        break;
+        
+        case CMD_PREP_03:
+        get_frame_dt_operand_02(data, &rules_in_progress.working_sets[working_set_index]->dt_operand_02.dtoperand02[0]);
+        get_frame_dt_operand_03(data, &rules_in_progress.working_sets[working_set_index]->dt_operand_02.dtoperand02[1]);
+        get_frame_dt_operand_04(data, &rules_in_progress.working_sets[working_set_index]->dt_operand_02.dtoperand02[2]);
+        set_bitfield_received(&rules_in_progress.working_sets[working_set_index]->bitfield_completed, BITFIELD_POSITION_PREP_03);
+        success = true;
+        break;
+        
+        case CMD_PREP_04:
+        get_frame_id_operand(data, &rules_in_progress.working_sets[working_set_index]->id_operand_hmac_01.idoperand);
+        get_frame_hmac_03(data, &rules_in_progress.working_sets[working_set_index]->id_operand_hmac_01.hmac);
+        set_bitfield_received(&rules_in_progress.working_sets[working_set_index]->bitfield_completed, BITFIELD_POSITION_PREP_04);
+        success = true;
+        break;
+        
+        case CMD_PREP_05:
+        get_frame_hmac_01(data, &rules_in_progress.working_sets[working_set_index]->hmac_02.hmac[0]);
+        get_frame_hmac_02(data, &rules_in_progress.working_sets[working_set_index]->hmac_02.hmac[1]);
+        get_frame_hmac_03(data, &rules_in_progress.working_sets[working_set_index]->hmac_02.hmac[2]);
+        set_bitfield_received(&rules_in_progress.working_sets[working_set_index]->bitfield_completed, BITFIELD_POSITION_PREP_05);
+        success = true;
+        break;
+        
+        case CMD_PREP_06:
+        get_frame_hmac_01(data, &rules_in_progress.working_sets[working_set_index]->hmac_03.hmac[0]);
+        get_frame_hmac_02(data, &rules_in_progress.working_sets[working_set_index]->hmac_03.hmac[1]);
+        get_frame_hmac_03(data, &rules_in_progress.working_sets[working_set_index]->hmac_03.hmac[2]);
+        set_bitfield_received(&rules_in_progress.working_sets[working_set_index]->bitfield_completed, BITFIELD_POSITION_PREP_06);
+        success = true;
+        break;
+        
+        case CMD_PREP_07:
+        get_frame_hmac_01(data, &rules_in_progress.working_sets[working_set_index]->hmac_04.hmac[0]);
+        get_frame_hmac_02(data, &rules_in_progress.working_sets[working_set_index]->hmac_04.hmac[1]);
+        get_frame_hmac_03(data, &rules_in_progress.working_sets[working_set_index]->hmac_04.hmac[2]);
+        set_bitfield_received(&rules_in_progress.working_sets[working_set_index]->bitfield_completed, BITFIELD_POSITION_PREP_07);
+        success = true;
+        break;
+        
+        case CMD_PREP_08:
+        get_frame_hmac_01(data, &rules_in_progress.working_sets[working_set_index]->hmac_05.hmac[0]);
+        get_frame_hmac_02(data, &rules_in_progress.working_sets[working_set_index]->hmac_05.hmac[1]);
+        get_frame_hmac_03(data, &rules_in_progress.working_sets[working_set_index]->hmac_05.hmac[2]);
+        set_bitfield_received(&rules_in_progress.working_sets[working_set_index]->bitfield_completed, BITFIELD_POSITION_PREP_08);
+        success = true;
+        break;
+        
+        case CMD_PREP_09:
+        get_frame_hmac_01(data, &rules_in_progress.working_sets[working_set_index]->hmac_06.hmac[0]);
+        get_frame_hmac_02(data, &rules_in_progress.working_sets[working_set_index]->hmac_06.hmac[1]);
+        get_frame_hmac_03(data, &rules_in_progress.working_sets[working_set_index]->hmac_06.hmac[2]);
+        set_bitfield_received(&rules_in_progress.working_sets[working_set_index]->bitfield_completed, BITFIELD_POSITION_PREP_09);
+        success = true;
+        break;
+        
+        case CMD_STORE:
+        //it's a store rule, panic!
+        
+        //to be written:
+        //success = verify_sequence & verify_hmac & verify_rule_complete & store_rule_to_flash
+        success = verify_new_rule_sequence(rules_in_progress.working_sets[working_set_index])
+        & verify_new_rule_hmac(rules_in_progress.working_sets[working_set_index])
+        & verify_new_rule_complete(rules_in_progress.working_sets[working_set_index]);
+        
+        #if DBG_HMAC
+        print_hmac_in_working_set(rules_in_progress.working_sets[working_set_index], true);
+        #endif
+        
+        //verified the rule, assemble and store it
+        if (success == true)
+        {
+            rule_t rule_to_save = create_rule_from_working_set(rules_in_progress.working_sets[working_set_index]);
+            success = save_rule_to_flash(&rule_to_save, &flash_can_ruleset[rule_to_save.prio]);
+        }
+        
+        //we got here because of a store command. whether or not we are successful, we should destroy the work in progress
+        delete_working_set_managed(rules_in_progress.working_sets, working_set_index);
+        break;
+        
+        default:
+        success = false;
+    }
+    
+    return success;
+}
+
+//main function for processing incoming new rule data
+//assumes this data has already been identified as belonging to a new rule frame
+bool handle_new_rule_data(Union64 *data)
+{
+    //successful handling
+    bool success = false;
+    //determine prio, ie which rule this frame should correspond to
+    uint8_t frame_prio = 0;
+    get_frame_prio(data, &frame_prio);
+    //start index, will be used to create or assign
+    int working_set_index = 0;
+    //found matching
+    bool prio_match = false;
+    //determine if there is already a working set for this rule prio
+    for(working_set_index; working_set_index < MAX_RULES_IN_PROGRESS; working_set_index++) {
+        if(rules_in_progress.working_sets[working_set_index] == NULL) break;
+        prio_match = (frame_prio == rules_in_progress.working_sets[working_set_index]->prio);
+        
+        if(prio_match == true) {
+            //break out and operate on this one corresponding to our prio
+            
+            break;
+        }
+    }
+    
+    //if we found a match from the loop, send it to be processed by cmd
+    if (prio_match == true)
+    {
+        success = handle_new_rule_data_cmd(data, working_set_index);
+    }
+    
+    //if no match was found, we must create a new working set, then send this on to be processed by cmd
+    if(prio_match == false)
+    {
+        working_set_index = create_working_set_managed();
+        
+        if (working_set_index > -1)
+        {
+            //set prio of newly created working set to prio in frame we created with
+            rules_in_progress.working_sets[working_set_index]->prio = frame_prio;
+            success = handle_new_rule_data_cmd(data, working_set_index);
+            } else {
+            //creation unsuccessful
+            success = false;
+        }
+    }
+    
+    return success;
 }
