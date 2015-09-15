@@ -53,6 +53,19 @@
 #define DATA_HMAC_03_MASK           0x0000FFFF00000000
 #define DATA_HMAC_03_OFFSET         32
 
+/* Command enumeration defines, directly corresponds to value of CMD byte in a preparation frame */
+#define CMD_PREP_01                         1
+#define CMD_PREP_02                         2
+#define CMD_PREP_03                         3
+#define CMD_PREP_04                         4
+#define CMD_PREP_05                         5
+#define CMD_PREP_06                         6
+#define CMD_PREP_07                         7
+#define CMD_PREP_08                         8
+#define CMD_PREP_09                         9
+#define CMD_STORE                           10
+
+
 /* Defines for bitfield tracker of received preparation rule frames */
 #define BITFIELD_FRAME_RCVD                  1  //set bit true when received corresponding frame
 #define BITFIELD_NUM_POSITIONS               9  //number of positions we expect the field to account for
@@ -167,7 +180,8 @@ typedef struct {
     rule_working_t *working_sets[];    
     }rules_in_progress_t;
 
-
+//expose working rules in progress structure
+extern rules_in_progress_t rules_in_progress;
 
 /**
  * \brief Extract prio information from can frame data field
@@ -349,9 +363,9 @@ extern void print_ruleset(rule_t *ruleset, int numrules);
  * 
  * \param 
  * 
- * \return extern bool Successful creation
+ * \return extern int Index at successful creation
  */
-extern bool create_working_set_managed(void);
+extern int create_working_set_managed(void);
 /**
  * \brief Deletes a working set in memory for assembling a rule, presumably used when finished 
  * assembling. This version should check to make sure to decrement the count of rules in progress

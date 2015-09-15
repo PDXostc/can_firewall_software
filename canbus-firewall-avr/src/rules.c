@@ -168,10 +168,10 @@ bool save_ruleset_to_flash(rule_t *source, rule_t *dest, int num)
     return success;
 }
 
-bool create_working_set_managed()
+int create_working_set_managed()
 {
     //check within bounds
-    if (rules_in_progress.num_rules_in_progress >= MAX_RULES_IN_PROGRESS) return false;
+    if (rules_in_progress.num_rules_in_progress >= MAX_RULES_IN_PROGRESS) return -1;
     
     //assume num rules in progress is a running count, giving us next available index
     int i = rules_in_progress.num_rules_in_progress;
@@ -185,8 +185,8 @@ bool create_working_set_managed()
         rules_in_progress.working_sets[i]->at_index = i;
         //increment count
         rules_in_progress.num_rules_in_progress += 1;
-        return true;    
-    } else return false;
+        return i;    
+    } else return -1;
     
 }
 
