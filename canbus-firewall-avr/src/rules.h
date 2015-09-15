@@ -66,6 +66,9 @@
 #define BITFIELD_POSITION_PREP_08            7
 #define BITFIELD_POSITION_PREP_09            8
 
+/* Rules in progress setting */
+#define MAX_RULES_IN_PROGRESS                16
+
 //Memory structures, proposed
 
 //+ New Rule Working Set
@@ -141,6 +144,8 @@ typedef struct {
 typedef struct {
     uint8_t prio;
     uint16_t bitfield_completed;
+    //location in managed working sets array
+    int at_index;
     //structs for rules in progress
     rule_prep_01_t mask_xform;
     rule_prep_02_t filter_dtoperand_01;
@@ -154,6 +159,13 @@ typedef struct {
     rule_store_t store_sequence;
 } rule_working_t;
 
+/* tracking of rules in progress
+ * intended to serve as a global index of the rules that are in progress of assembly
+ */
+typedef struct {
+    int num_rules_in_progress;
+    rule_working_t *working_sets[];    
+    }rules_in_progress_t;
 
 
 
@@ -329,6 +341,46 @@ extern void print_rule(rule_t *rule);
 * \param numrules Number of rules to be printed
 */
 extern void print_ruleset(rule_t *ruleset, int numrules);
+
+/**
+ * \brief Creates a working set in memory for assembling a rule.
+ * This version should allocate a pointer to the tracking structure using the private create,
+ * and increment the count of working sets in memory.
+ * 
+ * \param 
+ * 
+ * \return extern bool Successful creation
+ */
+extern bool create_working_set_managed(void);
+/**
+ * \brief Deletes a working set in memory for assembling a rule, presumably used when finished 
+ * assembling. This version should check to make sure to decrement the count of rules in progress
+ * safely, and delete and rearrange the collection of pointers to the working sets safely as well
+ * 
+ * \param working Pointer to working set in memory that we wish to delete. Must not be null.
+ * 
+ * \return extern  bool Successful deletion
+ */
+extern bool delete_working_set_managed(rule_working_t* working_set[], int at_index);
+
+/**
+ * \brief Allocate space for a new working set and return a pointer to the location in memory
+ * This is the private call used by the managed version. Public users and main program should use the
+ * _managed version of the call.
+ * 
+ * 
+ * \return rule_working_t*
+ */
+rule_working_t* create_working_set(void);
+/**
+ * \brief Delete a working rule in progress memory structure given the pointer to the structure.
+ *  This is the private call used by the managed version. Public users and main program should use the 
+ * _managed version of the call.
+ * \param working Pointer to working set in memory
+ * 
+ * \return void
+ */
+void delete_working_set(rule_working_t *working);
 
 /*! \brief Creates and returns a rule structure from a rule working set
 * \param *working Pointer to a rule in progress structure

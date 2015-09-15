@@ -9,7 +9,11 @@
 
 #include "rules.h"
 
-
+//should always initialize this one for tracking
+rules_in_progress_t rules_in_progress = {
+    .num_rules_in_progress = 0,
+    .working_sets[MAX_RULES_IN_PROGRESS] = NULL
+};
 
 /* Useful extraction methods for getting what we need out of the CAN frame data field */
  inline void get_frame_prio(const Union64 *data, uint8_t *prio) {
@@ -162,6 +166,62 @@ bool save_ruleset_to_flash(rule_t *source, rule_t *dest, int num)
         success = save_rule_to_flash(&source[i], &dest[i]);
     }
     return success;
+}
+
+bool create_working_set_managed()
+{
+    //check within bounds
+    if (rules_in_progress.num_rules_in_progress >= MAX_RULES_IN_PROGRESS) return false;
+    
+    //assume num rules in progress is a running count, giving us next available index
+    int i = rules_in_progress.num_rules_in_progress;
+    
+    //allocate new to pointer collection
+    rules_in_progress.working_sets[i] = create_working_set();
+    
+    //check that allocation was successful
+    if(rules_in_progress.working_sets[i] != NULL) {
+        //tell working set where it is 
+        rules_in_progress.working_sets[i]->at_index = i;
+        //increment count
+        rules_in_progress.num_rules_in_progress += 1;
+        return true;    
+    } else return false;
+    
+}
+
+bool delete_working_set_managed(rule_working_t* working_set[], int at_index)
+{
+    //do nothing if handed a null pointer
+    if(working_set[at_index] == NULL) return false;
+    //if count of rules in progress is not greater than 0, this must be a mistake
+    if((rules_in_progress.num_rules_in_progress > 0) == false) return false;
+    
+    //free working set in memory
+    delete_working_set(working_set[at_index]);
+    
+    //shift pointers in collection, decrementing their position 
+    for(int i = at_index; i < MAX_RULES_IN_PROGRESS; i++)
+    {
+        //is next one a null pointer? if so, end of currently stored, break our
+        if(working_set[i + 1] == NULL) break;
+        //otherwise, move the next in line to our current index
+        working_set[i] = working_set[i + 1]; 
+        //let our working set know where it is, just in case
+        working_set[i]->at_index = i;
+    }
+    rules_in_progress.num_rules_in_progress -= 1;
+    return true;
+}
+
+rule_working_t* create_working_set()
+{
+    return malloc(sizeof(rule_working_t));
+}
+
+void delete_working_set(rule_working_t *working)
+{
+    free(working);
 }
 
 rule_t create_rule_from_working_set(rule_working_t *working) {
