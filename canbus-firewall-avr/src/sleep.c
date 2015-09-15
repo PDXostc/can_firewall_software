@@ -22,5 +22,5 @@ void sleep_mode_start()
     CANIF_enable_wakeup(1);
     
     //Go to sleep
-    SLEEP(AVR32_PM_SMODE_STATIC);
+    SLEEP(AVR32_PM_SMODE_STANDBY);
 }
