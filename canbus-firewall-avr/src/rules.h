@@ -207,7 +207,7 @@ extern rule_t flash_can_ruleset[(SIZE_RULESET*2)];
  * 
  * \return extern void
  */
-extern inline void get_frame_prio(const Union64 *data, uint8_t *prio_out);
+extern  void get_frame_prio(const Union64 *data, uint8_t *prio_out);
 /**
  * \brief Extract cmd information from can frame data field
  * CMD corresponds to rule preparation number, ie what data we should expect to see in the 
@@ -218,7 +218,7 @@ extern inline void get_frame_prio(const Union64 *data, uint8_t *prio_out);
  * 
  * \return extern void
  */
-extern inline void get_frame_cmd(const Union64 *data, uint8_t *cmd_out);
+extern  void get_frame_cmd(const Union64 *data, uint8_t *cmd_out);
 /**
  * \brief Extract mask information from can frame data field
  * 
@@ -227,7 +227,7 @@ extern inline void get_frame_cmd(const Union64 *data, uint8_t *cmd_out);
  * 
  * \return extern void
  */
-extern inline void get_frame_mask(const Union64 *data, uint32_t *mask_out);
+extern  void get_frame_mask(const Union64 *data, uint32_t *mask_out);
 
 /**
  * \brief Extract filter information from can frame data field
@@ -237,7 +237,7 @@ extern inline void get_frame_mask(const Union64 *data, uint32_t *mask_out);
  * 
  * \return extern void
  */
-extern inline void get_frame_filter(const Union64 *data, uint32_t *filter_out);
+extern  void get_frame_filter(const Union64 *data, uint32_t *filter_out);
 
 /**
  * \brief Extract Transform information from can frame data field
@@ -247,7 +247,7 @@ extern inline void get_frame_filter(const Union64 *data, uint32_t *filter_out);
  * 
  * \return extern void
  */
-extern inline void get_frame_xform(const Union64 *data, uint8_t *xform_out);
+extern  void get_frame_xform(const Union64 *data, uint8_t *xform_out);
 
 /**
  * \brief Extract Identifier Operand information from can frame data field
@@ -257,7 +257,7 @@ extern inline void get_frame_xform(const Union64 *data, uint8_t *xform_out);
  * 
  * \return extern void
  */
-extern inline void get_frame_id_operand(const Union64 *data, uint32_t *idoperand_out);
+extern  void get_frame_id_operand(const Union64 *data, uint32_t *idoperand_out);
 
 /**
  * \brief Extract data operand information from CAN frame data field
@@ -269,7 +269,7 @@ extern inline void get_frame_id_operand(const Union64 *data, uint32_t *idoperand
  * 
  * \return extern void
  */
-extern inline void get_frame_dt_operand_01(const Union64 *data, uint16_t *dtoperand_out);
+extern  void get_frame_dt_operand_01(const Union64 *data, uint16_t *dtoperand_out);
 
 /**
  * \brief Extract data operand information from CAN frame data field
@@ -281,7 +281,7 @@ extern inline void get_frame_dt_operand_01(const Union64 *data, uint16_t *dtoper
  * 
  * \return extern void
  */
-extern inline void get_frame_dt_operand_02(const Union64 *data, uint16_t *dtoperand_out);
+extern  void get_frame_dt_operand_02(const Union64 *data, uint16_t *dtoperand_out);
 
 /**
  * \brief Extract data operand information from CAN frame data field
@@ -293,7 +293,7 @@ extern inline void get_frame_dt_operand_02(const Union64 *data, uint16_t *dtoper
  * 
  * \return extern void
  */
-extern inline void get_frame_dt_operand_03(const Union64 *data, uint16_t *dtoperand_out);
+extern  void get_frame_dt_operand_03(const Union64 *data, uint16_t *dtoperand_out);
 
 /**
  * \brief Extract data operand information from CAN frame data field
@@ -305,7 +305,7 @@ extern inline void get_frame_dt_operand_03(const Union64 *data, uint16_t *dtoper
  * 
  * \return extern void
  */
-extern inline void get_frame_dt_operand_04(const Union64 *data, uint16_t *dtoperand_out);
+extern  void get_frame_dt_operand_04(const Union64 *data, uint16_t *dtoperand_out);
 
 /**
  * \brief Extract hmac information from CAN frame data field
@@ -317,7 +317,7 @@ extern inline void get_frame_dt_operand_04(const Union64 *data, uint16_t *dtoper
  * 
  * \return extern void
  */
-extern inline void get_frame_hmac_01(const Union64 *data, uint16_t *hmac_out);
+extern  void get_frame_hmac_01(const Union64 *data, uint16_t *hmac_out);
 
 /**
  * \brief Extract hmac information from CAN frame data field
@@ -329,7 +329,7 @@ extern inline void get_frame_hmac_01(const Union64 *data, uint16_t *hmac_out);
  * 
  * \return extern void
  */
-extern inline void get_frame_hmac_02(const Union64 *data, uint16_t *hmac_out);
+extern  void get_frame_hmac_02(const Union64 *data, uint16_t *hmac_out);
 
 /**
  * \brief Extract hmac information from CAN frame data field
@@ -341,12 +341,12 @@ extern inline void get_frame_hmac_02(const Union64 *data, uint16_t *hmac_out);
  * 
  * \return extern void
  */
-extern inline void get_frame_hmac_03(const Union64 *data, uint16_t *hmac_out);
+extern void get_frame_hmac_03(const Union64 *data, uint16_t *hmac_out);
 
-extern inline void get_frame_data_u8(const Union64 *data, uint8_t *target, unsigned long long mask, int offset);
-extern inline void get_frame_data_u16(const Union64 *data, uint16_t *target, unsigned long long mask, int offset);
-extern inline void get_frame_data_u32(const Union64 *data, uint32_t *target, unsigned long long mask, int offset);
-extern inline void get_frame_data_u64(const Union64 *data, uint64_t *target, unsigned long long mask, int offset);
+extern void get_frame_data_u8(const Union64 *data, uint8_t *target, unsigned long long mask, int offset);
+extern void get_frame_data_u16(const Union64 *data, uint16_t *target, unsigned long long mask, int offset);
+extern void get_frame_data_u32(const Union64 *data, uint32_t *target, unsigned long long mask, int offset);
+extern void get_frame_data_u64(const Union64 *data, uint64_t *target, unsigned long long mask, int offset);
 
 /**
  * \brief Set a bit in a given bitfield and position to 1, indicating a rule preparation frame was received successfully 
@@ -356,7 +356,7 @@ extern inline void get_frame_data_u64(const Union64 *data, uint64_t *target, uns
  * 
  * \return extern void
  */
-extern inline void set_bitfield_received(uint16_t *bitfield, int position);
+extern void set_bitfield_received(uint16_t *bitfield, int position);
 
 /*! \brief Print a given rule using debug output to usart.
 *
@@ -449,7 +449,7 @@ extern bool save_ruleset_to_flash(rule_t *source, rule_t *dest, int num);
  * \param source_rule structure to copy from
  * \param dest_rule structure to copy to
  */
-extern inline void load_rule(rule_t *source_rule, rule_t *dest_rule);
+extern void load_rule(rule_t *source_rule, rule_t *dest_rule);
 
 /*! \breif Load ruleset, multiple rules from one location to another
  * Simple copy

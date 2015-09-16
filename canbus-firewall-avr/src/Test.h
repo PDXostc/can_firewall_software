@@ -13,7 +13,7 @@
 #include "rules.h"
 #include "conf_messages.h"
 
-extern print_success(bool success);
+extern void print_success(bool success);
 
 extern bool test_new_rule_creation(void);
 

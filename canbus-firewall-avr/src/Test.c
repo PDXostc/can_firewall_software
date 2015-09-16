@@ -10,7 +10,7 @@
 /* TESTS ****************************************************************************************************/
 
 //silly, get rid of this later
-print_success(bool success)
+void print_success(bool success)
 {
     if (success == true)
     {
@@ -34,68 +34,68 @@ bool test_new_rule_creation(void)
     bool success = false;
     int count = 0;
     uint8_t prio_test;
-    get_frame_prio(&msg_prep_01.data.u64, &prio_test);
+    get_frame_prio(&msg_prep_01.data, &prio_test);
     #if DBG_RULES
     print_dbg("\n\rExpect Prio: ");
     print_dbg_char_hex(prio_test);
     print_dbg("\n\r\n\r");
     #endif
     
-    success = handle_new_rule_data(&msg_prep_01.data.u64);
+    success = handle_new_rule_data(&msg_prep_01.data);
     #if DBG_RULES
     print_success(success);
     print_dbg_hex(count += 1);
     #endif
     
-    success = handle_new_rule_data(&msg_prep_02.data.u64);
+    success = handle_new_rule_data(&msg_prep_02.data);
     #if DBG_RULES
     print_success(success);
     print_dbg_hex(count += 1);
     #endif
     
-    success = handle_new_rule_data(&msg_prep_03.data.u64);
+    success = handle_new_rule_data(&msg_prep_03.data);
     #if DBG_RULES
     print_success(success);
     print_dbg_hex(count += 1);
     #endif
     
-    success = handle_new_rule_data(&msg_prep_04.data.u64);
+    success = handle_new_rule_data(&msg_prep_04.data);
     #if DBG_RULES
     print_success(success);
     print_dbg_hex(count += 1);
     #endif
     
-    success = handle_new_rule_data(&msg_prep_05.data.u64);
+    success = handle_new_rule_data(&msg_prep_05.data);
     #if DBG_RULES
     print_success(success);
     print_dbg_hex(count += 1);
     #endif
     
-    success = handle_new_rule_data(&msg_prep_06.data.u64);
+    success = handle_new_rule_data(&msg_prep_06.data);
     #if DBG_RULES
     print_success(success);
     print_dbg_hex(count += 1);
     #endif
     
-    success = handle_new_rule_data(&msg_prep_07.data.u64);
+    success = handle_new_rule_data(&msg_prep_07.data);
     #if DBG_RULES
     print_success(success);
     print_dbg_hex(count += 1);
     #endif
     
-    success = handle_new_rule_data(&msg_prep_08.data.u64);
+    success = handle_new_rule_data(&msg_prep_08.data);
     #if DBG_RULES
     print_success(success);
     print_dbg_hex(count += 1);
     #endif
     
-    success = handle_new_rule_data(&msg_prep_09.data.u64);
+    success = handle_new_rule_data(&msg_prep_09.data);
     #if DBG_RULES
     print_success(success);
     print_dbg_hex(count += 1);
     #endif
     
-    success = handle_new_rule_data(&msg_prep_10.data.u64);
+    success = handle_new_rule_data(&msg_prep_10.data);
     #if DBG_RULES
     print_success(success);
     print_dbg_hex(count += 1);
