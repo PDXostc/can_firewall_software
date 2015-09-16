@@ -59,28 +59,7 @@ volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA00000
 volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 #endif
 
-#define SIZE_RULESET        16
 
-//north ruleset in nvram
-#if defined (__GNUC__)
-__attribute__((__section__(".flash_rsvd")))
-#endif
-static rule_t flash_can_ruleset_north[16]
-#if defined (__ICAVR32__)
-@ "FLASHRSVD"
-#endif
-;
-
-//South ruleset in flash.
-//Section is customized in linker lds file in project folder
-#if defined (__GNUC__)
-__attribute__((__section__(".flash_rsvd")))
-#endif
-static rule_t flash_can_ruleset_south[16]
-#if defined (__ICAVR32__)
-@ "FLASHRSVD"
-#endif
-;
 
 //SRAM Allocation for loaded filter rulesets
 static rule_t can_ruleset_north[16];
@@ -474,6 +453,18 @@ void init_can(void) {
     Enable_global_interrupt();
 }
 
+print_success(bool success)
+{
+    if (success == true)
+    {
+        print_dbg("\n\rSUCCESS\n\r");
+    } 
+    else
+    {
+        print_dbg("\n\rFAIL\n\r");
+    }
+}
+
 int main (void)
 {
     //setup
@@ -491,9 +482,78 @@ int main (void)
     
     #endif
     
-    #if 1
+    //sequence:
+    //throw our frames at the handle function
+    //should see one working set created
+    //store rule should trigger assemblage of working set to rule
+    //save rule
+    //print rule
+    int add_working_set = &rules_in_progress.working_sets;
+    int add_working_set_01 = rules_in_progress.working_sets[0];
+    int add_rules_in_progress = &rules_in_progress;
+    
+    bool success = false;
+    int count = 0;
+    uint8_t prio_test;
+    get_frame_prio(&msg_prep_01.data.u64, &prio_test);
+    print_dbg("\n\rExpect Prio: ");
+    print_dbg_char_hex(prio_test);
+    print_dbg("\n\r\n\r");
+    
+    success = handle_new_rule_data(&msg_prep_01.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_02.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_03.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_04.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_05.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_06.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_07.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_08.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_09.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    success = handle_new_rule_data(&msg_prep_10.data.u64);
+    print_success(success);
+    print_dbg_hex(count += 1);
+    
+    print_rule(&flash_can_ruleset[prio_test]);
+    delay_ms(1000);
+    #if 0
     
     data_frame_test.u64 = 0x0807060504030201;
+    
+    int size_rule_working = sizeof(rule_working_t);
+    int size_rule_working_pointer = sizeof(rule_working_t*);
+    //bitfield test
+    set_bitfield_received(&working_test.bitfield_completed, BITFIELD_POSITION_PREP_01);
+    set_bitfield_received(&working_test.bitfield_completed, BITFIELD_POSITION_PREP_03);
+    set_bitfield_received(&working_test.bitfield_completed, BITFIELD_POSITION_PREP_05);
+    print_dbg("\n\r Bitfield: \n\r");
+    print_dbg_hex(working_test.bitfield_completed);
     
     //frame get prio test
     uint8_t prio_test;
@@ -557,7 +617,7 @@ int main (void)
     
     #endif
     
-    #if 1
+    #if 0
     
     //test of creating new rule from working;
     control_rule = create_rule_from_working_set(&working_test);
@@ -572,13 +632,13 @@ int main (void)
     
     print_rule(&control_rule);
     
-    save_rule_to_flash(&control_rule, &flash_can_ruleset_north);
+    save_rule_to_flash(&control_rule, &flash_can_ruleset);
     print_dbg("\n\rRule from Flash\n\r");
-    print_rule(&flash_can_ruleset_north);
+    print_rule(&flash_can_ruleset);
     
-    save_rule_to_flash(&control_rule, &flash_can_ruleset_north);
+    save_rule_to_flash(&control_rule, &flash_can_ruleset);
     print_dbg("\n\rRule from Flash\n\r");
-    print_rule(&flash_can_ruleset_north);
+    print_rule(&flash_can_ruleset);
     //print_rule(&flash_can_ruleset_north[1]);
     #endif
     //Special Case: New Rule Acquisition

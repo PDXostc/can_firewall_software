@@ -182,7 +182,110 @@ void print_can_message(can_msg_t *msg) {
     print_dbg("\n\ID:  \n\r");
     print_dbg_char_hex(msg->id);
     print_dbg("\n\:Data:  \n\r");
+    print_dbg_ulong(msg->data.u64 >> 32);
     print_dbg_ulong(msg->data.u64);
 }
 
+//test messages section ----///////////////////////////////////////
+
+//basic test messages for new rule incoming test
+can_msg_t msg_prep_01 = {
+    {
+        {
+            .id = 0x7FE,                    // Identifier
+            .id_mask  = 0x7FF,              // Mask
+        },
+    },
+    .data.u64 = 0x04010000FFFF0100LL,    // Data
+};
+
+can_msg_t msg_prep_02 = {
+    {
+        {
+            .id = 0x7FE,                    // Identifier
+            .id_mask  = 0x7FF,              // Mask
+        },
+    },
+    .data.u64 = 0x04020000AAC10807LL,    // Data
+};
+
+can_msg_t msg_prep_03 = {
+    {
+        {
+            .id = 0x7FE,                    // Identifier
+            .id_mask  = 0x7FF,              // Mask
+        },
+    },
+    .data.u64 = 0x0403060504030201LL,    // Data
+};
+
+can_msg_t msg_prep_04 = {
+    {
+        {
+            .id = 0x7FE,                    // Identifier
+            .id_mask  = 0x7FF,              // Mask
+        },
+    },
+    .data.u64 = 0x0404FFFF00001F1ELL,    // Data
+};
+
+can_msg_t msg_prep_05 = {
+    {
+        {
+            .id = 0x7FE,                    // Identifier
+            .id_mask  = 0x7FF,              // Mask
+        },
+    },
+    .data.u64 = 0x04051D1C1B1A1918LL,    // Data
+};
+
+can_msg_t msg_prep_06 = {
+    {
+        {
+            .id = 0x7FE,                    // Identifier
+            .id_mask  = 0x7FF,              // Mask
+        },
+    },
+    .data.u64 = 0x0406171615141312LL,    // Data
+};
+
+can_msg_t msg_prep_07 = {
+    {
+        {
+            .id = 0x7FE,                    // Identifier
+            .id_mask  = 0x7FF,              // Mask
+        },
+    },
+    .data.u64 = 0x040711100F0E0D0CLL,    // Data
+};
+
+can_msg_t msg_prep_08 = {
+    {
+        {
+            .id = 0x7FE,                    // Identifier
+            .id_mask  = 0x7FF,              // Mask
+        },
+    },
+    .data.u64 = 0x04080B0A09080706LL,    // Data
+};
+
+can_msg_t msg_prep_09 = {
+    {
+        {
+            .id = 0x7FE,                    // Identifier
+            .id_mask  = 0x7FF,              // Mask
+        },
+    },
+    .data.u64 = 0x0409050403020100LL,    // Data
+};
+
+can_msg_t msg_prep_10 = {
+    {
+        {
+            .id = 0x7FE,                    // Identifier
+            .id_mask  = 0x7FF,              // Mask
+        },
+    },
+    .data.u64 = 0x040A000000010000LL,    // Data
+};
 #endif /* CONF_MESSAGES_H_ */
