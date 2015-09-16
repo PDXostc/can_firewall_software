@@ -545,6 +545,9 @@
     <Compile Include="src\ASF\avr32\drivers\canif\canif.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\config\conf_messages.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\rules.c">
       <SubType>compile</SubType>
     </Compile>
@@ -555,6 +558,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\sleep.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Test.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Test.h">
       <SubType>compile</SubType>
     </Compile>
     <None Include="src\ASF\avr32\drivers\cpu\avr32_reset_cause.h">

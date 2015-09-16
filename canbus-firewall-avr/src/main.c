@@ -46,6 +46,7 @@
 #include "conf_rules.h"
 #include "rules.h"
 #include "sleep.h"
+#include "test.h"
 //#include "conf_can_example.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
@@ -453,18 +454,6 @@ void init_can(void) {
     Enable_global_interrupt();
 }
 
-print_success(bool success)
-{
-    if (success == true)
-    {
-        print_dbg("\n\rSUCCESS\n\r");
-    } 
-    else
-    {
-        print_dbg("\n\rFAIL\n\r");
-    }
-}
-
 int main (void)
 {
     //setup
@@ -482,165 +471,10 @@ int main (void)
     
     #endif
     
-    //sequence:
-    //throw our frames at the handle function
-    //should see one working set created
-    //store rule should trigger assemblage of working set to rule
-    //save rule
-    //print rule
-    int add_working_set = &rules_in_progress.working_sets;
-    int add_working_set_01 = rules_in_progress.working_sets[0];
-    int add_rules_in_progress = &rules_in_progress;
+    bool test_new_rule = test_new_rule_creation();
     
-    bool success = false;
-    int count = 0;
-    uint8_t prio_test;
-    get_frame_prio(&msg_prep_01.data.u64, &prio_test);
-    print_dbg("\n\rExpect Prio: ");
-    print_dbg_char_hex(prio_test);
-    print_dbg("\n\r\n\r");
-    
-    success = handle_new_rule_data(&msg_prep_01.data.u64);
-    print_success(success);
-    print_dbg_hex(count += 1);
-    
-    success = handle_new_rule_data(&msg_prep_02.data.u64);
-    print_success(success);
-    print_dbg_hex(count += 1);
-    
-    success = handle_new_rule_data(&msg_prep_03.data.u64);
-    print_success(success);
-    print_dbg_hex(count += 1);
-    
-    success = handle_new_rule_data(&msg_prep_04.data.u64);
-    print_success(success);
-    print_dbg_hex(count += 1);
-    
-    success = handle_new_rule_data(&msg_prep_05.data.u64);
-    print_success(success);
-    print_dbg_hex(count += 1);
-    
-    success = handle_new_rule_data(&msg_prep_06.data.u64);
-    print_success(success);
-    print_dbg_hex(count += 1);
-    
-    success = handle_new_rule_data(&msg_prep_07.data.u64);
-    print_success(success);
-    print_dbg_hex(count += 1);
-    
-    success = handle_new_rule_data(&msg_prep_08.data.u64);
-    print_success(success);
-    print_dbg_hex(count += 1);
-    
-    success = handle_new_rule_data(&msg_prep_09.data.u64);
-    print_success(success);
-    print_dbg_hex(count += 1);
-    
-    success = handle_new_rule_data(&msg_prep_10.data.u64);
-    print_success(success);
-    print_dbg_hex(count += 1);
-    
-    print_rule(&flash_can_ruleset[prio_test]);
     delay_ms(1000);
-    #if 0
     
-    data_frame_test.u64 = 0x0807060504030201;
-    
-    int size_rule_working = sizeof(rule_working_t);
-    int size_rule_working_pointer = sizeof(rule_working_t*);
-    //bitfield test
-    set_bitfield_received(&working_test.bitfield_completed, BITFIELD_POSITION_PREP_01);
-    set_bitfield_received(&working_test.bitfield_completed, BITFIELD_POSITION_PREP_03);
-    set_bitfield_received(&working_test.bitfield_completed, BITFIELD_POSITION_PREP_05);
-    print_dbg("\n\r Bitfield: \n\r");
-    print_dbg_hex(working_test.bitfield_completed);
-    
-    //frame get prio test
-    uint8_t prio_test;
-    get_frame_data_u8(&data_frame_test, &working_test.prio, DATA_PRIO_MASK, DATA_PRIO_OFFSET);
-    print_dbg("\n\r Frame Prio: \n\r");
-    print_dbg_char_hex(prio_test);
-    
-    //frame get cmd test
-    uint8_t cmd_test;
-    get_frame_cmd(&data_frame_test, &cmd_test);
-    print_dbg("\n\r Frame cmd: \n\r");
-    print_dbg_char_hex(cmd_test);
-    
-    //frame mask test
-    uint32_t mask_test;
-    get_frame_mask(&data_frame_test, &working_test.mask_xform.mask);
-    print_dbg("\n\r Frame Mask: \n\r");
-    print_dbg_hex(mask_test);
-    
-    //frame filter test
-    uint32_t filter_test;
-    get_frame_filter(&data_frame_test, &working_test.filter_dtoperand_01.filter);
-    print_dbg("\n\r Frame Filter: \n\r");
-    print_dbg_hex(filter_test);
-    
-    //frame xform test
-    uint8_t xform_test;
-    get_frame_xform(&data_frame_test, &working_test.mask_xform.xform);
-    print_dbg("\n\r Frame xform: \n\r");
-    print_dbg_char_hex(xform_test);
-
-    ////frame id_operand test
-    uint32_t id_operand_test;
-    get_frame_id_operand(&data_frame_test, &working_test.id_operand_hmac_01.idoperand);
-    print_dbg("\n\r Frame id_operand: \n\r");
-    print_dbg_hex(id_operand_test);
-    
-    int add_fake = &fake_rule;
-    int add_control = &control_rule;
-    int add_north01 = &can_ruleset_north[0];
-    int add_north02 = &can_ruleset_north[1];
-    
-    //force control print of single rule
-    load_rule(&fake_rule, &can_ruleset_north[0]);
-    load_rule(&control_rule, &can_ruleset_north[1]);
-    
-    add_fake = &fake_rule;
-    add_control = &control_rule;
-    add_north01 = &can_ruleset_north[0];
-    add_north02 = &can_ruleset_north[1];
-    
-    //test print single rule
-    print_dbg("\n\n\rRule From RAM\n\r");
-    print_rule(&can_ruleset_north[0]);
-    print_rule(&can_ruleset_north[1]);
-    
-    load_ruleset(&can_ruleset_north, &can_ruleset_south, 2);
-    
-    print_dbg("\n\rRules loaded using load rule\n\r");
-    print_ruleset(&can_ruleset_south, 2);
-    
-    #endif
-    
-    #if 0
-    
-    //test of creating new rule from working;
-    control_rule = create_rule_from_working_set(&working_test);
-    unsigned long long great_expectations = 578437695752307201;
-    
-    if(control_rule.dtoperand != great_expectations) {
-        print_dbg("\n\r...dtoperand fail...\n\r");
-    }
-    else if(control_rule.dtoperand == great_expectations) {
-        print_dbg("\n\r...dtoperand SUCCESS...\n\r");
-    }
-    
-    print_rule(&control_rule);
-    
-    save_rule_to_flash(&control_rule, &flash_can_ruleset);
-    print_dbg("\n\rRule from Flash\n\r");
-    print_rule(&flash_can_ruleset);
-    
-    save_rule_to_flash(&control_rule, &flash_can_ruleset);
-    print_dbg("\n\rRule from Flash\n\r");
-    print_rule(&flash_can_ruleset);
-    //print_rule(&flash_can_ruleset_north[1]);
-    #endif
     //Special Case: New Rule Acquisition
     //Intercept CAN frame carrying New Rule payload
     //determine that mask and filter combination meets requirements to match New Rule Frame to New Rule Creation Rule (stored in flash)
