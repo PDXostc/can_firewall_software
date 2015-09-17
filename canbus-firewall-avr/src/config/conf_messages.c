@@ -226,7 +226,7 @@ can_msg_t msg_prep_04 = {
             .id_mask  = 0x7FF,              // Mask
         },
     },
-    .data.u64 = 0x0404FFFF00001F1ELL,    // Data
+    .data.u64 = 0x0404FFFF00003e0cLL,    // Data
 };
 
 can_msg_t msg_prep_05 = {
@@ -236,7 +236,7 @@ can_msg_t msg_prep_05 = {
             .id_mask  = 0x7FF,              // Mask
         },
     },
-    .data.u64 = 0x04051D1C1B1A1918LL,    // Data
+    .data.u64 = 0x040507ab0b451614LL,    // Data
 };
 
 can_msg_t msg_prep_06 = {
@@ -246,7 +246,7 @@ can_msg_t msg_prep_06 = {
             .id_mask  = 0x7FF,              // Mask
         },
     },
-    .data.u64 = 0x0406171615141312LL,    // Data
+    .data.u64 = 0x0406d402afec3afdLL,    // Data
 };
 
 can_msg_t msg_prep_07 = {
@@ -256,7 +256,7 @@ can_msg_t msg_prep_07 = {
             .id_mask  = 0x7FF,              // Mask
         },
     },
-    .data.u64 = 0x040711100F0E0D0CLL,    // Data
+    .data.u64 = 0x0407b55862880ce6LL,    // Data
 };
 
 can_msg_t msg_prep_08 = {
@@ -266,7 +266,7 @@ can_msg_t msg_prep_08 = {
             .id_mask  = 0x7FF,              // Mask
         },
     },
-    .data.u64 = 0x04080B0A09080706LL,    // Data
+    .data.u64 = 0x0408d461b5ee17acLL,    // Data
 };
 
 can_msg_t msg_prep_09 = {
@@ -276,7 +276,7 @@ can_msg_t msg_prep_09 = {
             .id_mask  = 0x7FF,              // Mask
         },
     },
-    .data.u64 = 0x0409050403020100LL,    // Data
+    .data.u64 = 0x0409692d2089a6a2LL,    // Data
 };
 
 can_msg_t msg_prep_10 = {

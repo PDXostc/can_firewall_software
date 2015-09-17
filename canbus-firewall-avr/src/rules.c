@@ -340,14 +340,14 @@ bool verify_new_rule_hmac(rule_working_t *working)
     if (memcmp(hmac_sum, hmac_compare_buffer, hmac_buffer_len))
     {
         #if DBG_HMAC
-        print_dbg("\n\rHMAC Validation FAIL\n\r");
+        print_dbg("\n\rHMAC Validation SUCCESS\n\r");        
         #endif
         return true;
     } 
     else
     {
         #if DBG_HMAC
-        print_dbg("\n\rHMAC Validation SUCCESS\n\r");
+        print_dbg("\n\rHMAC Validation FAIL\n\r");
         #endif
         return false;
     }

@@ -202,7 +202,7 @@ extern rule_t flash_can_ruleset[(SIZE_RULESET*2)]
 #endif
 ;
 
-extern rule_t flash_can_ruleset[(SIZE_RULESET*2)];
+//extern rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 /**
  * \brief Extract prio information from can frame data field
  * Prio indicates the overall priority index intended for the final rule. All preparation frames
