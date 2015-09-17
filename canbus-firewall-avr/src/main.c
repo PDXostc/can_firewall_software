@@ -47,6 +47,7 @@
 #include "rules.h"
 #include "sleep.h"
 #include "test.h"
+#include "polarssl/sha2.h"
 //#include "conf_can_example.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
@@ -68,7 +69,7 @@ static rule_t can_ruleset_south[16];
 
 //pointer to working rulesets, incoming
 static rule_working_t *rule_working = NULL;
-static num_rules_working = SIZE_RULESET;
+static int num_rules_working = SIZE_RULESET;
 
 //physical security shunt, override to true during software testing
 //if this is true, we can accept new rules
@@ -454,6 +455,8 @@ void init_can(void) {
     Enable_global_interrupt();
 }
 
+#define member_size(type, member) sizeof(((type *)0)->member)
+
 int main (void)
 {
     //setup
@@ -471,7 +474,22 @@ int main (void)
     
     #endif
     
+    int size_rule = sizeof(rule_t);
+    
+    unsigned char payload_test = "040000FFFF01000000AAC10706050403020100FFFF0000000000010000";
+    int size_payload = sizeof(payload_test);
+    
+    int size_key = sizeof(hmac_key);
+    int size_hmac_single_8 = member_size(rule_prep_04_t, hmac);
+    int size_prio = member_size(rule_t, prio);
+    int size_hmac_array = member_size(rule_prep_05_t, hmac[0]) + member_size(rule_prep_05_t, hmac[1]) + member_size(rule_prep_05_t, hmac[2]);
+    int size_rule_prep_frame = sizeof(rule_prep_05_t);
+    
+    int test_sha = sha2_self_test(0);
+    
     bool test_new_rule = test_new_rule_creation();
+    
+    
     
     delay_ms(1000);
     

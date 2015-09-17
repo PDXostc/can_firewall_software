@@ -82,6 +82,11 @@ inline void get_frame_hmac_03(const Union64 *data, uint16_t *dtoperand_out)
     get_frame_data_u16(data, dtoperand_out, DATA_HMAC_03_MASK, DATA_HMAC_03_OFFSET);
 }
 
+inline void get_frame_sequence(const Union64 *data, uint32_t *sequence_out)
+{
+    get_frame_data_u32(data, sequence_out, DATA_SEQUENCE_MASK, DATA_SEQUENCE_OFFSET);
+}
+
 inline void get_frame_data_u8(const Union64 *data, uint8_t *target, unsigned long long mask, int offset)
 {
     Assert(sizeof(*target) == sizeof(uint8_t));
@@ -311,8 +316,158 @@ bool verify_new_rule_hmac(rule_working_t *working)
 {
     //TODO:actually validate HMAC
     
+    //Need for sha2_hmac function:
+    //key - provided by hmac module
+    //key_length - provided by hmac module
+    //input data - store our structure to a large buffer to be evaluated
+    //input data length - should be 29, size the "payload"
+        //--note: payload data differs from rule that will be stored in memory
+        //where rsvd = 0x00 and unused = 0x0000
+        //==prio || mask || xform || rsvd || filter || dtoperand || idoperand || sequence || unused
+    //output - char output[32] hmac result, to be compared with out sender hmac
+    
+    //input data = buffer created from our working set, is already declared in hmac so use it
+    
+    
+    //Process:
+    //Generate buffer of data from working set
+    //hash buffer with key
+    //compare output of hash with hmac from sender
+    generate_payload_buffer_from_working_set(working);
+    
+    sha2_hmac(hmac_key, hmac_keylen, payload_signature_buffer, payload_signature_buffer_len, hmac_sum, 0);
+    
+    if (memcmp(hmac_sum, hmac_compare_buffer, hmac_buffer_len))
+    {
+        #if DBG_HMAC
+        print_dbg("\n\rHMAC Validation FAIL\n\r");
+        #endif
+        return true;
+    } 
+    else
+    {
+        #if DBG_HMAC
+        print_dbg("\n\rHMAC Validation SUCCESS\n\r");
+        #endif
+        return false;
+    }
+    
     //stub returns true
     return true;
+}
+
+void generate_payload_buffer_from_working_set(rule_working_t *working/*, unsigned char *buffer, int buflen*/)
+{
+    //this name is specific because this is not a generic buffer creation
+    //this creates a signature payload in a very implementation specific order, according to the firewall documentation spec requirements
+    //therefore, the input values are assumed by this function to be predeclared
+    //--note: payload data differs from rule that will be stored in memory
+    //cast all to unsigned char
+    //where rsvd = 0x00 and unused = 0x0000
+    //==prio || mask || xform || rsvd || filter || dtoperand || idoperand || sequence || unused
+    //==buf[0] = prio
+    //==buf[1] = mask >> 24
+    //==buf[2] = mask >> 16
+    //==buf[3] = mask >> 8
+    //==buf[4] = mask
+    //==buf[5] = xform
+    //==buf[6] = rsvd = 00
+    //==buf[7] = filter >> 24
+    //==buf[8] = filter >> 16
+    //==buf[9] = filter >> 8
+    //==buf[10] = filter
+    //==buf[11] = dtoperand >> 56
+    //==buf[12] = dtoperand >> 48
+    //==buf[13] = dtoperand >> 40
+    //==buf[14] = dtoperand >> 32
+    //==buf[15] = dtoperand >> 24
+    //==buf[16] = dtoperand >> 16
+    //==buf[17] = dtoperand >> 8
+    //==buf[18] = dtoperand
+    //==buf[19] = idoperand >> 24
+    //==buf[20] = idoperand >> 16
+    //==buf[21] = idoeprand >> 8
+    //==buf[22] = idoperand
+    //==buf[23] = sequence >> 24
+    //==buf[24] = sequence >> 16
+    //==buf[25] = sequence >> 8
+    //==buf[26] = sequence
+    //==buf[27] = unused = 00
+    //==buf[28] = unused = 00
+    
+    //clear input buffer before use
+    memset(payload_signature_buffer, 0, payload_signature_buffer_len);
+    
+    //load values from working set
+    //manual offsets here should be moved to defines instead
+    payload_signature_buffer[0] =  (unsigned char) ( working->prio);
+    payload_signature_buffer[1] =  (unsigned char) ( working->mask_xform.mask >> 24);
+    payload_signature_buffer[2] =  (unsigned char) ( working->mask_xform.mask >> 16);
+    payload_signature_buffer[3] =  (unsigned char) ( working->mask_xform.mask >> 8);
+    payload_signature_buffer[4] =  (unsigned char) ( working->mask_xform.mask);
+    payload_signature_buffer[5] =  (unsigned char) ( working->mask_xform.xform);
+    payload_signature_buffer[6] =  0; //rsvd                       
+    payload_signature_buffer[7] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 24);
+    payload_signature_buffer[8] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 16);
+    payload_signature_buffer[9] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 8);
+    payload_signature_buffer[10] = (unsigned char) ( working->filter_dtoperand_01.filter);
+    payload_signature_buffer[11] = (unsigned char) ( working->filter_dtoperand_01.dtoperand01 >> 8);
+    payload_signature_buffer[12] = (unsigned char) ( working->filter_dtoperand_01.dtoperand01);
+    payload_signature_buffer[13] = (unsigned char) ( working->dt_operand_02.dtoperand02[0] >> 8);
+    payload_signature_buffer[14] = (unsigned char) ( working->dt_operand_02.dtoperand02[0]);
+    payload_signature_buffer[15] = (unsigned char) ( working->dt_operand_02.dtoperand02[1] >> 8);
+    payload_signature_buffer[16] = (unsigned char) ( working->dt_operand_02.dtoperand02[1] );
+    payload_signature_buffer[17] = (unsigned char) ( working->dt_operand_02.dtoperand02[2] >> 8);
+    payload_signature_buffer[18] = (unsigned char) ( working->dt_operand_02.dtoperand02[2] );
+    payload_signature_buffer[19] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 24);
+    payload_signature_buffer[20] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 16);
+    payload_signature_buffer[21] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 8);
+    payload_signature_buffer[22] = (unsigned char) ( working->id_operand_hmac_01.idoperand);
+    payload_signature_buffer[23] = (unsigned char) ( working->store_sequence.sequence >> 24);
+    payload_signature_buffer[24] = (unsigned char) ( working->store_sequence.sequence >> 16);
+    payload_signature_buffer[25] = (unsigned char) ( working->store_sequence.sequence >> 8);
+    payload_signature_buffer[26] = (unsigned char) ( working->store_sequence.sequence);
+    payload_signature_buffer[27] = 0; //unused
+    payload_signature_buffer[28] = 0; //unused
+}
+
+void generate_hmac_buffer_from_working_set(rule_working_t *working)
+{
+    //clear compare buffer
+    memset(hmac_compare_buffer, 0, hmac_buffer_len);
+    
+    hmac_compare_buffer[0] =  (unsigned char) (working->id_operand_hmac_01.hmac >> 8);
+    hmac_compare_buffer[1] =  (unsigned char) (working->id_operand_hmac_01.hmac);
+    hmac_compare_buffer[2] =  (unsigned char) (working->hmac_02.hmac[0] >> 8);
+    hmac_compare_buffer[3] =  (unsigned char) (working->hmac_02.hmac[0]);
+    hmac_compare_buffer[4] =  (unsigned char) (working->hmac_02.hmac[1] >> 8);
+    hmac_compare_buffer[5] =  (unsigned char) (working->hmac_02.hmac[1]);
+    hmac_compare_buffer[6] =  (unsigned char) (working->hmac_02.hmac[2] >> 8);
+    hmac_compare_buffer[7] =  (unsigned char) (working->hmac_02.hmac[2]);
+    hmac_compare_buffer[8] =  (unsigned char) (working->hmac_03.hmac[0] >> 8);
+    hmac_compare_buffer[9] =  (unsigned char) (working->hmac_03.hmac[0]);
+    hmac_compare_buffer[10] = (unsigned char) (working->hmac_03.hmac[1] >> 8);
+    hmac_compare_buffer[11] = (unsigned char) (working->hmac_03.hmac[1]);
+    hmac_compare_buffer[12] = (unsigned char) (working->hmac_03.hmac[2] >> 8);
+    hmac_compare_buffer[13] = (unsigned char) (working->hmac_03.hmac[2]);
+    hmac_compare_buffer[14] = (unsigned char) (working->hmac_04.hmac[0] >> 8);
+    hmac_compare_buffer[15] = (unsigned char) (working->hmac_04.hmac[0]);
+    hmac_compare_buffer[16] = (unsigned char) (working->hmac_04.hmac[1] >> 8);
+    hmac_compare_buffer[17] = (unsigned char) (working->hmac_04.hmac[1]);
+    hmac_compare_buffer[18] = (unsigned char) (working->hmac_04.hmac[2] >> 8);
+    hmac_compare_buffer[19] = (unsigned char) (working->hmac_04.hmac[2]);
+    hmac_compare_buffer[20] = (unsigned char) (working->hmac_05.hmac[0] >> 8);
+    hmac_compare_buffer[21] = (unsigned char) (working->hmac_05.hmac[0]);
+    hmac_compare_buffer[22] = (unsigned char) (working->hmac_05.hmac[1] >> 8);
+    hmac_compare_buffer[23] = (unsigned char) (working->hmac_05.hmac[1]);
+    hmac_compare_buffer[24] = (unsigned char) (working->hmac_05.hmac[2] >> 8);
+    hmac_compare_buffer[25] = (unsigned char) (working->hmac_05.hmac[2]);
+    hmac_compare_buffer[26] = (unsigned char) (working->hmac_06.hmac[0] >> 8);
+    hmac_compare_buffer[27] = (unsigned char) (working->hmac_06.hmac[0]);
+    hmac_compare_buffer[28] = (unsigned char) (working->hmac_06.hmac[1] >> 8);
+    hmac_compare_buffer[29] = (unsigned char) (working->hmac_06.hmac[1]);
+    hmac_compare_buffer[30] = (unsigned char) (working->hmac_06.hmac[2] >> 8);
+    hmac_compare_buffer[31] = (unsigned char) (working->hmac_06.hmac[2]);
 }
 
 bool verify_new_rule_complete(rule_working_t *working)

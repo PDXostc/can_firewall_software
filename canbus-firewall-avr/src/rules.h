@@ -9,8 +9,11 @@
 #ifndef RULES_H_
 #define RULES_H_
 
+#include <string.h>
 #include "asf.h"
 #include "conf_debug.h"
+#include "polarssl/sha2.h"
+#include "hmac.h"
 
 /* Defines for extraction methods */
 #define REF_                        0x0807060504030201
@@ -53,6 +56,9 @@
 #define DATA_HMAC_03_MASK           0x000000000000FFFF
 #define DATA_HMAC_03_OFFSET         0
 
+#define DATA_SEQUENCE_MASK         0X0000FFFFFFFF0000
+#define DATA_SEQUENCE_OFFSET       16
+
 /* Command enumeration defines, directly corresponds to value of CMD byte in a preparation frame */
 #define CMD_PREP_01                         1
 #define CMD_PREP_02                         2
@@ -84,7 +90,6 @@
 #define MAX_RULES_IN_PROGRESS                16
 
 #define SIZE_RULESET        16
-
 
 
 //Memory structures, proposed
@@ -343,6 +348,16 @@ extern  void get_frame_hmac_02(const Union64 *data, uint16_t *hmac_out);
  */
 extern void get_frame_hmac_03(const Union64 *data, uint16_t *hmac_out);
 
+/**
+ * \brief Extract sequence number from CAN frame data field
+ * 
+ * \param data Pointer to CAN frame data field
+ * \param sequence_out Pointer to struct member
+ * 
+ * \return extern void
+ */
+extern void get_frame_sequence(const Union64 *data, uint32_t *sequence_out);
+
 extern void get_frame_data_u8(const Union64 *data, uint8_t *target, unsigned long long mask, int offset);
 extern void get_frame_data_u16(const Union64 *data, uint16_t *target, unsigned long long mask, int offset);
 extern void get_frame_data_u32(const Union64 *data, uint32_t *target, unsigned long long mask, int offset);
@@ -477,6 +492,8 @@ extern bool verify_new_rule_sequence(rule_working_t *working);
  */
 extern bool verify_new_rule_hmac(rule_working_t *working);
 
+
+void generate_payload_buffer_from_working_set(rule_working_t *working);
 /**
  * \brief Checks that the bitfield for the working set is marked complete for every frame expected to build a rule
  * 
