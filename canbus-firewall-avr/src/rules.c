@@ -17,6 +17,9 @@ rules_in_progress_t rules_in_progress = {
 
 rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 
+//init to zero for now. this should become a secret number pulled from flash
+static int stored_sequence = 0;
+
 /* Useful extraction methods for getting what we need out of the CAN frame data field */
  inline void get_frame_prio(const Union64 *data, uint8_t *prio) {
     get_frame_data_u8(data, prio, DATA_PRIO_MASK, DATA_PRIO_OFFSET);
@@ -308,8 +311,30 @@ bool verify_new_rule_sequence(rule_working_t *working)
 {
     //TODO: actually check sequence
     
-    //stub returns true
-    return true;
+    if (working->store_sequence.sequence > stored_sequence)
+    {
+        //set our new sequence to be at least the number that we got for the sequence check
+        //stored_sequence = working->store_sequence.sequence;
+        //assume we store our sequence in flash memory...
+        flashc_memcpy(&stored_sequence, &working->store_sequence.sequence, sizeof(stored_sequence), true);
+        #if DBG_RULES
+        print_dbg("\n\rSequence check successful...new sequence number: ");
+        print_dbg_ulong(stored_sequence);
+        print_dbg("\n\r\n\r");
+        #endif
+        return true;
+    } 
+    else
+    {
+        #if DBG_RULES
+        print_dbg("\n\rSequence check failed...received number not greater than stored...");
+        print_dbg("\n\rReceived: ");
+        print_dbg_ulong(working->store_sequence.sequence);
+        print_dbg("\n\rStored: ");
+        print_dbg_ulong(stored_sequence);
+        #endif
+        return false;
+    }
 }
 
 bool verify_new_rule_hmac(rule_working_t *working)
@@ -557,7 +582,8 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
         case CMD_STORE:
         //it's a store rule, panic!
         
-        //to be written:
+        //grab sequence
+        get_frame_sequence(data, &rules_in_progress.working_sets[working_set_index]->store_sequence.sequence);
         //success = verify_sequence & verify_hmac & verify_rule_complete & store_rule_to_flash
         success = verify_new_rule_sequence(rules_in_progress.working_sets[working_set_index])
         & verify_new_rule_hmac(rules_in_progress.working_sets[working_set_index])

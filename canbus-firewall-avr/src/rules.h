@@ -202,6 +202,15 @@ extern rule_t flash_can_ruleset[(SIZE_RULESET*2)]
 #endif
 ;
 
+#if defined (__GNUC__)
+__attribute__((__section__(".userpage")))
+#endif
+static int stored_sequence
+#if defined (__ICAVR32__)
+@ "USERPAGE"
+#endif
+;
+
 //extern rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 /**
  * \brief Extract prio information from can frame data field
