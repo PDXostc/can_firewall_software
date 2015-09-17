@@ -96,13 +96,13 @@
 
 //structure for full rule stored in memory
 typedef struct {
-    uint8_t     prio;
-    uint32_t    mask;
-    uint32_t    filter;
-    uint8_t     xform;
-    uint32_t    idoperand;
-    uint64_t    dtoperand;
-} rule_t;
+    uint8_t     prio;       // 1
+    uint8_t     xform;      // 1
+    uint32_t    mask;       // 4
+    uint32_t    filter;     // 4    
+    uint32_t    idoperand;  // 4
+    uint64_t    dtoperand;  // 8
+} rule_t; // 22
 
 //prep rule 01 frame
 typedef struct {
