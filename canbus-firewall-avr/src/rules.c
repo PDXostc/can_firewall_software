@@ -380,7 +380,8 @@ bool verify_new_rule_hmac(rule_working_t *working)
     #endif
     
     //sha2_hmac(hmac_key, hmac_keylen, payload_signature_buffer, payload_signature_buffer_len, hmac_sum, 0);
-    sha2_hmac(HMAC_KEY, hmac_keylen, payload_signature_buffer, payload_signature_buffer_len, hmac_sum, 0);
+    int* add_key = &HMAC_KEY;
+    sha2_hmac(HMAC_KEY, HMAC_KEY_LEN, PAYLOAD_SIG_BUF, PAYLOAD_SIG_BUF_LEN, hmac_sum, 0);
     
     #if DBG_HMAC
     print_dbg("\n\rPayload Signature Buffer===");
@@ -501,14 +502,52 @@ void generate_payload_buffer_from_working_set(rule_working_t *working/*, unsigne
     payload_signature_buffer[26] = (unsigned char) ( working->store_sequence.sequence);
     payload_signature_buffer[27] = 0; //unused
     payload_signature_buffer[28] = 0; //unused
-    payload_signature_buffer[29] = "\0";
+    //payload_signature_buffer[29] = '\0';
+    
+    #if 0 //using double sized string literal representation
+    //take current payload buf and translate each element to its hex representation
+    // and store those as new char elements
+     print_dbg("\n\rPayload Signature hex before conversion===");
+    for (int l = 0; l < PAYLOAD_SIG_BUF_LEN_STAN_0; l++)
+    {       
+        print_dbg_char_hex(payload_signature_buffer[l]);        
+    }
+    print_dbg("\n\rPayload Signature hex before conversion END");
+    
+    #if DBG_HMAC
+    print_dbg("\n\rPayload Signature CHARACTERS===");
+    for(int i = 0; i < 29; i++)
+    {
+        print_dbg_char((int)payload_signature_buffer[i]);
+    }
+    print_dbg("\n\rHMAC Payload Signature CHARACTERS END________\n\r");
+    #endif
+    
+    int j = 0;
+    int size_sig_element = 0;
+    int size_atoi_element = sizeof(atoi(payload_signature_buffer[0]));
+    unsigned char char_from_atoi = (unsigned char) atoi(&payload_signature_buffer[0]);
+    char char_signed_from_atoi = atoi(&payload_signature_buffer[0]);
+    int int_from_atoi = atoi(&payload_signature_buffer[0]);
+    
+    for (int i = 0; i < PAYLOAD_SIG_BUF_LEN_DOUBLE_0; i+=2)
+    {
+        size_sig_element = sizeof(payload_signature_buffer[i]);
+        
+        payload_signature_buffer_double[i]   = (unsigned char) (atoi(&payload_signature_buffer[j]) >> 4);
+        payload_signature_buffer_double[i+1] = (unsigned char) (atoi(&payload_signature_buffer[j]) << 4 >> 4);
+        j += 1;
+    }
+    payload_signature_buffer_double[PAYLOAD_SIG_BUF_LEN_DOUBLE_0 - 1] = '\0';
+    print_dbg("\n\rPayload Double===");
+    for (int p = 0; p < PAYLOAD_SIG_BUF_LEN_DOUBLE_0; p++)
+    {        
+        print_dbg_char(payload_signature_buffer_double[p]);        
+    }
+    print_dbg("\n\r++++Payload Double END");
+    #endif
 }
 
-char char_to_hex_char(char ch)
-{
-    char ret;
-    
-}
 
 void generate_hmac_buffer_from_working_set(rule_working_t *working)
 {

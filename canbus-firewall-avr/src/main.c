@@ -474,6 +474,33 @@ int main (void)
     //test of hmac print
     bool test_new_rule = test_new_rule_creation();
     
+    //HARD CODED TEST
+    #if 0
+    unsigned char* test_key = "qgu1lF7k3q4i2bpwS4NGA87Jh2PQMtvFu9k6X6lj";
+    int test_key_len = 40;
+    unsigned char* test_sig = "040000FFFF01000000AAC10807060504030201FFFF0000000000010000";
+    int test_sig_len = 58;
+    
+    sha2_hmac(test_key, test_key_len, test_sig, test_sig_len, hmac_sum, 0);
+    #endif
+    
+    #if DBG_HMAC
+    print_dbg("\n\rHMAC SUM===");
+    for(int i = 0; i < 32; i++)
+    {
+        print_dbg_char_hex(hmac_sum[i]);
+    }
+    print_dbg("\n\rHMAC SUM END________\n\r");
+    #endif
+    
+//     if (memcmp(hmac_sum, hmac_compare_buffer, hmac_buffer_len) == 0)
+//     {
+//         #if DBG_HMAC
+//         print_dbg("\n\rHMAC Validation SUCCESS\n\r");
+//         #endif
+//         return true;
+//     }
+    
     #if 1
     
     can_prepare_data_to_receive_south();

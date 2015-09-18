@@ -199,6 +199,7 @@ void print_can_message(can_msg_t *msg) {
 //test messages section ----///////////////////////////////////////
 
 //basic test messages for new rule incoming test
+//TODO: get new hmac; hmac generation for this frame set was not valid. hmac fields need to be updated
 can_msg_t msg_prep_01 = {
     {
         {
