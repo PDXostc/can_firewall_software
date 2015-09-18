@@ -337,10 +337,9 @@ bool verify_new_rule_sequence(rule_working_t *working)
     }
 }
 
+
 bool verify_new_rule_hmac(rule_working_t *working)
-{
-    //TODO:actually validate HMAC
-    
+{    
     //Need for sha2_hmac function:
     //key - provided by hmac module
     //key_length - provided by hmac module
@@ -358,57 +357,11 @@ bool verify_new_rule_hmac(rule_working_t *working)
     //Generate buffer of data from working set
     //hash buffer with key
     //compare output of hash with hmac from sender
+    
     generate_payload_buffer_from_working_set(working);
     generate_hmac_buffer_from_working_set(working);
     
-    #if DBG_HMAC
-    print_dbg("\n\rHMAC Key HEX: ====");
-    for (int i = 0; i < hmac_keylen; i++)
-    {
-        print_dbg_char_hex(HMAC_KEY[i]);
-    }
-    print_dbg("\n\r++++HMAC Key HEX END");
-    #endif
-    
-    #if DBG_HMAC
-    print_dbg("\n\rHMAC Key CHAR: ====");
-    for (int i = 0; i < hmac_keylen; i++)
-    {
-        print_dbg_char(HMAC_KEY[i]);
-    }
-    print_dbg("\n\r++++HMAC Key CHAR END");
-    #endif
-    
-    //sha2_hmac(hmac_key, hmac_keylen, payload_signature_buffer, payload_signature_buffer_len, hmac_sum, 0);
-    int* add_key = &HMAC_KEY;
     sha2_hmac(HMAC_KEY, HMAC_KEY_LEN, PAYLOAD_SIG_BUF, PAYLOAD_SIG_BUF_LEN, hmac_sum, 0);
-    
-    #if DBG_HMAC
-    print_dbg("\n\rPayload Signature Buffer===");
-    for(int i = 0; i < 29; i++)
-    {
-        print_dbg_char_hex(payload_signature_buffer[i]);
-    }
-    print_dbg("\n\rHMAC Payload Buffer END________\n\r");
-    #endif    
-    
-    #if DBG_HMAC
-    print_dbg("\n\rHMAC Comparison Buffer===");
-    for(int i = 0; i < 32; i++)
-    {
-        print_dbg_char_hex(hmac_compare_buffer[i]);
-    }
-    print_dbg("\n\rHMAC Comparison Buffer END________\n\r");
-    #endif
-    
-    #if DBG_HMAC
-    print_dbg("\n\rHMAC SUM===");
-    for(int i = 0; i < 32; i++)
-    {
-        print_dbg_char_hex(hmac_sum[i]);
-    }
-    print_dbg("\n\rHMAC SUM END________\n\r");
-    #endif
     
     if (memcmp(hmac_sum, hmac_compare_buffer, hmac_buffer_len) == 0)
     {
@@ -469,83 +422,40 @@ void generate_payload_buffer_from_working_set(rule_working_t *working/*, unsigne
     //==buf[28] = unused = 00
     
     //clear input buffer before use
-    memset(payload_signature_buffer, 0, payload_signature_buffer_len);
+    memset(PAYLOAD_SIG_BUF, 0, PAYLOAD_SIG_BUF_LEN);
     
     //load values from working set
     //manual offsets here should be moved to defines instead
-    payload_signature_buffer[0] =  (unsigned char) ( working->prio);
-    payload_signature_buffer[1] =  (unsigned char) ( working->mask_xform.mask >> 24);
-    payload_signature_buffer[2] =  (unsigned char) ( working->mask_xform.mask >> 16);
-    payload_signature_buffer[3] =  (unsigned char) ( working->mask_xform.mask >> 8);
-    payload_signature_buffer[4] =  (unsigned char) ( working->mask_xform.mask);
-    payload_signature_buffer[5] =  (unsigned char) ( working->mask_xform.xform);
-    payload_signature_buffer[6] =  0; //rsvd                       
-    payload_signature_buffer[7] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 24);
-    payload_signature_buffer[8] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 16);
-    payload_signature_buffer[9] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 8);
-    payload_signature_buffer[10] = (unsigned char) ( working->filter_dtoperand_01.filter);
-    payload_signature_buffer[11] = (unsigned char) ( working->filter_dtoperand_01.dtoperand01 >> 8);
-    payload_signature_buffer[12] = (unsigned char) ( working->filter_dtoperand_01.dtoperand01);
-    payload_signature_buffer[13] = (unsigned char) ( working->dt_operand_02.dtoperand02[0] >> 8);
-    payload_signature_buffer[14] = (unsigned char) ( working->dt_operand_02.dtoperand02[0]);
-    payload_signature_buffer[15] = (unsigned char) ( working->dt_operand_02.dtoperand02[1] >> 8);
-    payload_signature_buffer[16] = (unsigned char) ( working->dt_operand_02.dtoperand02[1] );
-    payload_signature_buffer[17] = (unsigned char) ( working->dt_operand_02.dtoperand02[2] >> 8);
-    payload_signature_buffer[18] = (unsigned char) ( working->dt_operand_02.dtoperand02[2] );
-    payload_signature_buffer[19] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 24);
-    payload_signature_buffer[20] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 16);
-    payload_signature_buffer[21] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 8);
-    payload_signature_buffer[22] = (unsigned char) ( working->id_operand_hmac_01.idoperand);
-    payload_signature_buffer[23] = (unsigned char) ( working->store_sequence.sequence >> 24);
-    payload_signature_buffer[24] = (unsigned char) ( working->store_sequence.sequence >> 16);
-    payload_signature_buffer[25] = (unsigned char) ( working->store_sequence.sequence >> 8);
-    payload_signature_buffer[26] = (unsigned char) ( working->store_sequence.sequence);
-    payload_signature_buffer[27] = 0; //unused
-    payload_signature_buffer[28] = 0; //unused
-    //payload_signature_buffer[29] = '\0';
-    
-    #if 0 //using double sized string literal representation
-    //take current payload buf and translate each element to its hex representation
-    // and store those as new char elements
-     print_dbg("\n\rPayload Signature hex before conversion===");
-    for (int l = 0; l < PAYLOAD_SIG_BUF_LEN_STAN_0; l++)
-    {       
-        print_dbg_char_hex(payload_signature_buffer[l]);        
-    }
-    print_dbg("\n\rPayload Signature hex before conversion END");
-    
-    #if DBG_HMAC
-    print_dbg("\n\rPayload Signature CHARACTERS===");
-    for(int i = 0; i < 29; i++)
-    {
-        print_dbg_char((int)payload_signature_buffer[i]);
-    }
-    print_dbg("\n\rHMAC Payload Signature CHARACTERS END________\n\r");
-    #endif
-    
-    int j = 0;
-    int size_sig_element = 0;
-    int size_atoi_element = sizeof(atoi(payload_signature_buffer[0]));
-    unsigned char char_from_atoi = (unsigned char) atoi(&payload_signature_buffer[0]);
-    char char_signed_from_atoi = atoi(&payload_signature_buffer[0]);
-    int int_from_atoi = atoi(&payload_signature_buffer[0]);
-    
-    for (int i = 0; i < PAYLOAD_SIG_BUF_LEN_DOUBLE_0; i+=2)
-    {
-        size_sig_element = sizeof(payload_signature_buffer[i]);
-        
-        payload_signature_buffer_double[i]   = (unsigned char) (atoi(&payload_signature_buffer[j]) >> 4);
-        payload_signature_buffer_double[i+1] = (unsigned char) (atoi(&payload_signature_buffer[j]) << 4 >> 4);
-        j += 1;
-    }
-    payload_signature_buffer_double[PAYLOAD_SIG_BUF_LEN_DOUBLE_0 - 1] = '\0';
-    print_dbg("\n\rPayload Double===");
-    for (int p = 0; p < PAYLOAD_SIG_BUF_LEN_DOUBLE_0; p++)
-    {        
-        print_dbg_char(payload_signature_buffer_double[p]);        
-    }
-    print_dbg("\n\r++++Payload Double END");
-    #endif
+    PAYLOAD_SIG_BUF[0] =  (unsigned char) ( working->prio);
+    PAYLOAD_SIG_BUF[1] =  (unsigned char) ( working->mask_xform.mask >> 24);
+    PAYLOAD_SIG_BUF[2] =  (unsigned char) ( working->mask_xform.mask >> 16);
+    PAYLOAD_SIG_BUF[3] =  (unsigned char) ( working->mask_xform.mask >> 8);
+    PAYLOAD_SIG_BUF[4] =  (unsigned char) ( working->mask_xform.mask);
+    PAYLOAD_SIG_BUF[5] =  (unsigned char) ( working->mask_xform.xform);
+    PAYLOAD_SIG_BUF[6] =  0; //rsvd                       
+    PAYLOAD_SIG_BUF[7] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 24);
+    PAYLOAD_SIG_BUF[8] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 16);
+    PAYLOAD_SIG_BUF[9] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 8);
+    PAYLOAD_SIG_BUF[10] = (unsigned char) ( working->filter_dtoperand_01.filter);
+    PAYLOAD_SIG_BUF[11] = (unsigned char) ( working->filter_dtoperand_01.dtoperand01 >> 8);
+    PAYLOAD_SIG_BUF[12] = (unsigned char) ( working->filter_dtoperand_01.dtoperand01);
+    PAYLOAD_SIG_BUF[13] = (unsigned char) ( working->dt_operand_02.dtoperand02[0] >> 8);
+    PAYLOAD_SIG_BUF[14] = (unsigned char) ( working->dt_operand_02.dtoperand02[0]);
+    PAYLOAD_SIG_BUF[15] = (unsigned char) ( working->dt_operand_02.dtoperand02[1] >> 8);
+    PAYLOAD_SIG_BUF[16] = (unsigned char) ( working->dt_operand_02.dtoperand02[1] );
+    PAYLOAD_SIG_BUF[17] = (unsigned char) ( working->dt_operand_02.dtoperand02[2] >> 8);
+    PAYLOAD_SIG_BUF[18] = (unsigned char) ( working->dt_operand_02.dtoperand02[2] );
+    PAYLOAD_SIG_BUF[19] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 24);
+    PAYLOAD_SIG_BUF[20] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 16);
+    PAYLOAD_SIG_BUF[21] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 8);
+    PAYLOAD_SIG_BUF[22] = (unsigned char) ( working->id_operand_hmac_01.idoperand);
+    PAYLOAD_SIG_BUF[23] = (unsigned char) ( working->store_sequence.sequence >> 24);
+    PAYLOAD_SIG_BUF[24] = (unsigned char) ( working->store_sequence.sequence >> 16);
+    PAYLOAD_SIG_BUF[25] = (unsigned char) ( working->store_sequence.sequence >> 8);
+    PAYLOAD_SIG_BUF[26] = (unsigned char) ( working->store_sequence.sequence);
+    PAYLOAD_SIG_BUF[27] = 0; //unused
+    PAYLOAD_SIG_BUF[28] = 0; //unused
+   
 }
 
 
