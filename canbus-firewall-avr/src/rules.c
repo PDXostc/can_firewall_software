@@ -359,10 +359,57 @@ bool verify_new_rule_hmac(rule_working_t *working)
     //hash buffer with key
     //compare output of hash with hmac from sender
     generate_payload_buffer_from_working_set(working);
+    generate_hmac_buffer_from_working_set(working);
     
-    sha2_hmac(hmac_key, hmac_keylen, payload_signature_buffer, payload_signature_buffer_len, hmac_sum, 0);
+    #if DBG_HMAC
+    print_dbg("\n\rHMAC Key HEX: ====");
+    for (int i = 0; i < hmac_keylen; i++)
+    {
+        print_dbg_char_hex(HMAC_KEY[i]);
+    }
+    print_dbg("\n\r++++HMAC Key HEX END");
+    #endif
     
-    if (memcmp(hmac_sum, hmac_compare_buffer, hmac_buffer_len))
+    #if DBG_HMAC
+    print_dbg("\n\rHMAC Key CHAR: ====");
+    for (int i = 0; i < hmac_keylen; i++)
+    {
+        print_dbg_char(HMAC_KEY[i]);
+    }
+    print_dbg("\n\r++++HMAC Key CHAR END");
+    #endif
+    
+    //sha2_hmac(hmac_key, hmac_keylen, payload_signature_buffer, payload_signature_buffer_len, hmac_sum, 0);
+    sha2_hmac(HMAC_KEY, hmac_keylen, payload_signature_buffer, payload_signature_buffer_len, hmac_sum, 0);
+    
+    #if DBG_HMAC
+    print_dbg("\n\rPayload Signature Buffer===");
+    for(int i = 0; i < 29; i++)
+    {
+        print_dbg_char_hex(payload_signature_buffer[i]);
+    }
+    print_dbg("\n\rHMAC Payload Buffer END________\n\r");
+    #endif    
+    
+    #if DBG_HMAC
+    print_dbg("\n\rHMAC Comparison Buffer===");
+    for(int i = 0; i < 32; i++)
+    {
+        print_dbg_char_hex(hmac_compare_buffer[i]);
+    }
+    print_dbg("\n\rHMAC Comparison Buffer END________\n\r");
+    #endif
+    
+    #if DBG_HMAC
+    print_dbg("\n\rHMAC SUM===");
+    for(int i = 0; i < 32; i++)
+    {
+        print_dbg_char_hex(hmac_sum[i]);
+    }
+    print_dbg("\n\rHMAC SUM END________\n\r");
+    #endif
+    
+    if (memcmp(hmac_sum, hmac_compare_buffer, hmac_buffer_len) == 0)
     {
         #if DBG_HMAC
         print_dbg("\n\rHMAC Validation SUCCESS\n\r");        
@@ -378,7 +425,7 @@ bool verify_new_rule_hmac(rule_working_t *working)
     }
     
     //stub returns true
-    return true;
+    //return true;
 }
 
 void generate_payload_buffer_from_working_set(rule_working_t *working/*, unsigned char *buffer, int buflen*/)
@@ -454,6 +501,13 @@ void generate_payload_buffer_from_working_set(rule_working_t *working/*, unsigne
     payload_signature_buffer[26] = (unsigned char) ( working->store_sequence.sequence);
     payload_signature_buffer[27] = 0; //unused
     payload_signature_buffer[28] = 0; //unused
+    payload_signature_buffer[29] = "\0";
+}
+
+char char_to_hex_char(char ch)
+{
+    char ret;
+    
 }
 
 void generate_hmac_buffer_from_working_set(rule_working_t *working)
@@ -493,6 +547,7 @@ void generate_hmac_buffer_from_working_set(rule_working_t *working)
     hmac_compare_buffer[29] = (unsigned char) (working->hmac_06.hmac[1]);
     hmac_compare_buffer[30] = (unsigned char) (working->hmac_06.hmac[2] >> 8);
     hmac_compare_buffer[31] = (unsigned char) (working->hmac_06.hmac[2]);
+
 }
 
 bool verify_new_rule_complete(rule_working_t *working)

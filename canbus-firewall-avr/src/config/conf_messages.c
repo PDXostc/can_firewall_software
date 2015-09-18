@@ -128,7 +128,7 @@ can_mob_t south_rx_msg01 = {
 can_mob_t south_rx_msg02 = {
     {
         CAN_MOB_NOT_ALLOCATED,            // Handle: by default CAN_MOB_NOT_ALLOCATED
-        &msg_rx_listening02,                // Pointer on CAN Message
+        &msg_new_rule,                // Pointer on CAN Message
         8,                                // Data length DLC
         CAN_DATA_FRAME,                   // Request type : CAN_DATA_FRAME or CAN_REMOTE_FRAME
         CAN_STATUS_NOT_COMPLETED
@@ -136,11 +136,21 @@ can_mob_t south_rx_msg02 = {
 };
 
 //--------------------------------------------New Rule Msg
-can_msg_t new_rule_msg = {
+// can_msg_t msg_new_rule = {
+//     {
+//         {
+//             .id = 0x7FE,                      // Identifier, should be last number in address space
+//             .id_mask  = 0x7FF,                // Mask, should check all bits
+//         },
+//     },
+//     .data.u64 = 0x0LL,                 // Data, should be uninitialized
+// };
+
+can_msg_t msg_new_rule = {
     {
         {
-            .id = 0x7FE,                      // Identifier, should be last number in address space
-            .id_mask  = 0x7FF,                // Mask, should check all bits
+            .id = 0x01,                      // Identifier, should be last number in address space
+            .id_mask  = 0x00,                // Mask, should check all bits
         },
     },
     .data.u64 = 0x0LL,                 // Data, should be uninitialized
@@ -180,7 +190,7 @@ can_mob_t appli_remote_rx_msg = {
 void print_can_message(can_msg_t *msg) {
     print_dbg("\n\rCan Message:\n\r");
     print_dbg("\n\ID:  \n\r");
-    print_dbg_char_hex(msg->id);
+    print_dbg_hex(msg->id);
     print_dbg("\n\:Data:  \n\r");
     print_dbg_ulong(msg->data.u64 >> 32);
     print_dbg_ulong(msg->data.u64);

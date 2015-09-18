@@ -43,7 +43,7 @@ can_mob_t south_rx_msg01;
 can_mob_t south_rx_msg02;
 
 //--------------------------------------------New Rule Msg
-can_msg_t new_rule_msg;
+can_msg_t msg_new_rule;
 
 // -----------------------------------------------------------------
 

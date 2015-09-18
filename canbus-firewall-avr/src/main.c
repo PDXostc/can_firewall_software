@@ -171,13 +171,17 @@ void can_out_callback_south_rx(U8 handle, U8 event){
     south_rx_msg01.dlc = can_get_mob_dlc(CAN_CH_SOUTH, handle);
     south_rx_msg01.status = event;
     
+    //handle the message, just testing purposes right now
+    //TODO: write actual error handling
+    handle_new_rule_data(&south_rx_msg01.can_msg->data);
+    
     //print what we got
     #if DBG_CAN_MSG
     print_dbg("\n\rReceived can message on SOUTH line:\n\r");
     //print_dbg_ulong(south_rx_msg01.can_msg->data.u64);
     PRINT_NEWLINE
     print_can_message(south_rx_msg01.can_msg);
-    print_can_message(south_rx_msg02.can_msg);
+    //print_can_message(south_rx_msg02.can_msg);
     #endif
     //release mob in hsb
     can_mob_free(CAN_CH_SOUTH, handle);
@@ -334,10 +338,14 @@ void can_prepare_data_to_receive_south(void){
     south_rx_msg01.req_type,
     south_rx_msg01.can_msg);
     
-    can_rx(CAN_CH_SOUTH,
-    south_rx_msg02.handle,
-    south_rx_msg02.req_type,
-    south_rx_msg02.can_msg);
+    #if DBG_CAN_MSG
+    print_dbg("\n\rCAN Receive Ready...");
+    #endif
+    
+//     can_rx(CAN_CH_SOUTH,
+//     south_rx_msg02.handle,
+//     south_rx_msg02.req_type,
+//     south_rx_msg02.can_msg);
     //or ??
     //while(north_tx_msg[0].handle==CAN_CMD_REFUSED);
 }
@@ -463,7 +471,10 @@ int main (void)
     init();
     init_can();
     
-    #if 0
+    //test of hmac print
+    bool test_new_rule = test_new_rule_creation();
+    
+    #if 1
     
     can_prepare_data_to_receive_south();
     //can_prepare_data_to_send_south();
@@ -474,20 +485,20 @@ int main (void)
     
     #endif
     
-    int size_rule = sizeof(rule_t);
+//     int size_rule = sizeof(rule_t);
+//     
+//     unsigned char payload_test = "040000FFFF01000000AAC10706050403020100FFFF0000000000010000";
+//     int size_payload = sizeof(payload_test);
+//     
+//     int size_key = sizeof(hmac_key);
+//     int size_hmac_single_8 = member_size(rule_prep_04_t, hmac);
+//     int size_prio = member_size(rule_t, prio);
+//     int size_hmac_array = member_size(rule_prep_05_t, hmac[0]) + member_size(rule_prep_05_t, hmac[1]) + member_size(rule_prep_05_t, hmac[2]);
+//     int size_rule_prep_frame = sizeof(rule_prep_05_t);
+//     
+//     int test_sha = sha2_self_test(0);
     
-    unsigned char payload_test = "040000FFFF01000000AAC10706050403020100FFFF0000000000010000";
-    int size_payload = sizeof(payload_test);
-    
-    int size_key = sizeof(hmac_key);
-    int size_hmac_single_8 = member_size(rule_prep_04_t, hmac);
-    int size_prio = member_size(rule_t, prio);
-    int size_hmac_array = member_size(rule_prep_05_t, hmac[0]) + member_size(rule_prep_05_t, hmac[1]) + member_size(rule_prep_05_t, hmac[2]);
-    int size_rule_prep_frame = sizeof(rule_prep_05_t);
-    
-    int test_sha = sha2_self_test(0);
-    
-    bool test_new_rule = test_new_rule_creation();
+
     
     
     

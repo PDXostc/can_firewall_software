@@ -503,6 +503,7 @@ extern bool verify_new_rule_hmac(rule_working_t *working);
 
 
 void generate_payload_buffer_from_working_set(rule_working_t *working);
+void generate_hmac_buffer_from_working_set(rule_working_t *working);
 /**
  * \brief Checks that the bitfield for the working set is marked complete for every frame expected to build a rule
  * 
