@@ -377,9 +377,52 @@ bool verify_new_rule_hmac(rule_working_t *working)
         #endif
         return false;
     }
-    
-    //stub returns true
-    //return true;
+}
+
+void print_hmac_operation_result(void)
+{
+        #if DBG_HMAC
+        
+        print_dbg("\n\rHMAC Key HEX: ====");
+        for (int i = 0; i < HMAC_KEY_LEN; i++)
+        {
+            print_dbg_char_hex(HMAC_KEY[i]);
+        }
+        print_dbg("\n\r++++HMAC Key HEX END");
+        
+
+        print_dbg("\n\rHMAC Key CHAR: ====");
+        for (int i = 0; i < HMAC_KEY_LEN; i++)
+        {
+            print_dbg_char(HMAC_KEY[i]);
+        }
+        print_dbg("\n\r++++HMAC Key CHAR END");
+            
+
+        print_dbg("\n\rPayload Signature Buffer===");
+        for(int i = 0; i < PAYLOAD_SIG_BUF_LEN; i++)
+        {
+            print_dbg_char_hex(payload_signature_buffer[i]);
+        }
+        print_dbg("\n\rHMAC Payload Buffer END________\n\r");
+        
+
+        print_dbg("\n\rHMAC Comparison Buffer===");
+        for(int i = 0; i < 32; i++)
+        {
+            print_dbg_char_hex(hmac_compare_buffer[i]);
+        }
+        print_dbg("\n\rHMAC Comparison Buffer END________\n\r");
+        
+
+        print_dbg("\n\rHMAC SUM===");
+        for(int i = 0; i < 32; i++)
+        {
+            print_dbg_char_hex(hmac_sum[i]);
+        }
+        print_dbg("\n\rHMAC SUM END________\n\r");
+        
+        #endif
 }
 
 void generate_payload_buffer_from_working_set(rule_working_t *working/*, unsigned char *buffer, int buflen*/)

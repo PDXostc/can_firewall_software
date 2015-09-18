@@ -367,9 +367,52 @@ extern void get_frame_hmac_03(const Union64 *data, uint16_t *hmac_out);
  */
 extern void get_frame_sequence(const Union64 *data, uint32_t *sequence_out);
 
+/**
+ * \brief Utility for getting unsigned 8 bit val from 64 bit val. 
+ * 
+ * \param data    Pointer to 64 bit data field
+ * \param target Pointer target for output
+ * \param mask   64 bit mask, & with data to isolate value
+ * \param offset  least significant bit of desired value, used to shift before conversion to output
+ * 
+ * \return extern void
+ */
 extern void get_frame_data_u8(const Union64 *data, uint8_t *target, unsigned long long mask, int offset);
+
+/**
+ * \brief Utility for getting unsigned 16 bit val from 64 bit val. 
+ * 
+ * \param data    Pointer to 64 bit data field
+ * \param target Pointer target for output
+ * \param mask   64 bit mask, & with data to isolate value
+ * \param offset  least significant bit of desired value, used to shift before conversion to output
+ * 
+ * \return extern void
+ */
 extern void get_frame_data_u16(const Union64 *data, uint16_t *target, unsigned long long mask, int offset);
+
+/**
+ * \brief Utility for getting unsigned 32 bit val from 64 bit val. 
+ * 
+ * \param data    Pointer to 64 bit data field
+ * \param target Pointer target for output
+ * \param mask   64 bit mask, & with data to isolate value
+ * \param offset  least significant bit of desired value, used to shift before conversion to output
+ * 
+ * \return extern void
+ */
 extern void get_frame_data_u32(const Union64 *data, uint32_t *target, unsigned long long mask, int offset);
+
+/**
+ * \brief Utility for getting unsigned 64 bit val from 64 bit val. 
+ * 
+ * \param data    Pointer to 64 bit data field
+ * \param target Pointer target for output
+ * \param mask   64 bit mask, & with data to isolate value
+ * \param offset  least significant bit of desired value, used to shift before conversion to output
+ * 
+ * \return extern void
+ */
 extern void get_frame_data_u64(const Union64 *data, uint64_t *target, unsigned long long mask, int offset);
 
 /**
@@ -501,8 +544,32 @@ extern bool verify_new_rule_sequence(rule_working_t *working);
  */
 extern bool verify_new_rule_hmac(rule_working_t *working);
 
+/**
+ * \brief Print the entire result of an HMAC operation
+ * 
+ * \param 
+ * 
+ * \return void
+ */
+void print_hmac_operation_result(void);
 
+/**
+ * \brief Payload signature is used to generate the HMAC result. Payload signature conforms to a specific convention,
+ * not necessarily how we are storing a frame, rule or working set internally
+ * 
+ * \param working Pointer to working set
+ * 
+ * \return void
+ */
 void generate_payload_buffer_from_working_set(rule_working_t *working);
+
+/**
+ * \brief Copies received HMAC signature values from a working set into a buffer for validation
+ * 
+ * \param working Pointer to working set
+ * 
+ * \return void
+ */
 void generate_hmac_buffer_from_working_set(rule_working_t *working);
 /**
  * \brief Checks that the bitfield for the working set is marked complete for every frame expected to build a rule
