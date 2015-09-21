@@ -38,9 +38,8 @@ extern unsigned char hmac_key[HMAC_KEY_LEN]
 extern unsigned char payload_signature_buffer[PAYLOAD_SIG_BUF_LEN];
 extern const int payload_signature_buffer_len;
 
-extern unsigned char hmac_sum[32];
-extern unsigned char hmac_compare_buffer[32];
-extern unsigned int hmac_buffer_len;
+extern unsigned char hmac_sum[HMAC_SIZE];
+extern unsigned char hmac_compare_buffer[HMAC_SIZE];
 
 
 #endif /* HMAC_H_ */

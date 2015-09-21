@@ -363,7 +363,7 @@ bool verify_new_rule_hmac(rule_working_t *working)
     
     sha2_hmac(HMAC_KEY, HMAC_KEY_LEN, PAYLOAD_SIG_BUF, PAYLOAD_SIG_BUF_LEN, hmac_sum, 0);
     
-    if (memcmp(hmac_sum, hmac_compare_buffer, hmac_buffer_len) == 0)
+    if (memcmp(hmac_sum, hmac_compare_buffer, HMAC_SIZE) == 0)
     {
         #if DBG_HMAC
         print_dbg("\n\rHMAC Validation SUCCESS\n\r");        
@@ -464,81 +464,92 @@ void generate_payload_buffer_from_working_set(rule_working_t *working/*, unsigne
     //==buf[27] = unused = 00
     //==buf[28] = unused = 00
     
-    //clear input buffer before use
-    memset(PAYLOAD_SIG_BUF, 0, PAYLOAD_SIG_BUF_LEN);
+    //function as written expects signature size according to spec. there's probably a better way to do this...
+    int check_payload_buffer_size = 29;
     
-    //load values from working set
-    //manual offsets here should be moved to defines instead
-    PAYLOAD_SIG_BUF[0] =  (unsigned char) ( working->prio);
-    PAYLOAD_SIG_BUF[1] =  (unsigned char) ( working->mask_xform.mask >> 24);
-    PAYLOAD_SIG_BUF[2] =  (unsigned char) ( working->mask_xform.mask >> 16);
-    PAYLOAD_SIG_BUF[3] =  (unsigned char) ( working->mask_xform.mask >> 8);
-    PAYLOAD_SIG_BUF[4] =  (unsigned char) ( working->mask_xform.mask);
-    PAYLOAD_SIG_BUF[5] =  (unsigned char) ( working->mask_xform.xform);
-    PAYLOAD_SIG_BUF[6] =  0; //rsvd                       
-    PAYLOAD_SIG_BUF[7] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 24);
-    PAYLOAD_SIG_BUF[8] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 16);
-    PAYLOAD_SIG_BUF[9] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 8);
-    PAYLOAD_SIG_BUF[10] = (unsigned char) ( working->filter_dtoperand_01.filter);
-    PAYLOAD_SIG_BUF[11] = (unsigned char) ( working->filter_dtoperand_01.dtoperand01 >> 8);
-    PAYLOAD_SIG_BUF[12] = (unsigned char) ( working->filter_dtoperand_01.dtoperand01);
-    PAYLOAD_SIG_BUF[13] = (unsigned char) ( working->dt_operand_02.dtoperand02[0] >> 8);
-    PAYLOAD_SIG_BUF[14] = (unsigned char) ( working->dt_operand_02.dtoperand02[0]);
-    PAYLOAD_SIG_BUF[15] = (unsigned char) ( working->dt_operand_02.dtoperand02[1] >> 8);
-    PAYLOAD_SIG_BUF[16] = (unsigned char) ( working->dt_operand_02.dtoperand02[1] );
-    PAYLOAD_SIG_BUF[17] = (unsigned char) ( working->dt_operand_02.dtoperand02[2] >> 8);
-    PAYLOAD_SIG_BUF[18] = (unsigned char) ( working->dt_operand_02.dtoperand02[2] );
-    PAYLOAD_SIG_BUF[19] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 24);
-    PAYLOAD_SIG_BUF[20] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 16);
-    PAYLOAD_SIG_BUF[21] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 8);
-    PAYLOAD_SIG_BUF[22] = (unsigned char) ( working->id_operand_hmac_01.idoperand);
-    PAYLOAD_SIG_BUF[23] = (unsigned char) ( working->store_sequence.sequence >> 24);
-    PAYLOAD_SIG_BUF[24] = (unsigned char) ( working->store_sequence.sequence >> 16);
-    PAYLOAD_SIG_BUF[25] = (unsigned char) ( working->store_sequence.sequence >> 8);
-    PAYLOAD_SIG_BUF[26] = (unsigned char) ( working->store_sequence.sequence);
-    PAYLOAD_SIG_BUF[27] = 0; //unused
-    PAYLOAD_SIG_BUF[28] = 0; //unused
+    if (PAYLOAD_SIG_BUF_LEN == check_payload_buffer_size)
+    {
+	    //clear input buffer before use
+	    memset(PAYLOAD_SIG_BUF, 0, PAYLOAD_SIG_BUF_LEN);
+	    
+	    //load values from working set
+	    //manual offsets here should be moved to defines instead
+	    PAYLOAD_SIG_BUF[0] =  (unsigned char) ( working->prio);
+	    PAYLOAD_SIG_BUF[1] =  (unsigned char) ( working->mask_xform.mask >> 24);
+	    PAYLOAD_SIG_BUF[2] =  (unsigned char) ( working->mask_xform.mask >> 16);
+	    PAYLOAD_SIG_BUF[3] =  (unsigned char) ( working->mask_xform.mask >> 8);
+	    PAYLOAD_SIG_BUF[4] =  (unsigned char) ( working->mask_xform.mask);
+	    PAYLOAD_SIG_BUF[5] =  (unsigned char) ( working->mask_xform.xform);
+	    PAYLOAD_SIG_BUF[6] =  0; //rsvd                       
+	    PAYLOAD_SIG_BUF[7] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 24);
+	    PAYLOAD_SIG_BUF[8] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 16);
+	    PAYLOAD_SIG_BUF[9] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 8);
+	    PAYLOAD_SIG_BUF[10] = (unsigned char) ( working->filter_dtoperand_01.filter);
+	    PAYLOAD_SIG_BUF[11] = (unsigned char) ( working->filter_dtoperand_01.dtoperand01 >> 8);
+	    PAYLOAD_SIG_BUF[12] = (unsigned char) ( working->filter_dtoperand_01.dtoperand01);
+	    PAYLOAD_SIG_BUF[13] = (unsigned char) ( working->dt_operand_02.dtoperand02[0] >> 8);
+	    PAYLOAD_SIG_BUF[14] = (unsigned char) ( working->dt_operand_02.dtoperand02[0]);
+	    PAYLOAD_SIG_BUF[15] = (unsigned char) ( working->dt_operand_02.dtoperand02[1] >> 8);
+	    PAYLOAD_SIG_BUF[16] = (unsigned char) ( working->dt_operand_02.dtoperand02[1] );
+	    PAYLOAD_SIG_BUF[17] = (unsigned char) ( working->dt_operand_02.dtoperand02[2] >> 8);
+	    PAYLOAD_SIG_BUF[18] = (unsigned char) ( working->dt_operand_02.dtoperand02[2] );
+	    PAYLOAD_SIG_BUF[19] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 24);
+	    PAYLOAD_SIG_BUF[20] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 16);
+	    PAYLOAD_SIG_BUF[21] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 8);
+	    PAYLOAD_SIG_BUF[22] = (unsigned char) ( working->id_operand_hmac_01.idoperand);
+	    PAYLOAD_SIG_BUF[23] = (unsigned char) ( working->store_sequence.sequence >> 24);
+	    PAYLOAD_SIG_BUF[24] = (unsigned char) ( working->store_sequence.sequence >> 16);
+	    PAYLOAD_SIG_BUF[25] = (unsigned char) ( working->store_sequence.sequence >> 8);
+	    PAYLOAD_SIG_BUF[26] = (unsigned char) ( working->store_sequence.sequence);
+	    PAYLOAD_SIG_BUF[27] = 0; //unused
+	    PAYLOAD_SIG_BUF[28] = 0; //unused
+    }
    
 }
 
 
 void generate_hmac_buffer_from_working_set(rule_working_t *working)
 {
-    //clear compare buffer
-    memset(hmac_compare_buffer, 0, hmac_buffer_len);
-    
-    hmac_compare_buffer[0] =  (unsigned char) (working->id_operand_hmac_01.hmac >> 8);
-    hmac_compare_buffer[1] =  (unsigned char) (working->id_operand_hmac_01.hmac);
-    hmac_compare_buffer[2] =  (unsigned char) (working->hmac_02.hmac[0] >> 8);
-    hmac_compare_buffer[3] =  (unsigned char) (working->hmac_02.hmac[0]);
-    hmac_compare_buffer[4] =  (unsigned char) (working->hmac_02.hmac[1] >> 8);
-    hmac_compare_buffer[5] =  (unsigned char) (working->hmac_02.hmac[1]);
-    hmac_compare_buffer[6] =  (unsigned char) (working->hmac_02.hmac[2] >> 8);
-    hmac_compare_buffer[7] =  (unsigned char) (working->hmac_02.hmac[2]);
-    hmac_compare_buffer[8] =  (unsigned char) (working->hmac_03.hmac[0] >> 8);
-    hmac_compare_buffer[9] =  (unsigned char) (working->hmac_03.hmac[0]);
-    hmac_compare_buffer[10] = (unsigned char) (working->hmac_03.hmac[1] >> 8);
-    hmac_compare_buffer[11] = (unsigned char) (working->hmac_03.hmac[1]);
-    hmac_compare_buffer[12] = (unsigned char) (working->hmac_03.hmac[2] >> 8);
-    hmac_compare_buffer[13] = (unsigned char) (working->hmac_03.hmac[2]);
-    hmac_compare_buffer[14] = (unsigned char) (working->hmac_04.hmac[0] >> 8);
-    hmac_compare_buffer[15] = (unsigned char) (working->hmac_04.hmac[0]);
-    hmac_compare_buffer[16] = (unsigned char) (working->hmac_04.hmac[1] >> 8);
-    hmac_compare_buffer[17] = (unsigned char) (working->hmac_04.hmac[1]);
-    hmac_compare_buffer[18] = (unsigned char) (working->hmac_04.hmac[2] >> 8);
-    hmac_compare_buffer[19] = (unsigned char) (working->hmac_04.hmac[2]);
-    hmac_compare_buffer[20] = (unsigned char) (working->hmac_05.hmac[0] >> 8);
-    hmac_compare_buffer[21] = (unsigned char) (working->hmac_05.hmac[0]);
-    hmac_compare_buffer[22] = (unsigned char) (working->hmac_05.hmac[1] >> 8);
-    hmac_compare_buffer[23] = (unsigned char) (working->hmac_05.hmac[1]);
-    hmac_compare_buffer[24] = (unsigned char) (working->hmac_05.hmac[2] >> 8);
-    hmac_compare_buffer[25] = (unsigned char) (working->hmac_05.hmac[2]);
-    hmac_compare_buffer[26] = (unsigned char) (working->hmac_06.hmac[0] >> 8);
-    hmac_compare_buffer[27] = (unsigned char) (working->hmac_06.hmac[0]);
-    hmac_compare_buffer[28] = (unsigned char) (working->hmac_06.hmac[1] >> 8);
-    hmac_compare_buffer[29] = (unsigned char) (working->hmac_06.hmac[1]);
-    hmac_compare_buffer[30] = (unsigned char) (working->hmac_06.hmac[2] >> 8);
-    hmac_compare_buffer[31] = (unsigned char) (working->hmac_06.hmac[2]);
+    //function as written expects hmac standard size of 32 bytes
+    int check_hmac_buffer_size = 32;
+    if (HMAC_SIZE == check_hmac_buffer_size)
+    {
+	    //clear compare buffer
+	    memset(hmac_compare_buffer, 0, HMAC_SIZE);
+	    
+	    hmac_compare_buffer[0] =  (unsigned char) (working->id_operand_hmac_01.hmac >> 8);
+	    hmac_compare_buffer[1] =  (unsigned char) (working->id_operand_hmac_01.hmac);
+	    hmac_compare_buffer[2] =  (unsigned char) (working->hmac_02.hmac[0] >> 8);
+	    hmac_compare_buffer[3] =  (unsigned char) (working->hmac_02.hmac[0]);
+	    hmac_compare_buffer[4] =  (unsigned char) (working->hmac_02.hmac[1] >> 8);
+	    hmac_compare_buffer[5] =  (unsigned char) (working->hmac_02.hmac[1]);
+	    hmac_compare_buffer[6] =  (unsigned char) (working->hmac_02.hmac[2] >> 8);
+	    hmac_compare_buffer[7] =  (unsigned char) (working->hmac_02.hmac[2]);
+	    hmac_compare_buffer[8] =  (unsigned char) (working->hmac_03.hmac[0] >> 8);
+	    hmac_compare_buffer[9] =  (unsigned char) (working->hmac_03.hmac[0]);
+	    hmac_compare_buffer[10] = (unsigned char) (working->hmac_03.hmac[1] >> 8);
+	    hmac_compare_buffer[11] = (unsigned char) (working->hmac_03.hmac[1]);
+	    hmac_compare_buffer[12] = (unsigned char) (working->hmac_03.hmac[2] >> 8);
+	    hmac_compare_buffer[13] = (unsigned char) (working->hmac_03.hmac[2]);
+	    hmac_compare_buffer[14] = (unsigned char) (working->hmac_04.hmac[0] >> 8);
+	    hmac_compare_buffer[15] = (unsigned char) (working->hmac_04.hmac[0]);
+	    hmac_compare_buffer[16] = (unsigned char) (working->hmac_04.hmac[1] >> 8);
+	    hmac_compare_buffer[17] = (unsigned char) (working->hmac_04.hmac[1]);
+	    hmac_compare_buffer[18] = (unsigned char) (working->hmac_04.hmac[2] >> 8);
+	    hmac_compare_buffer[19] = (unsigned char) (working->hmac_04.hmac[2]);
+	    hmac_compare_buffer[20] = (unsigned char) (working->hmac_05.hmac[0] >> 8);
+	    hmac_compare_buffer[21] = (unsigned char) (working->hmac_05.hmac[0]);
+	    hmac_compare_buffer[22] = (unsigned char) (working->hmac_05.hmac[1] >> 8);
+	    hmac_compare_buffer[23] = (unsigned char) (working->hmac_05.hmac[1]);
+	    hmac_compare_buffer[24] = (unsigned char) (working->hmac_05.hmac[2] >> 8);
+	    hmac_compare_buffer[25] = (unsigned char) (working->hmac_05.hmac[2]);
+	    hmac_compare_buffer[26] = (unsigned char) (working->hmac_06.hmac[0] >> 8);
+	    hmac_compare_buffer[27] = (unsigned char) (working->hmac_06.hmac[0]);
+	    hmac_compare_buffer[28] = (unsigned char) (working->hmac_06.hmac[1] >> 8);
+	    hmac_compare_buffer[29] = (unsigned char) (working->hmac_06.hmac[1]);
+	    hmac_compare_buffer[30] = (unsigned char) (working->hmac_06.hmac[2] >> 8);
+	    hmac_compare_buffer[31] = (unsigned char) (working->hmac_06.hmac[2]);
+    }
 
 }
 
