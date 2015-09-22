@@ -54,8 +54,10 @@ uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
 // CAN MOB allocation into HSB RAM
 #if defined (__GNUC__) && defined (__AVR32__)
-volatile can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
-volatile can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
+volatile can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] __attribute__ ((__section__(".hsb_ram_loc")));
+volatile can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] __attribute__ ((__section__(".hsb_ram_loc")));
+volatile can_msg_t can_msg_que_northbound[64] __attribute__ ((__section__(".hsb_ram_loc")));
+volatile can_msg_t can_msg_que_southbound[64] __attribute__ ((__section__(".hsb_ram_loc")));
 #elif defined (__ICCAVR32__)
 volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
