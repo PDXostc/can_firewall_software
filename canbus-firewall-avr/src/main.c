@@ -606,9 +606,9 @@ static inline void process(can_mob_t *rx, can_mob_t **proc, rule_t* ruleset, can
     Enable_global_interrupt();
 }
 
-static inline void transmit(can_mob_t **proc, can_mob_t **tx)
+static inline void transmit(can_mob_t **proc, can_mob_t **tx, can_mob_t *que)
 {
-    if (tx == proc)
+    if (*tx == *proc)
     {
         return;
     } 
@@ -619,8 +619,13 @@ static inline void transmit(can_mob_t **proc, can_mob_t **tx)
     }
     //increment
     Disable_global_interrupt();
-        
-    tx = tx + 1;
+    //advance ptr
+    if(*tx >= &que[CAN_MSG_QUE_SIZE - 1])
+    {
+        *tx = &que[0];
+        } else {
+        *tx = *tx + 1;
+    }
         
     Enable_global_interrupt();
 }
@@ -632,8 +637,8 @@ static inline void run_firewall(void)
     process(rx_s, &proc_s, &can_ruleset_south_rx_north_tx, &can_msg_que_south_rx_north_tx);
     process(rx_n, &proc_n, &can_ruleset_north_rx_south_tx, &can_msg_que_north_rx_south_tx);
     //maintain and move tx_ ptrs
-    transmit(proc_s, tx_n);
-    transmit(proc_n, tx_s);    
+    transmit(proc_s, tx_n, &can_msg_que_south_rx_north_tx);
+    transmit(proc_n, tx_s, &can_msg_que_north_rx_south_tx);    
 }
 
 int main (void)
