@@ -15,6 +15,7 @@ MEMORY
     FACTORYPAGE : ORIGIN = 0x80800200, LENGTH = 512
     FLASHVAULT_FLASH_SIZE (r) : ORIGIN = 0x80800400, LENGTH = 8
     FLASHVAULT_RAM_SIZE (r) : ORIGIN = 0x80800408, LENGTH = 8
+    HSBRAM (wxa!ri) : ORIGIN = 0XA0000000, LENGTH = 4K
 }
 SECTIONS
 {
@@ -206,5 +207,6 @@ SECTIONS
 	.flash_rsvd : { *(.flash_rsvd .flash_rsvd.*) } >FLASHRSVD AT>FLASHRSVD
   .flashvault_flash_size : { KEEP(*(.flashvault_flash_size .flashvault_flash_size.*)) } > FLASHVAULT_FLASH_SIZE
   .flashvault_ram_size   : { KEEP(*(.flashvault_ram_size .flashvault_ram_size.*)) } > FLASHVAULT_RAM_SIZE
+  .hsb_ram_loc : { *(.hsb_ram_loc .hsb_ram_loc.*)  } >HSBRAM AT>HSBRAM
   /DISCARD/ : { *(.note.GNU-stack) }
 }
