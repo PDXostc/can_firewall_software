@@ -696,6 +696,7 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
 //assumes this data has already been identified as belonging to a new rule frame
 bool handle_new_rule_data(Union64 *data)
 {
+    Disable_global_interrupt();
     //successful handling
     bool success = false;
     //determine prio, ie which rule this frame should correspond to
@@ -738,6 +739,6 @@ bool handle_new_rule_data(Union64 *data)
             success = false;
         }
     }
-    
+    Enable_global_interrupt();
     return success;
 }
