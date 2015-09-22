@@ -52,12 +52,16 @@
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
+#define CAN_MSG_QUE_SIZE    32
+#define CAN_MSG_QUE_NORTH_RX_SOUTH_TX_CHANNEL   0
+#define CAN_MSG_QUE_SOUTH_RX_NORTH_TX_CHANNEL   1
+
 // CAN MOB allocation into HSB RAM
 #if defined (__GNUC__) && defined (__AVR32__)
 volatile can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] __attribute__ ((__section__(".hsb_ram_loc")));
 volatile can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] __attribute__ ((__section__(".hsb_ram_loc")));
-volatile can_msg_t can_msg_que_northbound[64] __attribute__ ((__section__(".hsb_ram_loc")));
-volatile can_msg_t can_msg_que_southbound[64] __attribute__ ((__section__(".hsb_ram_loc")));
+volatile can_msg_t can_msg_que_north_rx_south_tx[CAN_MSG_QUE_SIZE] __attribute__ ((__section__(".hsb_ram_loc")));
+volatile can_msg_t can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE] __attribute__ ((__section__(".hsb_ram_loc")));
 #elif defined (__ICCAVR32__)
 volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
@@ -66,8 +70,8 @@ volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA00000
 
 
 //SRAM Allocation for loaded filter rulesets
-static rule_t can_ruleset_north[16];
-static rule_t can_ruleset_south[16];
+static rule_t can_ruleset_north_rx_south_tx[16];
+static rule_t can_ruleset_south_rx_north_tx[16];
 
 //pointer to working rulesets, incoming
 static rule_working_t *rule_working = NULL;
@@ -82,6 +86,19 @@ volatile bool message_received_north = false;
 volatile bool message_received_south = false;
 volatile bool message_transmitted_north = false;
 volatile bool message_transmitted_south = false;
+
+//ptrs to que, initialize to beginning
+volatile can_msg_t *rx_s =   &can_msg_que_south_rx_north_tx[0];
+volatile can_msg_t *proc_s = &can_msg_que_south_rx_north_tx[0];
+volatile can_msg_t *tx_n =   &can_msg_que_south_rx_north_tx[0];
+
+volatile can_msg_t *rx_n =   &can_msg_que_north_rx_south_tx[0];
+volatile can_msg_t *proc_n = &can_msg_que_north_rx_south_tx[0];
+volatile can_msg_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
+
+const enum Eval_t {
+    DISCARD, NEW, FILTER
+    };
 
 rule_t fake_rule =
 {
@@ -168,21 +185,35 @@ void can_out_callback_south_rx(U8 handle, U8 event){
     event = CAN_STATUS_COMPLETED;
     
     //message has been received, move data from hsb mob to local mob
-    south_rx_msg01.can_msg->data.u64 = can_get_mob_data(CAN_CH_SOUTH, handle).u64;
-    south_rx_msg01.can_msg->id = can_get_mob_id(CAN_CH_SOUTH, handle);
-    south_rx_msg01.dlc = can_get_mob_dlc(CAN_CH_SOUTH, handle);
-    south_rx_msg01.status = event;
+//     south_rx_msg01.can_msg->data.u64 = can_get_mob_data(CAN_CH_SOUTH, handle).u64;
+//     south_rx_msg01.can_msg->id = can_get_mob_id(CAN_CH_SOUTH, handle);
+//     south_rx_msg01.dlc = can_get_mob_dlc(CAN_CH_SOUTH, handle);
+//     south_rx_msg01.status = event;
     
     //handle the message, just testing purposes right now
-    //TODO: write actual error handling
-    handle_new_rule_data(&south_rx_msg01.can_msg->data);
+    //TODO: write actual error handling, also move this out of callback, handle new rule data should be called from que evaluation function
+    //handle_new_rule_data(&south_rx_msg01.can_msg->data);
+    
+    Disable_global_interrupt();
+    //inlining for now...
+    //copy to location of desired rx ptr in queue
+    rx_s->data.u64 = can_get_mob_data(CAN_CH_SOUTH, handle).u64;
+    rx_s->id = can_get_mob_id(CAN_CH_SOUTH, handle);
+    //rx_s->dlc = can_get_mob_dlc(CAN_CH_SOUTH, handle);
+    //advance ptr
+    if(rx_s >= &can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE - 1])
+    {
+        rx_s = &can_msg_que_south_rx_north_tx[0];
+    } else {
+        rx_s = rx_s + 1;
+    }    
     
     //print what we got
     #if DBG_CAN_MSG
     print_dbg("\n\rReceived can message on SOUTH line:\n\r");
     //print_dbg_ulong(south_rx_msg01.can_msg->data.u64);
     PRINT_NEWLINE
-    print_can_message(south_rx_msg01.can_msg);
+    print_can_message(rx_s);
     //print_can_message(south_rx_msg02.can_msg);
     #endif
     //release mob in hsb
@@ -190,6 +221,8 @@ void can_out_callback_south_rx(U8 handle, U8 event){
     //set ready to evaluate message
     //TODO: state machine call
     message_received_south = true;
+    
+    Enable_global_interrupt();
 }
 void can_out_callback_south_tx(U8 handle, U8 event){
     //TODO
@@ -324,7 +357,7 @@ void can_prepare_data_to_receive_south(void){
     can_out_callback_south_rx);
     //Allocate mob for TX
     south_rx_msg01.handle = can_mob_alloc(CAN_CH_SOUTH);
-    south_rx_msg02.handle = can_mob_alloc(CAN_CH_SOUTH);
+    //south_rx_msg02.handle = can_mob_alloc(CAN_CH_SOUTH);
     
     INTC_register_interrupt(&can_out_callback_south_rx, AVR32_CANIF_RXOK_IRQ_1, CAN1_INT_RX_LEVEL);
     INTC_register_interrupt(&can_out_callback_south_tx, AVR32_CANIF_TXOK_IRQ_1, CAN1_INT_TX_LEVEL);
@@ -352,7 +385,7 @@ void can_prepare_data_to_receive_south(void){
     //while(north_tx_msg[0].handle==CAN_CMD_REFUSED);
 }
 
-void run_test_loop(void) {
+static inline void run_test_loop(void) {
     //function scratch area, will be rewritten as needed by the current test we are running
     //not great practice, used for rapid proto
     if (message_received_north == true)
@@ -396,7 +429,7 @@ void run_test_loop(void) {
     //can_prepare_data_to_send_north();
     //can_prepare_data_to_send_south();
     //can_prepare_data_to_send_north();
-    delay_ms(1000);
+    //delay_ms(1000);
     
 }
 
@@ -467,14 +500,139 @@ void init_can(void) {
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 
+static inline enum Eval_t evaluate(can_msg_t *msg, rule_t *ruleset, rule_t *out_rule){
+    //note: does not handle extended CAN yet
+    
+    //if shunt connected, check against new rule case
+    if(detected_shunt == true)
+    {
+        if(msg->id == msg_new_rule.id){
+            return NEW;
+        }
+    }
+    
+    int i = 0;
+    while(i != SIZE_RULESET - 1){
+        //look for match 
+        //uint32_t comp = ((uint32_t)msg->id) & ruleset[i].mask;
+        //if ((msg->id & *ruleset[i]->mask) == *ruleset[i]->filter)
+        if((msg->id & ruleset[i].mask) == ruleset[i].filter)
+        {
+            //match found, set out_rule and return evaluation case
+            out_rule = &ruleset[i];
+            return FILTER;
+        }
+        
+        i += 1;
+    }
+    
+    //got here without any match
+    return DISCARD;
+}
+
+static inline void process(can_msg_t *rx, can_msg_t **proc, rule_t* ruleset, can_msg_t *que)
+{
+    //check for each proc ptr to not equal the location we will copy to
+    //process message pointed to
+    //advance
+    
+    //south
+    if (*proc == rx)
+    {
+        return;
+    } 
+    else
+    {
+        //evaluate against rules and handle accordingly
+        //supply message and rule ptr, receive ptr to applicable rule
+        //check rule
+        rule_t *rule_match;
+        enum Eval_t eval = evaluate(*proc, ruleset, rule_match);
+        switch(eval) {
+            case NEW:
+            if(detected_shunt){
+                //does not check for success
+                handle_new_rule_data(&(*proc)->data.u64);
+            }
+            break;
+            
+            case FILTER:
+            //apply rule to message, que for transmit
+            break;
+            
+            case DISCARD:
+            default:
+            //delete what is here
+            memset(*proc, 0, sizeof(can_msg_t));
+            break;
+        }
+    }
+    
+    Disable_global_interrupt();
+    
+    //advance ptr
+    if(*proc >= &que[CAN_MSG_QUE_SIZE - 1])
+    {
+        *proc = &que[0];
+        } else {
+        *proc = *proc + 1;
+    }
+    
+    Enable_global_interrupt();
+}
+
+static inline void transmit(can_msg_t **proc, can_msg_t **tx)
+{
+    if (tx == proc)
+    {
+        return;
+    } 
+    else
+    {
+        //transmit, if applicable
+        //remember to set dlc
+    }
+    //increment
+    Disable_global_interrupt();
+        
+    tx = tx + 1;
+        
+    Enable_global_interrupt();
+}
+
+/* Main filter loop; designed to be a linear pipeline that we will try to get done as quickly as possible */
+static inline void run_firewall(void)
+{
+    //maintain and move proc_ ptrs
+    process(rx_s, &proc_s, &can_ruleset_south_rx_north_tx, &can_msg_que_south_rx_north_tx);
+    process(rx_n, &proc_n, &can_ruleset_north_rx_south_tx, &can_msg_que_north_rx_south_tx);
+    //maintain and move tx_ ptrs
+    transmit(proc_s, tx_n);
+    transmit(proc_n, tx_s);    
+}
+
 int main (void)
 {
     //setup
     init();
     init_can();
     
+//     int size_can_msg = sizeof(can_msg_t);
+//     int *add_mob_hsb01 = &CAN_MOB_SOUTH_RX_NORTH_TX[0];
+//     int *add_mob_hsb02 = &CAN_MOB_SOUTH_RX_NORTH_TX[1];
+//     int *add_mob_hsb03 = &CAN_MOB_SOUTH_RX_NORTH_TX[2];
+//     int *add_mob_hsb04 = &CAN_MOB_SOUTH_RX_NORTH_TX[15];
+//     int *add_mob_hsb011 = &CAN_MOB_NORTH_RX_SOUTH_TX[0];
+//     int *add_mob_hsb012 = &CAN_MOB_NORTH_RX_SOUTH_TX[1];
+//     int *add_mob_hsb013 = &CAN_MOB_NORTH_RX_SOUTH_TX[2];
+//     int *add_mob_hsb014 = &CAN_MOB_NORTH_RX_SOUTH_TX[15];
+//     int *add_can_northbound_base = &can_msg_que_north_rx_south_tx[0];
+//     int *add_can_northbound_last = &can_msg_que_north_rx_south_tx[63];
+//     int *add_can_southbound_base = &can_msg_que_south_rx_north_tx[0];
+//     int *add_can_southbound_last = &can_msg_que_south_rx_north_tx[63];
+    
     //test of hmac print
-    bool test_new_rule = test_new_rule_creation();
+    //bool test_new_rule = test_new_rule_creation();
     
     #if 1
     
@@ -483,6 +641,7 @@ int main (void)
     while (1)
     {
         run_test_loop();
+        run_firewall();
     }
     
     #endif    
