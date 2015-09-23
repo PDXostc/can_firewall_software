@@ -299,3 +299,13 @@ can_msg_t msg_prep_10 = {
     },
     .data.u64 = 0x040A000000010000LL,    // Data
 };
+
+can_msg_t msg_pass_all = {
+    {
+        {
+            .id = 0x000,                    // Identifier
+            .id_mask  = 0x000,              // Mask
+        },
+    },
+    .data.u64 = 0xFFFFFFFFFFFFFFFFLL,    // Data
+};
