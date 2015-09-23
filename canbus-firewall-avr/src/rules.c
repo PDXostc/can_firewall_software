@@ -307,10 +307,8 @@ void load_ruleset(rule_t *source, rule_t *dest, int num)
     }
 }
 
-bool verify_new_rule_sequence(rule_working_t *working)
+void store_new_sequence_number(rule_working_t *working)
 {
-    //TODO: actually check sequence
-    
     if (working->store_sequence.sequence > stored_sequence)
     {
         //set our new sequence to be at least the number that we got for the sequence check
@@ -318,8 +316,31 @@ bool verify_new_rule_sequence(rule_working_t *working)
         //assume we store our sequence in flash memory...
         flashc_memcpy(&stored_sequence, &working->store_sequence.sequence, sizeof(stored_sequence), true);
         #if DBG_RULES
-        print_dbg("\n\rSequence check successful...new sequence number: ");
+        print_dbg("\n\rNew sequence number: ");
         print_dbg_ulong(stored_sequence);
+        print_dbg("\n\r\n\r");
+        #endif
+    } 
+    else
+    {
+        #if DBG_RULES
+        print_dbg("\n\rSequence check failed...received number not greater than stored...");
+        print_dbg("\n\rReceived: ");
+        print_dbg_ulong(working->store_sequence.sequence);
+        print_dbg("\n\rStored: ");
+        print_dbg_ulong(stored_sequence);
+        #endif
+    }
+}
+
+bool verify_new_rule_sequence(rule_working_t *working)
+{    
+    if (working->store_sequence.sequence > stored_sequence)
+    {
+        //this should only verify, so we can store later when other verifications are complete
+        //flashc_memcpy(&stored_sequence, &working->store_sequence.sequence, sizeof(stored_sequence), true);
+        #if DBG_RULES
+        print_dbg("\n\rSequence check successful...");
         print_dbg("\n\r\n\r");
         #endif
         return true;
@@ -654,8 +675,10 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
         //verified the rule, assemble and store it
         if (success == true)
         {
-            rule_t rule_to_save = create_rule_from_working_set(rules_in_progress.working_sets[working_set_index]);
+            store_new_sequence_number(&rules_in_progress.working_sets[working_set_index]->store_sequence.sequence);
+            rule_t rule_to_save = create_rule_from_working_set(rules_in_progress.working_sets[working_set_index]);            
             success = save_rule_to_flash(&rule_to_save, &flash_can_ruleset[rule_to_save.prio]);
+            
         }
         
         //we got here because of a store command. whether or not we are successful, we should destroy the work in progress

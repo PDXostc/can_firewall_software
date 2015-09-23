@@ -527,7 +527,16 @@ extern void load_rule(rule_t *source_rule, rule_t *dest_rule);
 extern void load_ruleset(rule_t *source, rule_t *dest, int num);
 
 /**
- * \brief STUB FOR NOW -- Will verify that the sequence number received is and should be greater than number stored
+ * \brief Store new sequence number not greater than number already stored
+ * 
+ * \param working Pointer to working set
+ * 
+ * \return void
+ */
+void store_new_sequence_number(rule_working_t *working);
+
+/**
+ * \brief Will verify that the sequence number received is and should be greater than number stored
  * 
  * \param working Pointer to working set where rule in progress resides
  * 
@@ -536,7 +545,7 @@ extern void load_ruleset(rule_t *source, rule_t *dest, int num);
 extern bool verify_new_rule_sequence(rule_working_t *working);
 
 /**
- * \brief STUB FOR NOW -- Will verify the message sender and contents using the hmac received from the preparation frames
+ * \brief Will verify the message sender and contents using the hmac received from the preparation frames
  * 
  * \param working Pointer to working set rule in progress
  * 
