@@ -149,8 +149,8 @@ can_mob_t south_rx_msg02 = {
 can_msg_t msg_new_rule = {
     {
         {
-            .id = 0x01,                      // Identifier, should be last number in address space
-            .id_mask  = 0x00,                // Mask, should check all bits
+            .id = 0x7FE,                      // Identifier, should be last number in address space
+            .id_mask  = 0x000,                // Mask, should check all bits
         },
     },
     .data.u64 = 0x0LL,                 // Data, should be uninitialized
