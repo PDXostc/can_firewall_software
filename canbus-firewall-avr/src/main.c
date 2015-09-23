@@ -52,7 +52,7 @@
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
-#define CAN_MSG_QUE_SIZE    32
+#define CAN_MSG_QUE_SIZE    16
 #define CAN_MSG_QUE_NORTH_RX_SOUTH_TX_CHANNEL   0
 #define CAN_MSG_QUE_SOUTH_RX_NORTH_TX_CHANNEL   1
 
@@ -70,8 +70,8 @@ volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA00000
 
 
 //SRAM Allocation for loaded filter rulesets
-static rule_t can_ruleset_north_rx_south_tx[16];
-static rule_t can_ruleset_south_rx_north_tx[16];
+static rule_t can_ruleset_north_rx_south_tx[SIZE_RULESET];
+static rule_t can_ruleset_south_rx_north_tx[SIZE_RULESET];
 
 //pointer to working rulesets, incoming
 static rule_working_t *rule_working = NULL;
@@ -525,6 +525,15 @@ void init_can(void) {
     Enable_global_interrupt();
 }
 
+void init_rules()
+{
+    //rules in flash are stored together. 
+    //Northbound[0 : SIZE_RULESET-1]
+    //Southbound[SIZE_RULESET : (SIZERULESET*2)-1]
+    load_ruleset(&flash_can_ruleset[0], &can_ruleset_south_rx_north_tx, SIZE_RULESET);
+    load_ruleset(&flash_can_ruleset[SIZE_RULESET], &can_ruleset_north_rx_south_tx, SIZE_RULESET);
+}
+
 #define member_size(type, member) sizeof(((type *)0)->member)
 
 static inline enum Eval_t evaluate(can_mob_t *msg, rule_t *ruleset, rule_t *out_rule){
@@ -646,7 +655,7 @@ int main (void)
     //setup
     init();
     init_can();
-    
+    init_rules();
 //     int size_can_msg = sizeof(can_msg_t);
 //     int *add_mob_hsb01 = &CAN_MOB_SOUTH_RX_NORTH_TX[0];
 //     int *add_mob_hsb02 = &CAN_MOB_SOUTH_RX_NORTH_TX[1];
