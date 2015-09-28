@@ -15,7 +15,18 @@ rules_in_progress_t rules_in_progress = {
     .working_sets = {NULL}
 };
 
-rule_t flash_can_ruleset[(SIZE_RULESET*2)];
+rule_t flash_can_ruleset[(SIZE_RULESET*2)] = {0};
+//test worst case pass through rule
+// test_pass = {
+//         .dtoperand = 0,
+//         .filter = 0,
+//         .mask = 0,
+//         .idoperand = 0,
+//         .prio = SIZE_RULESET,
+//         .xform = 0
+//     };
+// 
+// flash_can_ruleset[SIZE_RULESET-1] = test_pass;
 
 //init to zero for now. this should become a secret number pulled from flash
 static int stored_sequence = 0;

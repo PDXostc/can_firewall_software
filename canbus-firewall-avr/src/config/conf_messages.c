@@ -23,16 +23,16 @@
 // CAN Message Definition: Tx Message
 #if defined (__ICCAVR32__)
 can_msg_t msg_tx_sot = {
-    0x00,                    // Identifier
-    0x00,                    // Mask
+    0x000,                    // Identifier
+    0x000,                    // Mask
     0x0102030405060708LL,     // Data
 };
 #else
 can_msg_t msg_tx_sot = {
     {
         {
-            .id = 0x00,                    // Identifier
-            .id_mask  = 0x00,              // Mask
+            .id = 0x000,                    // Identifier
+            .id_mask  = 0x000,              // Mask
         },
     },
     .data.u64 = 0x0102030405060708LL,    // Data
