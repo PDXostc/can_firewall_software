@@ -15,7 +15,7 @@ rules_in_progress_t rules_in_progress = {
     .working_sets = {NULL}
 };
 
-rule_t flash_can_ruleset[(SIZE_RULESET*2)] = {0};
+rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 //test worst case pass through rule
 // test_pass = {
 //         .dtoperand = 0,

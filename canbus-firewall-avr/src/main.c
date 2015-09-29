@@ -74,8 +74,8 @@ static rule_t can_ruleset_north_rx_south_tx[SIZE_RULESET];
 static rule_t can_ruleset_south_rx_north_tx[SIZE_RULESET];
 
 //pointer to working rulesets, incoming
-static rule_working_t *rule_working = NULL;
-static int num_rules_working = SIZE_RULESET;
+// static rule_working_t *rule_working = NULL;
+// static int num_rules_working = SIZE_RULESET;
 
 //physical security shunt, override to true during software testing
 //if this is true, we can accept new rules
@@ -556,7 +556,7 @@ static inline void process(volatile can_mob_t *rx, volatile can_mob_t **proc, ru
         //evaluate against rules and handle accordingly
         //supply message and rule ptr, receive ptr to applicable rule
         //check rule
-        rule_t *rule_match;
+        rule_t *rule_match = NULL;
         enum Eval_t eval = evaluate(*proc, ruleset, rule_match);
         switch(eval) {
             case NEW:
