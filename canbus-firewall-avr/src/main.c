@@ -98,7 +98,7 @@ volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
 
 const enum Eval_t {
     DISCARD, NEW, FILTER
-    };
+    } Eval_t;
 
 rule_t fake_rule =
 {
@@ -142,7 +142,7 @@ rule_working_t working_test = {
 Union64 data_frame_test;
 
 /* Call backs */
-void can_out_callback_north_rx(U8 handle, U8 event){
+static void can_out_callback_north_rx(U8 handle, U8 event){
     //message has been received, move data from hsb mob to local mob
     north_rx_msg[0].can_msg->data.u64 = can_get_mob_data(CAN_CH_NORTH, handle).u64;
     north_rx_msg[0].can_msg->id = can_get_mob_id(CAN_CH_NORTH, handle);
@@ -162,7 +162,7 @@ void can_out_callback_north_rx(U8 handle, U8 event){
     message_received_north = true;
 }
 
-void can_out_callback_south_tx(U8 handle, U8 event){
+static void can_out_callback_south_tx(U8 handle, U8 event){
     //TODO
     //stub
 //     handle = CANIF_mob_get_mob_txok(1) ;
@@ -180,7 +180,7 @@ void can_out_callback_south_tx(U8 handle, U8 event){
     message_transmitted_south = true;
 }
 
-void can_prepare_data_to_receive_north(void){
+static void can_prepare_data_to_receive_north(void){
     //TODO
     //stub
     message_received_north = false;
@@ -207,7 +207,7 @@ void can_prepare_data_to_receive_north(void){
     //while(north_tx_msg[0].handle==CAN_CMD_REFUSED);
 }
 //
-void can_prepare_data_to_send_south(void){
+static void can_prepare_data_to_send_south(void){
     //TODO
     //stub
     message_transmitted_south = false;
@@ -235,7 +235,7 @@ void can_prepare_data_to_send_south(void){
 
 }
 
-void can_out_callback_north_tx(U8 handle, U8 event){
+static void can_out_callback_north_tx(U8 handle, U8 event){
     //TODO
     //stub
     #if 0
@@ -248,7 +248,7 @@ void can_out_callback_north_tx(U8 handle, U8 event){
     message_transmitted_north = true;
 }
 
-void can_prepare_data_to_send_north(void){
+static void can_prepare_data_to_send_north(void){
     //TODO
     //stub
     message_transmitted_north = false;
@@ -274,7 +274,7 @@ void can_prepare_data_to_send_north(void){
     //while(tx_n->handle==CAN_CMD_REFUSED);
 }
 
-void can_out_callback_south_rx(U8 handle, U8 event){
+static void can_out_callback_south_rx(U8 handle, U8 event){
     
     Disable_global_interrupt();
     //inlining for now...
@@ -309,7 +309,7 @@ void can_out_callback_south_rx(U8 handle, U8 event){
     Enable_global_interrupt();
 }
 
-void can_prepare_data_to_receive_south(void){
+static void can_prepare_data_to_receive_south(void){
     //TODO
     //stub//Init channel north
     message_received_south = false;
@@ -341,14 +341,14 @@ void can_prepare_data_to_receive_south(void){
     
 }
 
-void can_prepare_next_receive_south(void)
+static void can_prepare_next_receive_south(void)
 {
     Disable_global_interrupt();
     message_received_south = false;
     
     rx_s->handle = can_mob_alloc(CAN_CH_SOUTH);
     
-    INTC_register_interrupt(&can_out_callback_south_rx, AVR32_CANIF_RXOK_IRQ_1, CAN1_INT_RX_LEVEL);
+    INTC_register_interrupt((void *)&can_out_callback_south_rx, AVR32_CANIF_RXOK_IRQ_1, CAN1_INT_RX_LEVEL);
     
     can_rx(CAN_CH_SOUTH,
     rx_s->handle,
@@ -405,7 +405,7 @@ static inline void run_test_loop(void) {
     
 }
 
-void init(void) {
+static void init(void) {
     /* Insert system clock initialization code here (sysclk_init()). */
     sysclk_init();
     
@@ -431,7 +431,7 @@ void init(void) {
     #endif
 }
 
-void init_can(void) {
+static void init_can(void) {
     /* Setup generic clock for CAN */
     /* Remember to calibrate this correctly to our external osc*/
     int setup_gclk;
@@ -440,13 +440,12 @@ void init_can(void) {
     SCIF_GCCTRL_PBCCLOCK,
     AVR32_SCIF_GC_DIV_CLOCK,
     CANIF_OSC_DIV);
-    #else if 1
+    #elif 1
     setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
     SCIF_GCCTRL_PLL0,
     AVR32_SCIF_GC_USES_PLL0,
     4);
-    #endif
-    #if 0
+    #elif 0
     setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
             SCIF_GCCTRL_OSC0,
             AVR32_SCIF_GC_NO_DIV_CLOCK,
@@ -498,18 +497,18 @@ void init_can(void) {
     Enable_global_interrupt();
 }
 
-void init_rules()
+static void init_rules()
 {
     //rules in flash are stored together. 
     //Northbound[0 : SIZE_RULESET-1]
     //Southbound[SIZE_RULESET : (SIZERULESET*2)-1]
-    load_ruleset(&flash_can_ruleset[0], &can_ruleset_south_rx_north_tx, SIZE_RULESET);
-    load_ruleset(&flash_can_ruleset[SIZE_RULESET], &can_ruleset_north_rx_south_tx, SIZE_RULESET);
+    load_ruleset(&flash_can_ruleset[0], can_ruleset_south_rx_north_tx, SIZE_RULESET);
+    load_ruleset(&flash_can_ruleset[SIZE_RULESET], can_ruleset_north_rx_south_tx, SIZE_RULESET);
 }
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 
-static inline enum Eval_t evaluate(can_mob_t *msg, rule_t *ruleset, rule_t *out_rule){
+static inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t *out_rule){
     //note: does not handle extended CAN yet
     
     //if shunt connected, check against new rule case
@@ -541,7 +540,7 @@ static inline enum Eval_t evaluate(can_mob_t *msg, rule_t *ruleset, rule_t *out_
     return DISCARD;
 }
 
-static inline void process(can_mob_t *rx, can_mob_t **proc, rule_t* ruleset, can_mob_t *que)
+static inline void process(volatile can_mob_t *rx, volatile can_mob_t **proc, rule_t* ruleset, volatile can_mob_t *que)
 {
     //check for each proc ptr to not equal the location we will copy to
     //process message pointed to
@@ -563,7 +562,7 @@ static inline void process(can_mob_t *rx, can_mob_t **proc, rule_t* ruleset, can
             case NEW:
             if(detected_shunt){
                 //does not check for success
-                handle_new_rule_data(&(*proc)->can_msg->data.u64);
+                handle_new_rule_data(&(*proc)->can_msg->data);
             }
             break;
             
@@ -578,7 +577,7 @@ static inline void process(can_mob_t *rx, can_mob_t **proc, rule_t* ruleset, can
             case DISCARD:
             default:
             //delete what is here
-            memset(*proc, 0, sizeof(can_mob_t));
+            memset((void *)(*proc), 0, sizeof(can_mob_t));
             break;
         }
     }
@@ -596,7 +595,7 @@ static inline void process(can_mob_t *rx, can_mob_t **proc, rule_t* ruleset, can
     Enable_global_interrupt();
 }
 
-static inline void transmit(can_mob_t **proc, can_mob_t **tx, can_mob_t *que)
+static inline void transmit(volatile can_mob_t **proc, volatile can_mob_t **tx, volatile can_mob_t *que)
 {
     if (*tx == *proc)
     {
@@ -633,11 +632,11 @@ static inline void transmit(can_mob_t **proc, can_mob_t **tx, can_mob_t *que)
 static inline void run_firewall(void)
 {
     //maintain and move proc_ ptrs
-    process(rx_s, &proc_s, &can_ruleset_south_rx_north_tx, &can_msg_que_south_rx_north_tx);
-    process(rx_n, &proc_n, &can_ruleset_north_rx_south_tx, &can_msg_que_north_rx_south_tx);
+    process(rx_s, &proc_s, can_ruleset_south_rx_north_tx, can_msg_que_south_rx_north_tx);
+    process(rx_n, &proc_n, can_ruleset_north_rx_south_tx, can_msg_que_north_rx_south_tx);
     //maintain and move tx_ ptrs
-    transmit(&proc_s, &tx_n, &can_msg_que_south_rx_north_tx);
-    transmit(&proc_n, &tx_s, &can_msg_que_north_rx_south_tx);    
+    transmit(&proc_s, &tx_n, can_msg_que_south_rx_north_tx);
+    transmit(&proc_n, &tx_s, can_msg_que_north_rx_south_tx);    
 }
 
 int main (void)
