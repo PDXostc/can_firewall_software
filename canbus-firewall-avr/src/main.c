@@ -112,10 +112,10 @@ rule_t fake_rule =
 
 rule_t control_rule =
 {
-    .prio = 0x01ff,
+    .prio = 0x01,
     .mask = 0x02ff,
     .filter = 0x03ff,
-    .xform = 0x04ff,
+    .xform = 0x04,
     .idoperand = 0x05ff,
     .dtoperand = 0x06ff
 };
@@ -473,7 +473,7 @@ static void init_can(void) {
     
     #if DBG_CLKS
     //print_dbg("\n\rGeneric clock enabled\n\r");
-    print_dbg_ulong(sysclk_get_peripheral_bus_hz(AVR32_CANIF_ADDRESS));
+    print_dbg_ulong(sysclk_get_peripheral_bus_hz((const volatile void *)AVR32_CANIF_ADDRESS));
     #endif
     
     /* Disable all interrupts. */
@@ -497,7 +497,7 @@ static void init_can(void) {
     Enable_global_interrupt();
 }
 
-static void init_rules()
+static void init_rules(void)
 {
     //rules in flash are stored together. 
     //Northbound[0 : SIZE_RULESET-1]
@@ -523,8 +523,8 @@ static inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rul
     while(i != SIZE_RULESET - 1){
         //look for match 
         //test of values:
-        int and_msg = msg->can_msg->id & ruleset[i].mask;
-        int filter = ruleset[i].filter;
+        //int and_msg = msg->can_msg->id & ruleset[i].mask;
+        //int filter = ruleset[i].filter;
         
         if((msg->can_msg->id & ruleset[i].mask) == ruleset[i].filter)
         {
@@ -647,7 +647,7 @@ int main (void)
     init_rules();
 
     //bool test_new_rule = test_new_rule_creation();
-    int size_can_msg = sizeof(can_msg_t);
+    //int size_can_msg = sizeof(can_msg_t);
     #if 1
     
     can_prepare_data_to_receive_south();
