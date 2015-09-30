@@ -296,8 +296,8 @@ void can_prepare_data_to_send_north(void){
 
     north_tx_msg[0].handle = can_mob_alloc(CAN_CH_NORTH);
     /* Check return if no mob are available */
-    if (north_tx_msg[0].handle==CAN_CMD_REFUSED) {
-        while(1);
+    while (north_tx_msg[0].handle==CAN_CMD_REFUSED) {
+        //while(1);
     }
 
     can_tx(CAN_CH_NORTH,
@@ -514,20 +514,24 @@ void init_can(void) {
     int setup_gclk;
     #if 0
     setup_gclk= scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-    SCIF_GCCTRL_PBCCLOCK,
-    AVR32_SCIF_GC_DIV_CLOCK,
-    CANIF_OSC_DIV);
-    #else if 1
+            SCIF_GCCTRL_PBCCLOCK,
+            AVR32_SCIF_GC_DIV_CLOCK,
+            CANIF_OSC_DIV);
+    #elif 1
     setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-    SCIF_GCCTRL_PLL0,
-    AVR32_SCIF_GC_USES_PLL0,
-    4);
-    #endif
-    #if 0
+            SCIF_GCCTRL_PLL0,
+            AVR32_SCIF_GC_USES_PLL0,
+            4);
+    #elif 0
     setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
             SCIF_GCCTRL_OSC0,
             AVR32_SCIF_GC_NO_DIV_CLOCK,
             0);
+    #elif 0
+    setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
+            SCIF_GCCTRL_PLL0,
+            AVR32_SCIF_GC_USES_PLL0,
+            8);
     #endif
 
     #if DBG_CLKS
