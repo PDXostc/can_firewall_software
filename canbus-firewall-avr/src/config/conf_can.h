@@ -53,61 +53,15 @@
 
 //! Define the number of MOB per channel. It is a fixed value: 16.
 #define NB_MOB_CHANNEL     16
-//! Setup the usage of Autobaud feature, here the stack does not support it
-#define CAN_AUTOBAUD       false
 //! Setup the usage of CAN Under interruption
 #define CAN_LIB_UNDER_INTERRUPT
-//beware, pres is actually a divisor
-#if 0 //good @ 1000k baud, assuming 16mhz clock
+
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_SJW         1
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRES        1
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS         2
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS1        1
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS2        1
-#elif 1 //test in progress field
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_SJW         1
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRES        1
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS         1
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS1        1
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS2        2
-#elif 0 //good @ 100k baud, 12mhz clock
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_SJW         1
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRES        1
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS         5
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS1        3
-#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS2        3
-// #elif 0 //good @ 100k baud, 12mhz clock
-// #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
-// #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_SJW         1
-// #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRES        1
-// #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS         3
-// #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS1        4
-// #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS2        4
-#elif 0 //good @ 500k baud, 16mhz
-#define CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz
-#define CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_SJW         1
-#define CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_PRES        1
-#define CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_PRS         4
-#define CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_PHS1        4
-#define CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_PHS2        4
-#elif 0 //good @ 100k baud, 16mhz clock
-#define CAN_BAUDRATE_100KHZ_CANCLOCK_16MHz
-#define CAN_BAUDRATE_100KHZ_CANCLOCK_16MHz_SJW         1
-#define CAN_BAUDRATE_100KHZ_CANCLOCK_16MHz_PRES        9
-#define CAN_BAUDRATE_100KHZ_CANCLOCK_16MHz_PRS         4
-#define CAN_BAUDRATE_100KHZ_CANCLOCK_16MHz_PHS1        4
-#define CAN_BAUDRATE_100KHZ_CANCLOCK_16MHz_PHS2        4
-#elif 0 //Atmel provided - supposedly for 500k baud, 8 Mhz clock
-#define CAN_BAUDRATE_500KHZ_CANCLOCK_8MHz
-#define CAN_BAUDRATE_500KHZ_CANCLOCK_8MHz_SJW         1
-#define CAN_BAUDRATE_500KHZ_CANCLOCK_8MHz_PRES        3
-#define CAN_BAUDRATE_500KHZ_CANCLOCK_8MHz_PRS         2
-#define CAN_BAUDRATE_500KHZ_CANCLOCK_8MHz_PHS1        1
-#define CAN_BAUDRATE_500KHZ_CANCLOCK_8MHz_PHS2        1
-#endif
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS         4
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS1        4
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS2        4
 
 #define BAUDRATE        CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
 #define BAUDRATE_HZ     500000
@@ -137,7 +91,5 @@
 
 #define CAN_MOB_NORTH_RX_SOUTH_TX     mob_ram_ch0
 #define CAN_MOB_SOUTH_RX_NORTH_TX     mob_ram_ch1
-
-
 
 #endif // _CONF_CAN_H
