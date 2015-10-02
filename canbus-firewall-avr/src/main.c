@@ -74,8 +74,8 @@ static rule_t can_ruleset_north_rx_south_tx[SIZE_RULESET];
 static rule_t can_ruleset_south_rx_north_tx[SIZE_RULESET];
 
 //pointer to working rulesets, incoming
-static rule_working_t *rule_working = NULL;
-static int num_rules_working = SIZE_RULESET;
+// static rule_working_t *rule_working = NULL;
+// static int num_rules_working = SIZE_RULESET;
 
 //physical security shunt, override to true during software testing
 //if this is true, we can accept new rules
@@ -98,7 +98,7 @@ volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
 
 const enum Eval_t {
     DISCARD, NEW, FILTER
-    };
+    } Eval_t;
 
 rule_t fake_rule =
 {
@@ -112,10 +112,10 @@ rule_t fake_rule =
 
 rule_t control_rule =
 {
-    .prio = 0x01ff,
+    .prio = 0x01,
     .mask = 0x02ff,
     .filter = 0x03ff,
-    .xform = 0x04ff,
+    .xform = 0x04,
     .idoperand = 0x05ff,
     .dtoperand = 0x06ff
 };
@@ -142,7 +142,7 @@ rule_working_t working_test = {
 Union64 data_frame_test;
 
 /* Call backs */
-void can_out_callback_north_rx(U8 handle, U8 event){
+static void can_out_callback_north_rx(U8 handle, U8 event){
     //message has been received, move data from hsb mob to local mob
     north_rx_msg[0].can_msg->data.u64 = can_get_mob_data(CAN_CH_NORTH, handle).u64;
     north_rx_msg[0].can_msg->id = can_get_mob_id(CAN_CH_NORTH, handle);
@@ -162,7 +162,7 @@ void can_out_callback_north_rx(U8 handle, U8 event){
     message_received_north = true;
 }
 
-void can_out_callback_south_tx(U8 handle, U8 event){
+static void can_out_callback_south_tx(U8 handle, U8 event){
     //TODO
     //stub
 //     handle = CANIF_mob_get_mob_txok(1) ;
@@ -180,7 +180,7 @@ void can_out_callback_south_tx(U8 handle, U8 event){
     message_transmitted_south = true;
 }
 
-void can_prepare_data_to_receive_north(void){
+static void can_prepare_data_to_receive_north(void){
     //TODO
     //stub
     message_received_north = false;
@@ -207,7 +207,7 @@ void can_prepare_data_to_receive_north(void){
     //while(north_tx_msg[0].handle==CAN_CMD_REFUSED);
 }
 //
-void can_prepare_data_to_send_south(void){
+static void can_prepare_data_to_send_south(void){
     //TODO
     //stub
     message_transmitted_south = false;
@@ -219,18 +219,9 @@ void can_prepare_data_to_send_south(void){
 
     //INTC_register_interrupt(&can_out_callback_south_rx, AVR32_CANIF_RXOK_IRQ_1, CAN1_INT_RX_LEVEL);
     //INTC_register_interrupt(&can_out_callback_south_tx, AVR32_CANIF_TXOK_IRQ_1, CAN1_INT_TX_LEVEL);
-    //CANIF_enable_interrupt(1);
 
     //Allocate mob for TX
     south_tx_msg[0].handle = can_mob_alloc(CAN_CH_SOUTH);
-    //south_rx_msg01.handle = can_mob_alloc(CAN_CH_SOUTH);
-    //south_rx_msg02.handle = can_mob_alloc(CAN_CH_SOUTH);
-
-    //Check no mob available
-    //if(south_tx_msg[0].handle==CAN_CMD_REFUSED){
-    //
-    //}
-    //--example has conversion of data to meet adc standard from dsp lib.. not sure if necessary
     /* Check return if no mob are available */
     if (south_tx_msg[0].handle==CAN_CMD_REFUSED) {
         while(1);
@@ -242,21 +233,9 @@ void can_prepare_data_to_send_south(void){
     south_tx_msg[0].req_type,
     south_tx_msg[0].can_msg);
 
-//     can_rx(CAN_CH_SOUTH,
-//     south_rx_msg01.handle,
-//     south_rx_msg01.req_type,
-//     south_rx_msg01.can_msg);
-// 
-//     can_rx(CAN_CH_SOUTH,
-//     south_rx_msg02.handle,
-//     south_rx_msg02.req_type,
-//     south_rx_msg02.can_msg);
-
-    //or ??
-    //while(north_tx_msg[0].handle==CAN_CMD_REFUSED);
 }
 
-void can_out_callback_north_tx(U8 handle, U8 event){
+static void can_out_callback_north_tx(U8 handle, U8 event){
     //TODO
     //stub
     #if 0
@@ -269,7 +248,7 @@ void can_out_callback_north_tx(U8 handle, U8 event){
     message_transmitted_north = true;
 }
 
-void can_prepare_data_to_send_north(void){
+static void can_prepare_data_to_send_north(void){
     //TODO
     //stub
     message_transmitted_north = false;
@@ -278,26 +257,11 @@ void can_prepare_data_to_send_north(void){
     ((U32)&CAN_MOB_SOUTH_RX_NORTH_TX),
     CANIF_CHANNEL_MODE_NORMAL,
     can_out_callback_north_tx);
-    //Allocate mob for TX
-    /*tx_n->handle = can_mob_alloc(CAN_CH_NORTH);*/
-    
-    //Check no mob available
-    //if(south_tx_msg[0].handle==CAN_CMD_REFUSED){
-    //
-    //}
-    //--example has conversion of data to meet adc standard from dsp lib.. not sure if necessary
-    
-    
-//     can_tx(CAN_CH_NORTH,
-//     tx_n->handle,
-//     tx_n->dlc,
-//     tx_n->req_type,
-//     tx_n->can_msg);
 
     north_tx_msg[0].handle = can_mob_alloc(CAN_CH_NORTH);
     /* Check return if no mob are available */
-    while (north_tx_msg[0].handle==CAN_CMD_REFUSED) {
-        //while(1);
+    if (north_tx_msg[0].handle==CAN_CMD_REFUSED) {
+        while(1);
     }
 
     can_tx(CAN_CH_NORTH,
@@ -310,26 +274,7 @@ void can_prepare_data_to_send_north(void){
     //while(tx_n->handle==CAN_CMD_REFUSED);
 }
 
-void can_out_callback_south_rx(U8 handle, U8 event){
-    //TODO
-    //stub
-//     handle = CANIF_mob_get_mob_rxok(1) ;
-//     if (handle != 0x20)
-//     {
-//         CANIF_mob_clear_rxok_status(1,handle);
-//         CANIF_mob_clear_status(1,handle); //   and reset MOb status
-//     }
-//     event = CAN_STATUS_COMPLETED;
-    
-    //message has been received, move data from hsb mob to local mob
-    //     south_rx_msg01.can_msg->data.u64 = can_get_mob_data(CAN_CH_SOUTH, handle).u64;
-    //     south_rx_msg01.can_msg->id = can_get_mob_id(CAN_CH_SOUTH, handle);
-    //     south_rx_msg01.dlc = can_get_mob_dlc(CAN_CH_SOUTH, handle);
-    //     south_rx_msg01.status = event;
-    
-    //handle the message, just testing purposes right now
-    //TODO: write actual error handling, also move this out of callback, handle new rule data should be called from que evaluation function
-    //handle_new_rule_data(&south_rx_msg01.can_msg->data);
+static void can_out_callback_south_rx(U8 handle, U8 event){
     
     Disable_global_interrupt();
     //inlining for now...
@@ -364,7 +309,7 @@ void can_out_callback_south_rx(U8 handle, U8 event){
     Enable_global_interrupt();
 }
 
-void can_prepare_data_to_receive_south(void){
+static void can_prepare_data_to_receive_south(void){
     //TODO
     //stub//Init channel north
     message_received_south = false;
@@ -384,16 +329,6 @@ void can_prepare_data_to_receive_south(void){
     //if(south_rx_msg01.handle==CAN_CMD_REFUSED || south_rx_msg02.handle==CAN_CMD_REFUSED){
     //while(1);
     //}
-    //--example has conversion of data to meet adc standard from dsp lib.. not sure if necessary
-    
-//     for (int i = 0; i < CAN_MSG_QUE_SIZE; i++)
-//     {
-// 	    can_rx(CAN_CH_SOUTH,
-// 	    rx_s->handle,
-// 	    rx_s->req_type,
-//         &msg_new_rule);
-// 	    //rx_s->can_msg);
-//     }
     
     can_rx(CAN_CH_SOUTH,
     rx_s->handle,
@@ -404,22 +339,16 @@ void can_prepare_data_to_receive_south(void){
     print_dbg("\n\rCAN Init Receive Ready...");
     #endif
     
-//     can_rx(CAN_CH_SOUTH,
-//     south_rx_msg02.handle,
-//     south_rx_msg02.req_type,
-//     south_rx_msg02.can_msg);
-    //or ??
-    //while(north_tx_msg[0].handle==CAN_CMD_REFUSED);
 }
 
-void can_prepare_next_receive_south(void)
+static void can_prepare_next_receive_south(void)
 {
     Disable_global_interrupt();
     message_received_south = false;
     
     rx_s->handle = can_mob_alloc(CAN_CH_SOUTH);
     
-    INTC_register_interrupt(&can_out_callback_south_rx, AVR32_CANIF_RXOK_IRQ_1, CAN1_INT_RX_LEVEL);
+    INTC_register_interrupt((void *)&can_out_callback_south_rx, AVR32_CANIF_RXOK_IRQ_1, CAN1_INT_RX_LEVEL);
     
     can_rx(CAN_CH_SOUTH,
     rx_s->handle,
@@ -473,16 +402,10 @@ static inline void run_test_loop(void) {
     print_dbg_ulong((unsigned long)can_get_mob_id(CAN_CH_SOUTH, south_rx_msg02.handle));
     print_dbg("\n\r");
     #endif
-    //print_dbg_ulong(south_rx_msg[0].can_msg->data.u64);
-    
-    //can_prepare_data_to_send_north();
-    //can_prepare_data_to_send_south();
-    //can_prepare_data_to_send_north();
-    //delay_ms(1000);
     
 }
 
-void init(void) {
+static void init(void) {
     /* Insert system clock initialization code here (sysclk_init()). */
     sysclk_init();
     
@@ -508,30 +431,25 @@ void init(void) {
     #endif
 }
 
-void init_can(void) {
+static void init_can(void) {
     /* Setup generic clock for CAN */
     /* Remember to calibrate this correctly to our external osc*/
     int setup_gclk;
     #if 0
     setup_gclk= scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-            SCIF_GCCTRL_PBCCLOCK,
-            AVR32_SCIF_GC_DIV_CLOCK,
-            CANIF_OSC_DIV);
+    SCIF_GCCTRL_PBCCLOCK,
+    AVR32_SCIF_GC_DIV_CLOCK,
+    CANIF_OSC_DIV);
     #elif 1
     setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-            SCIF_GCCTRL_PLL0,
-            AVR32_SCIF_GC_USES_PLL0,
-            4);
+    SCIF_GCCTRL_PLL0,
+    AVR32_SCIF_GC_USES_PLL0,
+    4);
     #elif 0
     setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
             SCIF_GCCTRL_OSC0,
             AVR32_SCIF_GC_NO_DIV_CLOCK,
             0);
-    #elif 0
-    setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-            SCIF_GCCTRL_PLL0,
-            AVR32_SCIF_GC_USES_PLL0,
-            8);
     #endif
 
     #if DBG_CLKS
@@ -555,7 +473,7 @@ void init_can(void) {
     
     #if DBG_CLKS
     //print_dbg("\n\rGeneric clock enabled\n\r");
-    print_dbg_ulong(sysclk_get_peripheral_bus_hz(AVR32_CANIF_ADDRESS));
+    print_dbg_ulong(sysclk_get_peripheral_bus_hz((const volatile void *)AVR32_CANIF_ADDRESS));
     #endif
     
     /* Disable all interrupts. */
@@ -579,18 +497,18 @@ void init_can(void) {
     Enable_global_interrupt();
 }
 
-void init_rules()
+static void init_rules(void)
 {
     //rules in flash are stored together. 
     //Northbound[0 : SIZE_RULESET-1]
     //Southbound[SIZE_RULESET : (SIZERULESET*2)-1]
-    load_ruleset(&flash_can_ruleset[0], &can_ruleset_south_rx_north_tx, SIZE_RULESET);
-    load_ruleset(&flash_can_ruleset[SIZE_RULESET], &can_ruleset_north_rx_south_tx, SIZE_RULESET);
+    load_ruleset(&flash_can_ruleset[0], can_ruleset_south_rx_north_tx, SIZE_RULESET);
+    load_ruleset(&flash_can_ruleset[SIZE_RULESET], can_ruleset_north_rx_south_tx, SIZE_RULESET);
 }
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 
-static inline enum Eval_t evaluate(can_mob_t *msg, rule_t *ruleset, rule_t *out_rule){
+static inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t *out_rule){
     //note: does not handle extended CAN yet
     
     //if shunt connected, check against new rule case
@@ -605,8 +523,8 @@ static inline enum Eval_t evaluate(can_mob_t *msg, rule_t *ruleset, rule_t *out_
     while(i != SIZE_RULESET - 1){
         //look for match 
         //test of values:
-        int and_msg = msg->can_msg->id & ruleset[i].mask;
-        int filter = ruleset[i].filter;
+        //int and_msg = msg->can_msg->id & ruleset[i].mask;
+        //int filter = ruleset[i].filter;
         
         if((msg->can_msg->id & ruleset[i].mask) == ruleset[i].filter)
         {
@@ -622,7 +540,7 @@ static inline enum Eval_t evaluate(can_mob_t *msg, rule_t *ruleset, rule_t *out_
     return DISCARD;
 }
 
-static inline void process(can_mob_t *rx, can_mob_t **proc, rule_t* ruleset, can_mob_t *que)
+static inline void process(volatile can_mob_t *rx, volatile can_mob_t **proc, rule_t* ruleset, volatile can_mob_t *que)
 {
     //check for each proc ptr to not equal the location we will copy to
     //process message pointed to
@@ -638,13 +556,13 @@ static inline void process(can_mob_t *rx, can_mob_t **proc, rule_t* ruleset, can
         //evaluate against rules and handle accordingly
         //supply message and rule ptr, receive ptr to applicable rule
         //check rule
-        rule_t *rule_match;
+        rule_t *rule_match = NULL;
         enum Eval_t eval = evaluate(*proc, ruleset, rule_match);
         switch(eval) {
             case NEW:
             if(detected_shunt){
                 //does not check for success
-                handle_new_rule_data(&(*proc)->can_msg->data.u64);
+                handle_new_rule_data(&(*proc)->can_msg->data);
             }
             break;
             
@@ -659,7 +577,7 @@ static inline void process(can_mob_t *rx, can_mob_t **proc, rule_t* ruleset, can
             case DISCARD:
             default:
             //delete what is here
-            memset(*proc, 0, sizeof(can_mob_t));
+            memset((void *)(*proc), 0, sizeof(can_mob_t));
             break;
         }
     }
@@ -677,7 +595,7 @@ static inline void process(can_mob_t *rx, can_mob_t **proc, rule_t* ruleset, can
     Enable_global_interrupt();
 }
 
-static inline void transmit(can_mob_t **proc, can_mob_t **tx, can_mob_t *que)
+static inline void transmit(volatile can_mob_t **proc, volatile can_mob_t **tx, volatile can_mob_t *que)
 {
     if (*tx == *proc)
     {
@@ -714,11 +632,11 @@ static inline void transmit(can_mob_t **proc, can_mob_t **tx, can_mob_t *que)
 static inline void run_firewall(void)
 {
     //maintain and move proc_ ptrs
-    process(rx_s, &proc_s, &can_ruleset_south_rx_north_tx, &can_msg_que_south_rx_north_tx);
-    process(rx_n, &proc_n, &can_ruleset_north_rx_south_tx, &can_msg_que_north_rx_south_tx);
+    process(rx_s, &proc_s, can_ruleset_south_rx_north_tx, can_msg_que_south_rx_north_tx);
+    process(rx_n, &proc_n, can_ruleset_north_rx_south_tx, can_msg_que_north_rx_south_tx);
     //maintain and move tx_ ptrs
-    transmit(&proc_s, &tx_n, &can_msg_que_south_rx_north_tx);
-    transmit(&proc_n, &tx_s, &can_msg_que_north_rx_south_tx);    
+    transmit(&proc_s, &tx_n, can_msg_que_south_rx_north_tx);
+    transmit(&proc_n, &tx_s, can_msg_que_north_rx_south_tx);    
 }
 
 int main (void)
@@ -727,28 +645,13 @@ int main (void)
     init();
     init_can();
     init_rules();
-//     int size_can_msg = sizeof(can_msg_t);
-//     int *add_mob_hsb01 = &CAN_MOB_SOUTH_RX_NORTH_TX[0];
-//     int *add_mob_hsb02 = &CAN_MOB_SOUTH_RX_NORTH_TX[1];
-//     int *add_mob_hsb03 = &CAN_MOB_SOUTH_RX_NORTH_TX[2];
-//     int *add_mob_hsb04 = &CAN_MOB_SOUTH_RX_NORTH_TX[15];
-//     int *add_mob_hsb011 = &CAN_MOB_NORTH_RX_SOUTH_TX[0];
-//     int *add_mob_hsb012 = &CAN_MOB_NORTH_RX_SOUTH_TX[1];
-//     int *add_mob_hsb013 = &CAN_MOB_NORTH_RX_SOUTH_TX[2];
-//     int *add_mob_hsb014 = &CAN_MOB_NORTH_RX_SOUTH_TX[15];
-//     int *add_can_northbound_base = &can_msg_que_north_rx_south_tx[0];
-//     int *add_can_northbound_last = &can_msg_que_north_rx_south_tx[63];
-//     int *add_can_southbound_base = &can_msg_que_south_rx_north_tx[0];
-//     int *add_can_southbound_last = &can_msg_que_south_rx_north_tx[63];
-    
-    //test of hmac print
+
     //bool test_new_rule = test_new_rule_creation();
-    int size_can_msg = sizeof(can_msg_t);
+    //int size_can_msg = sizeof(can_msg_t);
     #if 1
     
     can_prepare_data_to_receive_south();
-    //can_prepare_data_to_send_south();
-    //can_prepare_data_to_send_north();
+
     while (1)
     {
         run_test_loop();

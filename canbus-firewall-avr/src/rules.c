@@ -15,7 +15,7 @@ rules_in_progress_t rules_in_progress = {
     .working_sets = {NULL}
 };
 
-rule_t flash_can_ruleset[(SIZE_RULESET*2)] = {0};
+rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 //test worst case pass through rule
 // test_pass = {
 //         .dtoperand = 0,
@@ -686,7 +686,7 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
         //verified the rule, assemble and store it
         if (success == true)
         {
-            store_new_sequence_number(&rules_in_progress.working_sets[working_set_index]);
+            store_new_sequence_number(rules_in_progress.working_sets[working_set_index]);
             rule_t rule_to_save = create_rule_from_working_set(rules_in_progress.working_sets[working_set_index]);            
             success = save_rule_to_flash(&rule_to_save, &flash_can_ruleset[rule_to_save.prio]);
             
