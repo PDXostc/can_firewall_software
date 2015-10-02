@@ -73,10 +73,6 @@ volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA00000
 static rule_t can_ruleset_north_rx_south_tx[SIZE_RULESET];
 static rule_t can_ruleset_south_rx_north_tx[SIZE_RULESET];
 
-//pointer to working rulesets, incoming
-// static rule_working_t *rule_working = NULL;
-// static int num_rules_working = SIZE_RULESET;
-
 //physical security shunt, override to true during software testing
 //if this is true, we can accept new rules
 static bool detected_shunt = DETECTED_SHUNT;
@@ -100,47 +96,6 @@ const enum Eval_t {
     DISCARD, NEW, FILTER
     } Eval_t;
 
-rule_t fake_rule =
-{
-    .prio = 0xff,
-    .mask = 0xff,
-    .filter = 0xff,
-    .xform = 0xff,
-    .idoperand = 0xff,
-    .dtoperand = 0xff
-};
-
-rule_t control_rule =
-{
-    .prio = 0x01,
-    .mask = 0x02ff,
-    .filter = 0x03ff,
-    .xform = 0x04,
-    .idoperand = 0x05ff,
-    .dtoperand = 0x06ff
-};
-
-rule_working_t working_test = {
-    .prio = 0x99,
-    .bitfield_completed = 0,
-    .mask_xform = {
-        .mask = 0xff,
-        .xform = 0xF0
-    },
-    .filter_dtoperand_01 = {
-        .filter = 0x04030201,
-        .dtoperand01 = 0x0201
-    },
-    .dt_operand_02 = {
-        .dtoperand02 = {0x0807, 0x0605, 0x0403}
-    },
-    .id_operand_hmac_01 = {
-        .idoperand = 0x04030201
-    }
-};
-
-Union64 data_frame_test;
-
 /* Call backs */
 static void can_out_callback_north_rx(U8 handle, U8 event){
     //message has been received, move data from hsb mob to local mob
@@ -158,7 +113,6 @@ static void can_out_callback_north_rx(U8 handle, U8 event){
     //release mob in hsb
     can_mob_free(CAN_CH_NORTH, handle);
     //set ready to evaluate message
-    //TODO: state machine call
     message_received_north = true;
 }
 
@@ -405,107 +359,6 @@ static inline void run_test_loop(void) {
     
 }
 
-static void init(void) {
-    /* Insert system clock initialization code here (sysclk_init()). */
-    sysclk_init();
-    
-    board_init();
-    
-    //set flash wait state according to cpu
-    flashc_set_flash_waitstate_and_readmode(sysclk_get_cpu_hz());
-    
-    //init debug printing for usart
-    init_dbg_rs232(sysclk_get_pba_hz());
-    //init_dbg_rs232(sysclk_get_cpu_hz());
-    
-    print_dbg("\r======INITIALIZED======\n\r");
-    
-    #if DBG_CLKS
-    /* test return of clocks */
-    print_dbg("\n\rMain Clock Freq\n\r");
-    print_dbg_ulong(sysclk_get_main_hz());
-    print_dbg("\n\rCPU Freq\n\r");
-    print_dbg_ulong(sysclk_get_cpu_hz());
-    print_dbg("\n\rPBA Freq\n\r");
-    print_dbg_ulong(sysclk_get_pba_hz());
-    #endif
-}
-
-static void init_can(void) {
-    /* Setup generic clock for CAN */
-    /* Remember to calibrate this correctly to our external osc*/
-    int setup_gclk;
-    #if 0
-    setup_gclk= scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-    SCIF_GCCTRL_PBCCLOCK,
-    AVR32_SCIF_GC_DIV_CLOCK,
-    CANIF_OSC_DIV);
-    #elif 1
-    setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-    SCIF_GCCTRL_PLL0,
-    AVR32_SCIF_GC_USES_PLL0,
-    4);
-    #elif 0
-    setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-            SCIF_GCCTRL_OSC0,
-            AVR32_SCIF_GC_NO_DIV_CLOCK,
-            0);
-    #endif
-
-    #if DBG_CLKS
-    if (setup_gclk ==0)
-    {
-        print_dbg("\n\rGeneric clock setup\n\r");
-    }else {
-        print_dbg("\n\rGeneric clock NOT SETUP\n\r");
-    }
-    
-    #endif
-
-    /* Enable generic clock */
-    int enable_gclk = scif_gc_enable(AVR32_SCIF_GCLK_CANIF);
-    #if DBG_CLKS
-    if(enable_gclk == 0)
-    {
-        print_dbg("\n\rGeneric Clock Enabled");
-    }
-    #endif
-    
-    #if DBG_CLKS
-    //print_dbg("\n\rGeneric clock enabled\n\r");
-    print_dbg_ulong(sysclk_get_peripheral_bus_hz((const volatile void *)AVR32_CANIF_ADDRESS));
-    #endif
-    
-    /* Disable all interrupts. */
-    Disable_global_interrupt();
-
-    /* Initialize interrupt vectors. */
-    INTC_init_interrupts();
-    
-    /* Create GPIO Mappings for CAN */
-    static const gpio_map_t CAN_GPIO_MAP =
-    {
-        {            GPIO_PIN_CAN_RX_NORTH, GPIO_FUNCTION_CAN_RX_NORTH        },
-        {            GPIO_PIN_CAN_TX_NORTH, GPIO_FUNCTION_CAN_TX_NORTH        },
-        {            GPIO_PIN_CAN_RX_SOUTH, GPIO_FUNCTION_CAN_RX_SOUTH        },
-        {            GPIO_PIN_CAN_TX_SOUTH, GPIO_FUNCTION_CAN_TX_SOUTH        }
-    };
-    /* Assign GPIO to CAN */
-    gpio_enable_module(CAN_GPIO_MAP, sizeof(CAN_GPIO_MAP) / sizeof(CAN_GPIO_MAP[0]));
-    
-    /* Enable all interrupts. */
-    Enable_global_interrupt();
-}
-
-static void init_rules(void)
-{
-    //rules in flash are stored together. 
-    //Northbound[0 : SIZE_RULESET-1]
-    //Southbound[SIZE_RULESET : (SIZERULESET*2)-1]
-    load_ruleset(&flash_can_ruleset[0], can_ruleset_south_rx_north_tx, SIZE_RULESET);
-    load_ruleset(&flash_can_ruleset[SIZE_RULESET], can_ruleset_north_rx_south_tx, SIZE_RULESET);
-}
-
 #define member_size(type, member) sizeof(((type *)0)->member)
 
 static inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t *out_rule){
@@ -626,6 +479,106 @@ static inline void transmit(volatile can_mob_t **proc, volatile can_mob_t **tx, 
     }
         
     Enable_global_interrupt();
+}
+
+static void init(void) {
+    /* Insert system clock initialization code here (sysclk_init()). */
+    sysclk_init();
+    
+    board_init();
+    
+    //set flash wait state according to cpu
+    flashc_set_flash_waitstate_and_readmode(sysclk_get_cpu_hz());
+    
+    //init debug printing for usart
+    init_dbg_rs232(sysclk_get_pba_hz());
+    
+    print_dbg("\r======INITIALIZED======\n\r");
+    
+    #if DBG_CLKS
+    /* test return of clocks */
+    print_dbg("\n\rMain Clock Freq\n\r");
+    print_dbg_ulong(sysclk_get_main_hz());
+    print_dbg("\n\rCPU Freq\n\r");
+    print_dbg_ulong(sysclk_get_cpu_hz());
+    print_dbg("\n\rPBA Freq\n\r");
+    print_dbg_ulong(sysclk_get_pba_hz());
+    #endif
+}
+
+static void init_can(void) {
+    /* Setup generic clock for CAN */
+    /* Remember to calibrate this correctly to our external osc*/
+    int setup_gclk;
+    #if 1
+    setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
+    SCIF_GCCTRL_PLL0,
+    AVR32_SCIF_GC_USES_PLL0,
+    4);
+    #elif 0
+    setup_gclk= scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
+    SCIF_GCCTRL_PBCCLOCK,
+    AVR32_SCIF_GC_DIV_CLOCK,
+    CANIF_OSC_DIV);
+    #elif 0
+    setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
+            SCIF_GCCTRL_OSC0,
+            AVR32_SCIF_GC_NO_DIV_CLOCK,
+            0);
+    #endif
+
+    #if DBG_CLKS
+    if (setup_gclk ==0)
+    {
+        print_dbg("\n\rGeneric clock setup\n\r");
+    }else {
+        print_dbg("\n\rGeneric clock NOT SETUP\n\r");
+    }
+    
+    #endif
+
+    /* Enable generic clock */
+    int enable_gclk = scif_gc_enable(AVR32_SCIF_GCLK_CANIF);
+    #if DBG_CLKS
+    if(enable_gclk == 0)
+    {
+        print_dbg("\n\rGeneric Clock Enabled");
+    }
+    #endif
+    
+    #if DBG_CLKS
+    //print_dbg("\n\rGeneric clock enabled\n\r");
+    print_dbg_ulong(sysclk_get_peripheral_bus_hz((const volatile void *)AVR32_CANIF_ADDRESS));
+    #endif
+    
+    /* Disable all interrupts. */
+    Disable_global_interrupt();
+
+    /* Initialize interrupt vectors. */
+    INTC_init_interrupts();
+    
+    /* Create GPIO Mappings for CAN */
+    static const gpio_map_t CAN_GPIO_MAP =
+    {
+        {            GPIO_PIN_CAN_RX_NORTH, GPIO_FUNCTION_CAN_RX_NORTH        },
+        {            GPIO_PIN_CAN_TX_NORTH, GPIO_FUNCTION_CAN_TX_NORTH        },
+        {            GPIO_PIN_CAN_RX_SOUTH, GPIO_FUNCTION_CAN_RX_SOUTH        },
+        {            GPIO_PIN_CAN_TX_SOUTH, GPIO_FUNCTION_CAN_TX_SOUTH        }
+    };
+    /* Assign GPIO to CAN */
+    gpio_enable_module(CAN_GPIO_MAP, sizeof(CAN_GPIO_MAP) / sizeof(CAN_GPIO_MAP[0]));
+    
+    /* Enable all interrupts. */
+    Enable_global_interrupt();
+}
+
+static void init_rules(void)
+{
+    //rules in flash are stored together. 
+    //Northbound[0 : SIZE_RULESET-1]
+    //Southbound[SIZE_RULESET : (SIZERULESET*2)-1]
+    load_ruleset(&flash_can_ruleset[0], can_ruleset_south_rx_north_tx, SIZE_RULESET);
+    load_ruleset(&flash_can_ruleset[SIZE_RULESET], can_ruleset_north_rx_south_tx, SIZE_RULESET);
 }
 
 /* Main filter loop; designed to be a linear pipeline that we will try to get done as quickly as possible */
