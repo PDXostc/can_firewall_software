@@ -211,6 +211,9 @@ static int stored_sequence
 #endif
 ;
 
+//test pass all rule
+rule_t test_pass;
+
 //extern rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 /**
  * \brief Extract prio information from can frame data field

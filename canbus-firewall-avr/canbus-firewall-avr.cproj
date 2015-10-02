@@ -28,178 +28,179 @@
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfFrameworkConfig>
       <framework-data>
-        <options>
-          <option id="avr32.drivers.canif" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.cpu" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.cpu.cycle_counter" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.cpu.sau" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.flashc" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.gpio" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.intc" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.pdca" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.pm" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.scif" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.spi" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.tc" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.twim" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.usart" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.services.network.can" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.utils.debug" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.utils.print_funcs" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="common.boards" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="common.services.delay" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="common.services.ioport" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="common.utils.unit_test" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.services.crypto.polarssl" value="Add" config="" content-id="Atmel.ASF" />
-        </options>
-        <configurations>
-          <configuration key="config.avr32.utils.trampoline" value="yes" default="yes" content-id="Atmel.ASF" />
-          <configuration key="config.avr32.utils.gccstartup" value="yes" default="yes" content-id="Atmel.ASF" />
-          <configuration key="config.utils.interrupt.intc" value="yes" default="yes" content-id="Atmel.ASF" />
-          <configuration key="config.avr32.drivers.intc.exception" value="yes" default="yes" content-id="Atmel.ASF" />
-          <configuration key="config.avr32.services.dsplib.optimized" value="device_optimized" default="device_optimized" content-id="Atmel.ASF" />
-          <configuration key="config.avr32.services.dsplib.optimization" value="speed" default="speed" content-id="Atmel.ASF" />
-        </configurations>
-        <files>
-          <file path="src/ASF/avr32/drivers/intc/exception.S" framework="" version="" source="avr32/drivers/intc/exception.S" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/intc/intc.c" framework="" version="" source="avr32/drivers/intc/intc.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/intc/intc.h" framework="" version="" source="avr32/drivers/intc/intc.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/compiler.h" framework="" version="" source="avr32/utils/compiler.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/header_files/uc3d_defines_fix.h" framework="" version="" source="avr32/utils/header_files/uc3d_defines_fix.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/header_files/uc3l3_l4_defines_fix.h" framework="" version="" source="avr32/utils/header_files/uc3l3_l4_defines_fix.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/make/Makefile.avr32.in" framework="" version="" source="avr32/utils/make/Makefile.avr32.in" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/make/Makefile.avr32program.in" framework="" version="" source="avr32/utils/make/Makefile.avr32program.in" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/make/Makefile.batchisp.in" framework="" version="" source="avr32/utils/make/Makefile.batchisp.in" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/preprocessor/mrepeat.h" framework="" version="" source="avr32/utils/preprocessor/mrepeat.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/preprocessor/preprocessor.h" framework="" version="" source="avr32/utils/preprocessor/preprocessor.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/preprocessor/stringz.h" framework="" version="" source="avr32/utils/preprocessor/stringz.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/preprocessor/tpaste.h" framework="" version="" source="avr32/utils/preprocessor/tpaste.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/startup/startup_uc3.S" framework="" version="" source="avr32/utils/startup/startup_uc3.S" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/startup/trampoline_uc3.S" framework="" version="" source="avr32/utils/startup/trampoline_uc3.S" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/startup/trampoline_uc3.h" framework="" version="" source="avr32/utils/startup/trampoline_uc3.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/status_codes.h" framework="" version="" source="avr32/utils/status_codes.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/main.c" framework="" version="" source="common/applications/user_application/main.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/config/conf_board.h" framework="" version="" source="common/applications/user_application/user_board/config/conf_board.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/boards/board.h" framework="" version="" source="common/boards/board.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/boards/user_board/init.c" framework="" version="" source="common/boards/user_board/init.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/boards/user_board/user_board.h" framework="" version="" source="common/boards/user_board/user_board.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/interrupt.h" framework="" version="" source="common/utils/interrupt.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/interrupt/interrupt_avr32.h" framework="" version="" source="common/utils/interrupt/interrupt_avr32.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/parts.h" framework="" version="" source="common/utils/parts.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/canif/canif.c" framework="" version="3.26.0" source="avr32\drivers\canif\canif.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/canif/canif.h" framework="" version="3.26.0" source="avr32\drivers\canif\canif.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/Config/conf_can.h" framework="" version="3.26.0" source="avr32\drivers\canif\module_config\conf_can.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/cpu/cycle_counter/cycle_counter.h" framework="" version="3.26.0" source="avr32\drivers\cpu\cycle_counter\cycle_counter.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/flashc/flashc.c" framework="" version="3.26.0" source="avr32\drivers\flashc\flashc.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/flashc/flashc.h" framework="" version="3.26.0" source="avr32\drivers\flashc\flashc.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/gpio/gpio.c" framework="" version="3.26.0" source="avr32\drivers\gpio\gpio.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/gpio/gpio.h" framework="" version="3.26.0" source="avr32\drivers\gpio\gpio.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/services/network/can/can.c" framework="" version="3.26.0" source="avr32\services\network\can\can.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/services/network/can/can.h" framework="" version="3.26.0" source="avr32\services\network\can\can.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/pll.c" framework="" version="3.26.0" source="common\services\clock\uc3c\pll.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/sysclk.c" framework="" version="3.26.0" source="common\services\clock\uc3c\sysclk.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/osc.c" framework="" version="3.26.0" source="common\services\clock\uc3c\osc.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/pll.h" framework="" version="3.26.0" source="common\services\clock\uc3c\pll.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/genclk.h" framework="" version="3.26.0" source="common\services\clock\genclk.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/osc.h" framework="" version="3.26.0" source="common\services\clock\osc.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/genclk.h" framework="" version="3.26.0" source="common\services\clock\uc3c\genclk.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/osc.h" framework="" version="3.26.0" source="common\services\clock\uc3c\osc.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/uc3c/sysclk.h" framework="" version="3.26.0" source="common\services\clock\uc3c\sysclk.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/sysclk.h" framework="" version="3.26.0" source="common\services\clock\sysclk.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/clock/pll.h" framework="" version="3.26.0" source="common\services\clock\pll.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/Config/conf_clock.h" framework="" version="3.26.0" source="common\services\clock\uc3c\module_config\conf_clock.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/delay/delay.h" framework="" version="3.26.0" source="common\services\delay\delay.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/ioport/ioport.h" framework="" version="3.26.0" source="common\services\ioport\ioport.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/services/ioport/uc3/ioport.h" framework="" version="3.26.0" source="common\services\ioport\uc3\ioport.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/cpu/avr32_reset_cause.h" framework="" version="3.26.0" source="avr32\drivers\cpu\avr32_reset_cause.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/cpu/sau/sau.c" framework="" version="3.26.0" source="avr32\drivers\cpu\sau\sau.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/cpu/sau/sau.h" framework="" version="3.26.0" source="avr32\drivers\cpu\sau\sau.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pdca/pdca.c" framework="" version="3.26.0" source="avr32\drivers\pdca\pdca.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pdca/pdca.h" framework="" version="3.26.0" source="avr32\drivers\pdca\pdca.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/spi/spi.c" framework="" version="3.26.0" source="avr32\drivers\spi\spi.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/spi/spi.h" framework="" version="3.26.0" source="avr32\drivers\spi\spi.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/tc/tc.c" framework="" version="3.26.0" source="avr32\drivers\tc\tc.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/tc/tc.h" framework="" version="3.26.0" source="avr32\drivers\tc\tc.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/twim/twim.c" framework="" version="3.26.0" source="avr32\drivers\twim\twim.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/twim/twim.h" framework="" version="3.26.0" source="avr32\drivers\twim\twim.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/Config/conf_twim.h" framework="" version="3.26.0" source="avr32\drivers\twim\module_config\conf_twim.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/usart/usart.c" framework="" version="3.26.0" source="avr32\drivers\usart\usart.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/usart/usart.h" framework="" version="3.26.0" source="avr32\drivers\usart\usart.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/debug/debug.c" framework="" version="3.26.0" source="avr32\utils\debug\debug.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/debug/debug.h" framework="" version="3.26.0" source="avr32\utils\debug\debug.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pm/pm_uc3c.c" framework="" version="3.26.0" source="avr32\drivers\pm\pm_uc3c.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pm/power_clocks_lib.c" framework="" version="3.26.0" source="avr32\drivers\pm\power_clocks_lib.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pm/power_clocks_lib.h" framework="" version="3.26.0" source="avr32\drivers\pm\power_clocks_lib.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pm/pm_uc3c.h" framework="" version="3.26.0" source="avr32\drivers\pm\pm_uc3c.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/pm/sleep.h" framework="" version="3.26.0" source="avr32\drivers\pm\sleep.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/scif/scif_uc3c.c" framework="" version="3.26.0" source="avr32\drivers\scif\scif_uc3c.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/drivers/scif/scif_uc3c.h" framework="" version="3.26.0" source="avr32\drivers\scif\scif_uc3c.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/unit_test/suite.c" framework="" version="3.26.0" source="common\utils\unit_test\suite.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/unit_test/suite.h" framework="" version="3.26.0" source="common\utils\unit_test\suite.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/stdio/read.c" framework="" version="3.26.0" source="common\utils\stdio\read.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/common/utils/stdio/write.c" framework="" version="3.26.0" source="common\utils\stdio\write.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/debug/print_funcs.c" framework="" version="3.26.0" source="avr32\utils\debug\print_funcs.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/avr32/utils/debug/print_funcs.h" framework="" version="3.26.0" source="avr32\utils\debug\print_funcs.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/dhm.c" framework="" version="3.26.0" source="thirdparty\polarssl\dhm.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/arc4.c" framework="" version="3.26.0" source="thirdparty\polarssl\arc4.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/des.c" framework="" version="3.26.0" source="thirdparty\polarssl\des.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/camellia.c" framework="" version="3.26.0" source="thirdparty\polarssl\camellia.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/md2.c" framework="" version="3.26.0" source="thirdparty\polarssl\md2.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/padlock.c" framework="" version="3.26.0" source="thirdparty\polarssl\padlock.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/sha1.c" framework="" version="3.26.0" source="thirdparty\polarssl\sha1.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/x509parse.c" framework="" version="3.26.0" source="thirdparty\polarssl\x509parse.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/sha2.c" framework="" version="3.26.0" source="thirdparty\polarssl\sha2.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/sha4.c" framework="" version="3.26.0" source="thirdparty\polarssl\sha4.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/base64.c" framework="" version="3.26.0" source="thirdparty\polarssl\base64.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/aes.c" framework="" version="3.26.0" source="thirdparty\polarssl\aes.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/debug.c" framework="" version="3.26.0" source="thirdparty\polarssl\debug.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/md5.c" framework="" version="3.26.0" source="thirdparty\polarssl\md5.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/xtea.c" framework="" version="3.26.0" source="thirdparty\polarssl\xtea.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/timing.c" framework="" version="3.26.0" source="thirdparty\polarssl\timing.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/havege.c" framework="" version="3.26.0" source="thirdparty\polarssl\havege.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/ssl_srv.c" framework="" version="3.26.0" source="thirdparty\polarssl\ssl_srv.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/rsa.c" framework="" version="3.26.0" source="thirdparty\polarssl\rsa.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/ssl_cli.c" framework="" version="3.26.0" source="thirdparty\polarssl\ssl_cli.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/md4.c" framework="" version="3.26.0" source="thirdparty\polarssl\md4.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/bignum.c" framework="" version="3.26.0" source="thirdparty\polarssl\bignum.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/certs.c" framework="" version="3.26.0" source="thirdparty\polarssl\certs.c" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/ChangeLog.txt" framework="" version="3.26.0" source="thirdparty\polarssl\ChangeLog.txt" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/debug.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\debug.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/certs.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\certs.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/dhm.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\dhm.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/base64.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\base64.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/sha1.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\sha1.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/sha2.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\sha2.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/ssl.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\ssl.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/sha4.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\sha4.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/havege.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\havege.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/rsa.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\rsa.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/md2.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\md2.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/md4.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\md4.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/camellia.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\camellia.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/md5.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\md5.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/bignum.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\bignum.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/timing.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\timing.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/xtea.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\xtea.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/docsrc/documentation.h" framework="" version="3.26.0" source="thirdparty\polarssl\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/config.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\config.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/x509.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\x509.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/bn_mul.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\bn_mul.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/arc4.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\arc4.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/padlock.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\padlock.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/openssl.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\openssl.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/aes.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\aes.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/net.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\net.h" changed="False" content-id="Atmel.ASF" />
-          <file path="src/ASF/thirdparty/polarssl/include/polarssl/des.h" framework="" version="3.26.0" source="thirdparty\polarssl\include\polarssl\des.h" changed="False" content-id="Atmel.ASF" />
-        </files>
-        <documentation help="http://asf.atmel.com/docs/3.26.0/common.applications.user_application.user_board.uc3c/html/index.html" />
-        <offline-documentation help="" />
-        <dependencies>
-          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.26.0" />
-        </dependencies>
-        <project id="common.applications.user_application.user_board.uc3c" value="Add" config="" content-id="Atmel.ASF" />
-        <board id="board.user_board.uc3c" value="Add" config="" content-id="Atmel.ASF" />
-      </framework-data>
+  <options>
+    <option id="avr32.drivers.canif" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.cpu" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.cpu.cycle_counter" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.cpu.sau" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.flashc" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.gpio" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.intc" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.pdca" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.pm" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.scif" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.spi" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.tc" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.twim" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.drivers.usart" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.services.network.can" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.utils.debug" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.utils.print_funcs" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common.boards" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common.services.delay" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common.services.ioport" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common.utils.unit_test" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="avr32.services.crypto.polarssl" value="Add" config="" content-id="Atmel.ASF" />
+    <option id="common.boards.user_board.common" value="Add" config="" content-id="Atmel.ASF" />
+  </options>
+  <configurations>
+    <configuration key="config.avr32.utils.trampoline" value="yes" default="yes" content-id="Atmel.ASF" />
+    <configuration key="config.avr32.utils.gccstartup" value="yes" default="yes" content-id="Atmel.ASF" />
+    <configuration key="config.utils.interrupt.intc" value="yes" default="yes" content-id="Atmel.ASF" />
+    <configuration key="config.avr32.drivers.intc.exception" value="yes" default="yes" content-id="Atmel.ASF" />
+    <configuration key="config.avr32.services.dsplib.optimized" value="device_optimized" default="device_optimized" content-id="Atmel.ASF" />
+    <configuration key="config.avr32.services.dsplib.optimization" value="speed" default="speed" content-id="Atmel.ASF" />
+  </configurations>
+  <files>
+    <file path="src/main.c" framework="" version="" source="common/applications/user_application/main.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/config/conf_board.h" framework="" version="" source="common/applications/user_application/user_board/config/conf_board.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/canif/canif.c" framework="" version="3.27.0" source="avr32\drivers\canif\canif.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/canif/canif.h" framework="" version="3.27.0" source="avr32\drivers\canif\canif.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/Config/conf_can.h" framework="" version="3.27.0" source="avr32\drivers\canif\module_config\conf_can.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/cpu/cycle_counter/cycle_counter.h" framework="" version="3.27.0" source="avr32\drivers\cpu\cycle_counter\cycle_counter.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/flashc/flashc.c" framework="" version="3.27.0" source="avr32\drivers\flashc\flashc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/flashc/flashc.h" framework="" version="3.27.0" source="avr32\drivers\flashc\flashc.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/gpio/gpio.c" framework="" version="3.27.0" source="avr32\drivers\gpio\gpio.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/gpio/gpio.h" framework="" version="3.27.0" source="avr32\drivers\gpio\gpio.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/network/can/can.c" framework="" version="3.27.0" source="avr32\services\network\can\can.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/services/network/can/can.h" framework="" version="3.27.0" source="avr32\services\network\can\can.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/pll.c" framework="" version="3.27.0" source="common\services\clock\uc3c\pll.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/sysclk.c" framework="" version="3.27.0" source="common\services\clock\uc3c\sysclk.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/osc.c" framework="" version="3.27.0" source="common\services\clock\uc3c\osc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/pll.h" framework="" version="3.27.0" source="common\services\clock\uc3c\pll.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/genclk.h" framework="" version="3.27.0" source="common\services\clock\genclk.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/osc.h" framework="" version="3.27.0" source="common\services\clock\osc.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/genclk.h" framework="" version="3.27.0" source="common\services\clock\uc3c\genclk.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/osc.h" framework="" version="3.27.0" source="common\services\clock\uc3c\osc.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/uc3c/sysclk.h" framework="" version="3.27.0" source="common\services\clock\uc3c\sysclk.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/sysclk.h" framework="" version="3.27.0" source="common\services\clock\sysclk.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/clock/pll.h" framework="" version="3.27.0" source="common\services\clock\pll.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/Config/conf_clock.h" framework="" version="3.27.0" source="common\services\clock\uc3c\module_config\conf_clock.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/delay/delay.h" framework="" version="3.27.0" source="common\services\delay\delay.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/ioport/ioport.h" framework="" version="3.27.0" source="common\services\ioport\ioport.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/services/ioport/uc3/ioport.h" framework="" version="3.27.0" source="common\services\ioport\uc3\ioport.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/cpu/avr32_reset_cause.h" framework="" version="3.27.0" source="avr32\drivers\cpu\avr32_reset_cause.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/cpu/sau/sau.c" framework="" version="3.27.0" source="avr32\drivers\cpu\sau\sau.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/cpu/sau/sau.h" framework="" version="3.27.0" source="avr32\drivers\cpu\sau\sau.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pdca/pdca.c" framework="" version="3.27.0" source="avr32\drivers\pdca\pdca.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pdca/pdca.h" framework="" version="3.27.0" source="avr32\drivers\pdca\pdca.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/spi/spi.c" framework="" version="3.27.0" source="avr32\drivers\spi\spi.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/spi/spi.h" framework="" version="3.27.0" source="avr32\drivers\spi\spi.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/tc/tc.c" framework="" version="3.27.0" source="avr32\drivers\tc\tc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/tc/tc.h" framework="" version="3.27.0" source="avr32\drivers\tc\tc.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/twim/twim.c" framework="" version="3.27.0" source="avr32\drivers\twim\twim.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/twim/twim.h" framework="" version="3.27.0" source="avr32\drivers\twim\twim.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/Config/conf_twim.h" framework="" version="3.27.0" source="avr32\drivers\twim\module_config\conf_twim.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/usart/usart.c" framework="" version="3.27.0" source="avr32\drivers\usart\usart.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/usart/usart.h" framework="" version="3.27.0" source="avr32\drivers\usart\usart.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/debug/debug.c" framework="" version="3.27.0" source="avr32\utils\debug\debug.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/debug/debug.h" framework="" version="3.27.0" source="avr32\utils\debug\debug.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pm/pm_uc3c.c" framework="" version="3.27.0" source="avr32\drivers\pm\pm_uc3c.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pm/power_clocks_lib.c" framework="" version="3.27.0" source="avr32\drivers\pm\power_clocks_lib.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pm/power_clocks_lib.h" framework="" version="3.27.0" source="avr32\drivers\pm\power_clocks_lib.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pm/pm_uc3c.h" framework="" version="3.27.0" source="avr32\drivers\pm\pm_uc3c.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/pm/sleep.h" framework="" version="3.27.0" source="avr32\drivers\pm\sleep.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/scif/scif_uc3c.c" framework="" version="3.27.0" source="avr32\drivers\scif\scif_uc3c.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/scif/scif_uc3c.h" framework="" version="3.27.0" source="avr32\drivers\scif\scif_uc3c.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/unit_test/suite.c" framework="" version="3.27.0" source="common\utils\unit_test\suite.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/unit_test/suite.h" framework="" version="3.27.0" source="common\utils\unit_test\suite.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/stdio/read.c" framework="" version="3.27.0" source="common\utils\stdio\read.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/stdio/write.c" framework="" version="3.27.0" source="common\utils\stdio\write.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/debug/print_funcs.c" framework="" version="3.27.0" source="avr32\utils\debug\print_funcs.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/debug/print_funcs.h" framework="" version="3.27.0" source="avr32\utils\debug\print_funcs.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/dhm.c" framework="" version="3.27.0" source="thirdparty\polarssl\dhm.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/arc4.c" framework="" version="3.27.0" source="thirdparty\polarssl\arc4.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/des.c" framework="" version="3.27.0" source="thirdparty\polarssl\des.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/camellia.c" framework="" version="3.27.0" source="thirdparty\polarssl\camellia.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/md2.c" framework="" version="3.27.0" source="thirdparty\polarssl\md2.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/padlock.c" framework="" version="3.27.0" source="thirdparty\polarssl\padlock.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/sha1.c" framework="" version="3.27.0" source="thirdparty\polarssl\sha1.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/x509parse.c" framework="" version="3.27.0" source="thirdparty\polarssl\x509parse.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/sha2.c" framework="" version="3.27.0" source="thirdparty\polarssl\sha2.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/sha4.c" framework="" version="3.27.0" source="thirdparty\polarssl\sha4.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/base64.c" framework="" version="3.27.0" source="thirdparty\polarssl\base64.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/aes.c" framework="" version="3.27.0" source="thirdparty\polarssl\aes.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/debug.c" framework="" version="3.27.0" source="thirdparty\polarssl\debug.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/md5.c" framework="" version="3.27.0" source="thirdparty\polarssl\md5.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/xtea.c" framework="" version="3.27.0" source="thirdparty\polarssl\xtea.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/timing.c" framework="" version="3.27.0" source="thirdparty\polarssl\timing.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/havege.c" framework="" version="3.27.0" source="thirdparty\polarssl\havege.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/ssl_srv.c" framework="" version="3.27.0" source="thirdparty\polarssl\ssl_srv.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/rsa.c" framework="" version="3.27.0" source="thirdparty\polarssl\rsa.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/ssl_cli.c" framework="" version="3.27.0" source="thirdparty\polarssl\ssl_cli.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/md4.c" framework="" version="3.27.0" source="thirdparty\polarssl\md4.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/bignum.c" framework="" version="3.27.0" source="thirdparty\polarssl\bignum.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/certs.c" framework="" version="3.27.0" source="thirdparty\polarssl\certs.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/ChangeLog.txt" framework="" version="3.27.0" source="thirdparty\polarssl\ChangeLog.txt" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/debug.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\debug.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/certs.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\certs.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/dhm.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\dhm.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/base64.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\base64.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/sha1.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\sha1.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/sha2.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\sha2.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/ssl.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\ssl.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/sha4.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\sha4.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/havege.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\havege.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/rsa.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\rsa.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/md2.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\md2.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/md4.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\md4.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/camellia.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\camellia.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/md5.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\md5.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/bignum.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\bignum.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/timing.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\timing.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/xtea.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\xtea.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/docsrc/documentation.h" framework="" version="3.27.0" source="thirdparty\polarssl\docsrc\documentation.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/config.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\config.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/x509.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\x509.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/bn_mul.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\bn_mul.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/arc4.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\arc4.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/padlock.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\padlock.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/openssl.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\openssl.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/aes.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\aes.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/net.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\net.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/thirdparty/polarssl/include/polarssl/des.h" framework="" version="3.27.0" source="thirdparty\polarssl\include\polarssl\des.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/boards/user_board/user_board.h" framework="" version="3.27.0" source="common\boards\user_board\user_board.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/boards/user_board/init.c" framework="" version="3.27.0" source="common\boards\user_board\init.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/boards/board.h" framework="" version="3.27.0" source="common\boards\board.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/preprocessor/preprocessor.h" framework="" version="3.27.0" source="avr32\utils\preprocessor\preprocessor.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/preprocessor/mrepeat.h" framework="" version="3.27.0" source="avr32\utils\preprocessor\mrepeat.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/preprocessor/stringz.h" framework="" version="3.27.0" source="avr32\utils\preprocessor\stringz.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/status_codes.h" framework="" version="3.27.0" source="avr32\utils\status_codes.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/compiler.h" framework="" version="3.27.0" source="avr32\utils\compiler.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/header_files/uc3d_defines_fix.h" framework="" version="3.27.0" source="avr32\utils\header_files\uc3d_defines_fix.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/header_files/uc3l3_l4_defines_fix.h" framework="" version="3.27.0" source="avr32\utils\header_files\uc3l3_l4_defines_fix.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/preprocessor/tpaste.h" framework="" version="3.27.0" source="avr32\utils\preprocessor\tpaste.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/make/Makefile.batchisp.in" framework="" version="3.27.0" source="avr32\utils\make\Makefile.batchisp.in" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/make/Makefile.avr32program.in" framework="" version="3.27.0" source="avr32\utils\make\Makefile.avr32program.in" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/make/Makefile.avr32.in" framework="" version="3.27.0" source="avr32\utils\make\Makefile.avr32.in" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/startup/trampoline_uc3.S" framework="" version="3.27.0" source="avr32\utils\startup\trampoline_uc3.S" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/startup/trampoline_uc3.h" framework="" version="3.27.0" source="avr32\utils\startup\trampoline_uc3.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/utils/startup/startup_uc3.S" framework="" version="3.27.0" source="avr32\utils\startup\startup_uc3.S" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/parts.h" framework="" version="3.27.0" source="common\utils\parts.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/interrupt/interrupt_avr32.h" framework="" version="3.27.0" source="common\utils\interrupt\interrupt_avr32.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/common/utils/interrupt.h" framework="" version="3.27.0" source="common\utils\interrupt.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/intc/intc.c" framework="" version="3.27.0" source="avr32\drivers\intc\intc.c" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/intc/intc.h" framework="" version="3.27.0" source="avr32\drivers\intc\intc.h" changed="False" content-id="Atmel.ASF" />
+    <file path="src/ASF/avr32/drivers/intc/exception.S" framework="" version="3.27.0" source="avr32\drivers\intc\exception.S" changed="False" content-id="Atmel.ASF" />
+  </files>
+  <documentation help="http://asf.atmel.com/docs/3.27.0/common.applications.user_application.user_board.uc3c/html/index.html" />
+  <offline-documentation help="" />
+  <dependencies>
+    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.27.0" />
+  </dependencies>
+  <project id="common.applications.user_application.user_board.uc3c" value="Add" config="" content-id="Atmel.ASF" />
+  <board id="board.user_board.uc3c" value="Add" config="" content-id="Atmel.ASF" />
+</framework-data>
     </AsfFrameworkConfig>
     <avrtool>com.atmel.avrdbg.tool.avrdragon</avrtool>
     <com_atmel_avrdbg_tool_avrdragon>
@@ -225,22 +226,16 @@
         <avr32gcc.compiler.symbols.DefSymbols>
           <ListValues>
             <Value>NDEBUG</Value>
-            <Value>BOARD=USER_BOARD</Value>
             <Value>TEST_SUITE_DEFINE_ASSERT_MACRO</Value>
             <Value>_ASSERT_ENABLE_</Value>
+            <Value>BOARD=USER_BOARD</Value>
           </ListValues>
         </avr32gcc.compiler.symbols.DefSymbols>
         <avr32gcc.compiler.directories.IncludePaths>
           <ListValues>
             <Value>../common/applications/user_application/user_board/config</Value>
-            <Value>../src/ASF/avr32/utils</Value>
             <Value>../src/config</Value>
-            <Value>../src/ASF/common/boards</Value>
-            <Value>../src/ASF/avr32/utils/preprocessor</Value>
-            <Value>../src/ASF/avr32/drivers/intc</Value>
-            <Value>../src/ASF/common/utils</Value>
             <Value>../src</Value>
-            <Value>../src/ASF/common/boards/user_board</Value>
             <Value>../src/ASF/avr32/drivers/canif</Value>
             <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
             <Value>../src/ASF/avr32/drivers/flashc</Value>
@@ -261,6 +256,12 @@
             <Value>../src/ASF/avr32/drivers/scif</Value>
             <Value>../src/ASF/thirdparty/polarssl</Value>
             <Value>../src/ASF/thirdparty/polarssl/include</Value>
+            <Value>../src/ASF/common/boards/user_board</Value>
+            <Value>../src/ASF/avr32/utils</Value>
+            <Value>../src/ASF/common/boards</Value>
+            <Value>../src/ASF/avr32/utils/preprocessor</Value>
+            <Value>../src/ASF/common/utils</Value>
+            <Value>../src/ASF/avr32/drivers/intc</Value>
           </ListValues>
         </avr32gcc.compiler.directories.IncludePaths>
         <avr32gcc.compiler.optimization.level>Optimize for size (-Os)</avr32gcc.compiler.optimization.level>
@@ -283,14 +284,8 @@
         <avr32gcc.assembler.general.IncludePaths>
           <ListValues>
             <Value>../common/applications/user_application/user_board/config</Value>
-            <Value>../src/ASF/avr32/utils</Value>
             <Value>../src/config</Value>
-            <Value>../src/ASF/common/boards</Value>
-            <Value>../src/ASF/avr32/utils/preprocessor</Value>
-            <Value>../src/ASF/avr32/drivers/intc</Value>
-            <Value>../src/ASF/common/utils</Value>
             <Value>../src</Value>
-            <Value>../src/ASF/common/boards/user_board</Value>
             <Value>../src/ASF/avr32/drivers/canif</Value>
             <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
             <Value>../src/ASF/avr32/drivers/flashc</Value>
@@ -311,20 +306,20 @@
             <Value>../src/ASF/avr32/drivers/scif</Value>
             <Value>../src/ASF/thirdparty/polarssl</Value>
             <Value>../src/ASF/thirdparty/polarssl/include</Value>
+            <Value>../src/ASF/common/boards/user_board</Value>
+            <Value>../src/ASF/avr32/utils</Value>
+            <Value>../src/ASF/common/boards</Value>
+            <Value>../src/ASF/avr32/utils/preprocessor</Value>
+            <Value>../src/ASF/common/utils</Value>
+            <Value>../src/ASF/avr32/drivers/intc</Value>
           </ListValues>
         </avr32gcc.assembler.general.IncludePaths>
-        <avr32gcc.preprocessingassembler.general.AssemblerFlags>-mrelax -DBOARD=USER_BOARD -DTEST_SUITE_DEFINE_ASSERT_MACRO -D_ASSERT_ENABLE_</avr32gcc.preprocessingassembler.general.AssemblerFlags>
+        <avr32gcc.preprocessingassembler.general.AssemblerFlags>-mrelax -DTEST_SUITE_DEFINE_ASSERT_MACRO -D_ASSERT_ENABLE_ -DBOARD=USER_BOARD</avr32gcc.preprocessingassembler.general.AssemblerFlags>
         <avr32gcc.preprocessingassembler.general.IncludePaths>
           <ListValues>
             <Value>../common/applications/user_application/user_board/config</Value>
-            <Value>../src/ASF/avr32/utils</Value>
             <Value>../src/config</Value>
-            <Value>../src/ASF/common/boards</Value>
-            <Value>../src/ASF/avr32/utils/preprocessor</Value>
-            <Value>../src/ASF/avr32/drivers/intc</Value>
-            <Value>../src/ASF/common/utils</Value>
             <Value>../src</Value>
-            <Value>../src/ASF/common/boards/user_board</Value>
             <Value>../src/ASF/avr32/drivers/canif</Value>
             <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
             <Value>../src/ASF/avr32/drivers/flashc</Value>
@@ -345,6 +340,12 @@
             <Value>../src/ASF/avr32/drivers/scif</Value>
             <Value>../src/ASF/thirdparty/polarssl</Value>
             <Value>../src/ASF/thirdparty/polarssl/include</Value>
+            <Value>../src/ASF/common/boards/user_board</Value>
+            <Value>../src/ASF/avr32/utils</Value>
+            <Value>../src/ASF/common/boards</Value>
+            <Value>../src/ASF/avr32/utils/preprocessor</Value>
+            <Value>../src/ASF/common/utils</Value>
+            <Value>../src/ASF/avr32/drivers/intc</Value>
           </ListValues>
         </avr32gcc.preprocessingassembler.general.IncludePaths>
       </Avr32Gcc>
@@ -360,22 +361,16 @@
         <avr32gcc.compiler.symbols.DefSymbols>
           <ListValues>
             <Value>DEBUG</Value>
-            <Value>BOARD=USER_BOARD</Value>
             <Value>TEST_SUITE_DEFINE_ASSERT_MACRO</Value>
             <Value>_ASSERT_ENABLE_</Value>
+            <Value>BOARD=USER_BOARD</Value>
           </ListValues>
         </avr32gcc.compiler.symbols.DefSymbols>
         <avr32gcc.compiler.directories.IncludePaths>
           <ListValues>
             <Value>../common/applications/user_application/user_board/config</Value>
-            <Value>../src/ASF/avr32/utils</Value>
             <Value>../src/config</Value>
-            <Value>../src/ASF/common/boards</Value>
-            <Value>../src/ASF/avr32/utils/preprocessor</Value>
-            <Value>../src/ASF/avr32/drivers/intc</Value>
-            <Value>../src/ASF/common/utils</Value>
             <Value>../src</Value>
-            <Value>../src/ASF/common/boards/user_board</Value>
             <Value>../src/ASF/avr32/drivers/canif</Value>
             <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
             <Value>../src/ASF/avr32/drivers/flashc</Value>
@@ -396,6 +391,12 @@
             <Value>../src/ASF/avr32/drivers/scif</Value>
             <Value>../src/ASF/thirdparty/polarssl</Value>
             <Value>../src/ASF/thirdparty/polarssl/include</Value>
+            <Value>../src/ASF/common/boards/user_board</Value>
+            <Value>../src/ASF/avr32/utils</Value>
+            <Value>../src/ASF/common/boards</Value>
+            <Value>../src/ASF/avr32/utils/preprocessor</Value>
+            <Value>../src/ASF/common/utils</Value>
+            <Value>../src/ASF/avr32/drivers/intc</Value>
           </ListValues>
         </avr32gcc.compiler.directories.IncludePaths>
         <avr32gcc.compiler.optimization.OtherFlags>-fdata-sections</avr32gcc.compiler.optimization.OtherFlags>
@@ -424,14 +425,8 @@
         <avr32gcc.assembler.general.IncludePaths>
           <ListValues>
             <Value>../common/applications/user_application/user_board/config</Value>
-            <Value>../src/ASF/avr32/utils</Value>
             <Value>../src/config</Value>
-            <Value>../src/ASF/common/boards</Value>
-            <Value>../src/ASF/avr32/utils/preprocessor</Value>
-            <Value>../src/ASF/avr32/drivers/intc</Value>
-            <Value>../src/ASF/common/utils</Value>
             <Value>../src</Value>
-            <Value>../src/ASF/common/boards/user_board</Value>
             <Value>../src/ASF/avr32/drivers/canif</Value>
             <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
             <Value>../src/ASF/avr32/drivers/flashc</Value>
@@ -452,21 +447,21 @@
             <Value>../src/ASF/avr32/drivers/scif</Value>
             <Value>../src/ASF/thirdparty/polarssl</Value>
             <Value>../src/ASF/thirdparty/polarssl/include</Value>
+            <Value>../src/ASF/common/boards/user_board</Value>
+            <Value>../src/ASF/avr32/utils</Value>
+            <Value>../src/ASF/common/boards</Value>
+            <Value>../src/ASF/avr32/utils/preprocessor</Value>
+            <Value>../src/ASF/common/utils</Value>
+            <Value>../src/ASF/avr32/drivers/intc</Value>
           </ListValues>
         </avr32gcc.assembler.general.IncludePaths>
         <avr32gcc.assembler.debugging.DebugLevel>Default (-g)</avr32gcc.assembler.debugging.DebugLevel>
-        <avr32gcc.preprocessingassembler.general.AssemblerFlags>-mrelax -DBOARD=USER_BOARD -DTEST_SUITE_DEFINE_ASSERT_MACRO -D_ASSERT_ENABLE_</avr32gcc.preprocessingassembler.general.AssemblerFlags>
+        <avr32gcc.preprocessingassembler.general.AssemblerFlags>-mrelax -DTEST_SUITE_DEFINE_ASSERT_MACRO -D_ASSERT_ENABLE_ -DBOARD=USER_BOARD</avr32gcc.preprocessingassembler.general.AssemblerFlags>
         <avr32gcc.preprocessingassembler.general.IncludePaths>
           <ListValues>
             <Value>../common/applications/user_application/user_board/config</Value>
-            <Value>../src/ASF/avr32/utils</Value>
             <Value>../src/config</Value>
-            <Value>../src/ASF/common/boards</Value>
-            <Value>../src/ASF/avr32/utils/preprocessor</Value>
-            <Value>../src/ASF/avr32/drivers/intc</Value>
-            <Value>../src/ASF/common/utils</Value>
             <Value>../src</Value>
-            <Value>../src/ASF/common/boards/user_board</Value>
             <Value>../src/ASF/avr32/drivers/canif</Value>
             <Value>../src/ASF/avr32/drivers/cpu/cycle_counter</Value>
             <Value>../src/ASF/avr32/drivers/flashc</Value>
@@ -487,6 +482,12 @@
             <Value>../src/ASF/avr32/drivers/scif</Value>
             <Value>../src/ASF/thirdparty/polarssl</Value>
             <Value>../src/ASF/thirdparty/polarssl/include</Value>
+            <Value>../src/ASF/common/boards/user_board</Value>
+            <Value>../src/ASF/avr32/utils</Value>
+            <Value>../src/ASF/common/boards</Value>
+            <Value>../src/ASF/avr32/utils/preprocessor</Value>
+            <Value>../src/ASF/common/utils</Value>
+            <Value>../src/ASF/avr32/drivers/intc</Value>
           </ListValues>
         </avr32gcc.preprocessingassembler.general.IncludePaths>
         <avr32gcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</avr32gcc.preprocessingassembler.debugging.DebugLevel>
@@ -545,6 +546,75 @@
     <Compile Include="src\ASF\avr32\drivers\canif\canif.c">
       <SubType>compile</SubType>
     </Compile>
+    <None Include="src\ASF\avr32\utils\make\Makefile.avr32.in">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\utils\make\Makefile.avr32program.in">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\utils\make\Makefile.batchisp.in">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\boards\user_board\user_board.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\boards\board.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\utils\preprocessor\preprocessor.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\utils\preprocessor\mrepeat.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\utils\preprocessor\stringz.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\utils\status_codes.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\utils\compiler.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\utils\header_files\uc3d_defines_fix.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\utils\header_files\uc3l3_l4_defines_fix.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\utils\preprocessor\tpaste.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\avr32\utils\startup\trampoline_uc3.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\drivers\intc\exception.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\drivers\intc\intc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\drivers\intc\intc.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\utils\startup\startup_uc3.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\avr32\utils\startup\trampoline_uc3.S">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\ASF\common\boards\user_board\init.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\common\utils\parts.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\utils\interrupt\interrupt_avr32.h">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\ASF\common\utils\interrupt.h">
+      <SubType>compile</SubType>
+    </None>
     <Compile Include="src\config\conf_messages.c">
       <SubType>compile</SubType>
     </Compile>
@@ -722,78 +792,9 @@
     <None Include="src\asf.h">
       <SubType>compile</SubType>
     </None>
-    <Compile Include="src\ASF\avr32\drivers\intc\exception.S">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\ASF\avr32\drivers\intc\intc.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <None Include="src\ASF\avr32\utils\compiler.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\avr32\utils\make\Makefile.avr32.in">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\avr32\utils\make\Makefile.avr32program.in">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\avr32\utils\make\Makefile.batchisp.in">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\common\boards\user_board\user_board.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\common\boards\board.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\common\utils\parts.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\avr32\utils\header_files\uc3d_defines_fix.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\common\utils\interrupt.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\avr32\drivers\intc\intc.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\common\utils\interrupt\interrupt_avr32.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\avr32\utils\preprocessor\tpaste.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\avr32\utils\preprocessor\stringz.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\avr32\utils\header_files\uc3l3_l4_defines_fix.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\avr32\utils\status_codes.h">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="src\ASF\avr32\utils\preprocessor\mrepeat.h">
-      <SubType>compile</SubType>
-    </None>
     <None Include="src\config\conf_board.h">
       <SubType>compile</SubType>
     </None>
-    <None Include="src\ASF\avr32\utils\preprocessor\preprocessor.h">
-      <SubType>compile</SubType>
-    </None>
-    <Compile Include="src\ASF\avr32\utils\startup\startup_uc3.S">
-      <SubType>compile</SubType>
-    </Compile>
-    <None Include="src\ASF\avr32\utils\startup\trampoline_uc3.h">
-      <SubType>compile</SubType>
-    </None>
-    <Compile Include="src\ASF\avr32\utils\startup\trampoline_uc3.S">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\ASF\common\boards\user_board\init.c">
-      <SubType>compile</SubType>
-    </Compile>
     <None Include="src\config\conf_twim.h">
       <SubType>compile</SubType>
     </None>

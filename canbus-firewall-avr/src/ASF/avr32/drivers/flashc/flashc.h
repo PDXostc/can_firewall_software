@@ -65,10 +65,6 @@
 			(AVR32_FLASHC_PAGES_PR_REGION * AVR32_FLASHC_PAGE_SIZE))
 
 
-//TODO: erase debug declarations
-extern void print_dbg(const char *str);
-extern void print_dbg_hex(unsigned long n);
-
 /*! \name Flash Properties
  */
 //! @{
