@@ -404,6 +404,7 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 			
 			case FILTER:
 			//check for transform and rule conditions
+			// switch on xform
 			//apply rule to message, que for transmit
 			
 			
@@ -672,7 +673,7 @@ int main (void)
 	{
 		can_ruleset_south_rx_north_tx[i] = test_block;
 	}
-	can_ruleset_south_rx_north_tx[15] = test_pass;
+	can_ruleset_south_rx_north_tx[15] = test_inside_range_allow;
 
 	//bool test_new_rule = test_new_rule_creation();
 	//int size_can_msg = sizeof(can_msg_t);

@@ -29,11 +29,23 @@ rule_t test_pass = {
 rule_t test_block = {
 	.dtoperand = 0,
 	.filter = 0xFFF,
-	.mask = 0XFFF,
+	.mask = 0xFFF,
 	.idoperand = 0,
 	.prio = SIZE_RULESET,
 	.xform = 0
 };
+
+rule_t test_inside_range_allow = {
+	.dtoperand = 0,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0,
+	.prio = SIZE_RULESET,
+	.xform = 0
+	};
+	
+
+
 
 //init to zero for now. this should become a secret number pulled from flash
 static int stored_sequence = 0;

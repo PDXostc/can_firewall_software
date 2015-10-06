@@ -214,6 +214,7 @@ static int stored_sequence
 //test pass all rule
 rule_t test_pass;
 rule_t test_block;
+rule_t test_inside_range_allow;
 
 //extern rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 /**
