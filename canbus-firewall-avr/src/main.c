@@ -406,6 +406,8 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 			//check for transform and rule conditions
 			//apply rule to message, que for transmit
 			
+			
+			
 			//test of single channel que for transmit:
 			
 			State_Channel = TX;
@@ -641,13 +643,13 @@ static inline void run_firewall_single_channel(void)
 		//State_Channel = RX;
 		break;
 		
-		case RX:		
+		case RX:
 		process(&rx_s, &proc_s, can_ruleset_south_rx_north_tx, can_msg_que_south_rx_north_tx);
 		//State_Channel = TX;
 		break;
 		
 		case TX:
-		transmit(&proc_s, &tx_s, can_msg_que_south_rx_north_tx, CAN_CH_SOUTH);	
+		transmit(&proc_s, &tx_s, can_msg_que_south_rx_north_tx, CAN_CH_SOUTH);
 		break;
 		
 		case WAIT:
@@ -663,6 +665,14 @@ int main (void)
 	init();
 	init_can();
 	init_rules();
+
+	//set rules in ruleset for testing
+	//can_ruleset_south_rx_north_tx[0] = test_pass;
+	for (int i = 0; i < SIZE_RULESET-1; i++)
+	{
+		can_ruleset_south_rx_north_tx[i] = test_block;
+	}
+	can_ruleset_south_rx_north_tx[15] = test_pass;
 
 	//bool test_new_rule = test_new_rule_creation();
 	//int size_can_msg = sizeof(can_msg_t);
