@@ -355,11 +355,11 @@ static inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rul
 	}
 	
 	int i = 0;
-	while(i != SIZE_RULESET - 1){
+	while(i != SIZE_RULESET){
 		//look for match
 		//test of values:
-		//int and_msg = msg->can_msg->id & ruleset[i].mask;
-		//int filter = ruleset[i].filter;
+		// 		int and_msg = msg->can_msg->id & ruleset[i].mask;
+		// 		int filter = ruleset[i].filter;
 		
 		if((msg->can_msg->id & ruleset[i].mask) == ruleset[i].filter)
 		{
