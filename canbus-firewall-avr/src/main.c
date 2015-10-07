@@ -56,6 +56,9 @@ uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 #define CAN_MSG_QUE_NORTH_RX_SOUTH_TX_CHANNEL   0
 #define CAN_MSG_QUE_SOUTH_RX_NORTH_TX_CHANNEL   1
 
+#define DLC_LENGTH_STANDARD		8
+#define DLC_LENGTH		DLC_LENGTH_STANDARD
+
 // CAN MOB allocation into HSB RAM
 #if defined (__GNUC__) && defined (__AVR32__)
 volatile can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] __attribute__ ((__section__(".hsb_ram_loc")));
@@ -262,7 +265,7 @@ static void can_out_callback_south_rx(U8 handle, U8 event){
 	//copy to location of desired rx ptr in queue
 	rx_s->can_msg->data.u64 = can_get_mob_data(CAN_CH_SOUTH, handle).u64;
 	rx_s->can_msg->id = can_get_mob_id(CAN_CH_SOUTH, handle);
-	rx_s->dlc = can_get_mob_dlc(CAN_CH_SOUTH, handle);
+	rx_s->dlc = DLC_LENGTH; //can_get_mob_dlc(CAN_CH_SOUTH, handle);
 	
 	//print what we got
 	#if DBG_CAN_MSG
@@ -512,8 +515,7 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 			if (success != 0)
 			{
 				wipe_mob(&(*proc));
-				set_state_channel(RX_INIT);
-				return;
+				break;
 			}
 			
 			//operate on data, mask to isolate lower half byte
@@ -522,13 +524,17 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 			if (success != 0)
 			{
 				wipe_mob(&(*proc));
-				set_state_channel(RX_INIT);
-				return;
+				break;
 			}			
 			
 			//test of single channel que for transmit:
+			if((*proc)->can_msg->id > 0)
+			{
+				set_state_channel(TX);	
+			} else {
+				set_state_channel(RX_INIT);
+			}
 			
-			set_state_channel(TX);
 			
 			break;
 			
@@ -803,7 +809,7 @@ int main (void)
 	{
 		can_ruleset_south_rx_north_tx[i] = rule_test_block;
 	}
-	can_ruleset_south_rx_north_tx[15] = rule_test_inside_range_xform_id_inv;
+	can_ruleset_south_rx_north_tx[15] = rule_test_inside_range_xform_data_inv;
 
 	//bool test_new_rule = test_new_rule_creation();
 	//int size_can_msg = sizeof(can_msg_t);
