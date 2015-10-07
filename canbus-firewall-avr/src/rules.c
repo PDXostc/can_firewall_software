@@ -89,6 +89,15 @@ rule_t rule_test_inside_range_xform_id_inv = {
 	.xform = XFORM_INV << 4
 };
 
+rule_t rule_test_inside_range_xform_id_block = {
+	.dtoperand = 0xFFFF,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_BLOCK << 4
+};
+
 //dtoperand test rules
 rule_t rule_test_inside_range_xform_data_set = {
 	.dtoperand = 0xFFFFFFFFFFFFFFFF,
@@ -135,6 +144,14 @@ rule_t rule_test_inside_range_xform_data_inv = {
 	.xform = XFORM_INV
 };
 
+rule_t rule_test_inside_range_xform_data_block = {
+	.dtoperand = 0xFFFF,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_BLOCK
+};
 
 //init to zero for now. this should become a secret number pulled from flash
 static int stored_sequence = 0;

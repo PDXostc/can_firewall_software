@@ -809,7 +809,7 @@ int main (void)
 	{
 		can_ruleset_south_rx_north_tx[i] = rule_test_block;
 	}
-	can_ruleset_south_rx_north_tx[15] = rule_test_inside_range_xform_data_inv;
+	can_ruleset_south_rx_north_tx[15] = rule_test_inside_range_xform_data_block;
 
 	//bool test_new_rule = test_new_rule_creation();
 	//int size_can_msg = sizeof(can_msg_t);
