@@ -67,12 +67,16 @@ volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA00000
 volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 #endif
 
-//Single channel rx/tx state switcher
+//Single channel rx/tx state switcher, TESTING ONLY, REMOVE IN NEXT VERSION
 enum State_Channel_t{
 	WAIT, RX_INIT, RX, TX
 };
 
 enum State_Channel_t State_Channel = RX_INIT;
+
+static inline void set_state_channel(enum State_Channel_t state){
+	State_Channel = state;
+}
 
 //SRAM Allocation for loaded filter rulesets
 static rule_t can_ruleset_north_rx_south_tx[SIZE_RULESET];
@@ -206,7 +210,7 @@ static void can_prepare_data_to_send_south(void){
 		tx_s = tx_s + 1;
 	}
 	
-	State_Channel = RX_INIT;
+	set_state_channel(RX_INIT);
 	
 	//Enable_global_interrupt();
 
@@ -283,7 +287,7 @@ static void can_out_callback_south_rx(U8 handle, U8 event){
 	//TODO: state machine call
 	message_received_south = true;
 	
-	State_Channel = RX;
+	set_state_channel(RX);
 	
 	//Enable_global_interrupt();
 }
@@ -318,7 +322,7 @@ static void can_prepare_data_to_receive_south(void){
 	print_dbg("\n\rCAN Init Receive Ready...");
 	#endif
 	
-	State_Channel = WAIT;
+	set_state_channel(WAIT);
 }
 
 static void can_prepare_next_receive_south(void)
@@ -343,7 +347,7 @@ static void can_prepare_next_receive_south(void)
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 
-static inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t *out_rule){
+static inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **out_rule){
 	//note: does not handle extended CAN yet
 	
 	//if shunt connected, check against new rule case
@@ -364,7 +368,7 @@ static inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rul
 		if((msg->can_msg->id & ruleset[i].mask) == ruleset[i].filter)
 		{
 			//match found, set out_rule and return evaluation case
-			out_rule = &ruleset[i];
+			*out_rule = &ruleset[i];
 			return FILTER;
 		}
 		
@@ -373,6 +377,96 @@ static inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rul
 	
 	//got here without any match
 	return DISCARD;
+}
+
+
+static inline int operate_transform_id(volatile can_msg_t *msg, U32 *rule_operand, int xform)
+{
+	
+	
+	switch(xform)
+	{
+		case XFORM_SET:
+		msg->id = *rule_operand;
+		break;
+		
+		case XFORM_OR:
+		msg->id |= *rule_operand;
+		break;
+		
+		case XFORM_AND:
+		msg->id &= *rule_operand;
+		break;
+		
+		case XFORM_XOR:
+		msg->id ^= *rule_operand;
+		break;
+		
+		case XFORM_INV:
+		msg->id = ~msg->id;
+		break;
+		
+		case XFORM_PASS:
+		break;
+		
+		case XFORM_BLOCK:
+		//return discard
+		//wipe id so it is not transmitted
+		msg->id = 0;
+		return 1;
+		
+		default:
+		//encountered unhandled xform, return failure
+		return -1;
+		//break;		
+	}
+	return 0;
+}
+
+static inline int operate_transform_u64(U64 *data, U64 *rule_operand, int xform)
+{
+	switch(xform)
+	{
+		case XFORM_SET:
+		*data = *rule_operand;
+		break;
+		
+		case XFORM_OR:
+		*data |= *rule_operand;
+		break;
+		
+		case XFORM_AND:
+		*data &= *rule_operand;
+		break;
+		
+		case XFORM_XOR:
+		*data ^= *rule_operand;
+		break;
+		
+		case XFORM_INV:
+		*data = ~*data;
+		break;
+		
+		case XFORM_PASS:
+		break;
+		
+		case XFORM_BLOCK:
+		//return discard
+		//wipe id so it is not transmitted
+		*data = 0;
+		return 1;
+		
+		default:
+		//encountered unhandled xform, return failure
+		return -1;
+		break;
+	}
+	return 0;
+}
+
+static inline void wipe_mob(volatile can_mob_t **mob)
+{
+	memset((void *)(*mob), 0, sizeof(can_mob_t));
 }
 
 static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, rule_t* ruleset, volatile can_mob_t *que)
@@ -392,34 +486,57 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 		//supply message and rule ptr, receive ptr to applicable rule
 		//check rule
 		rule_t *rule_match = NULL;
-		enum Eval_t eval = evaluate(*proc, ruleset, rule_match);
+		U32 xform = 0;
+		int success = -1;
+		
+		enum Eval_t eval = evaluate(*proc, ruleset, &rule_match);
+		
 		switch(eval) {
 			case NEW:
 			if(detected_shunt){
 				//does not check for success
 				handle_new_rule_data(&(*proc)->can_msg->data);
 			}
-			State_Channel = RX_INIT;
+			set_state_channel(RX_INIT);
 			break;
 			
 			case FILTER:
 			//check for transform and rule conditions
-			// switch on xform
+			// switch on xform (once for each half byte)
 			//apply rule to message, que for transmit
+			// 
 			
+			//operate on id, mask and shift to isolate upper half byte
+			xform = (rule_match->xform & 0xF0) >> 4;
+			success = operate_transform_id((*proc)->can_msg, &rule_match->idoperand, xform);
+			if (success != 0)
+			{
+				wipe_mob(&(*proc));
+				set_state_channel(RX_INIT);
+				return;
+			}
 			
+			//operate on data, mask to isolate lower half byte
+			xform = rule_match->xform & 0x0F;
+			success = operate_transform_u64(&(*proc)->can_msg->data.u64, &rule_match->dtoperand, xform);
+			if (success != 0)
+			{
+				wipe_mob(&(*proc));
+				set_state_channel(RX_INIT);
+				return;
+			}			
 			
 			//test of single channel que for transmit:
 			
-			State_Channel = TX;
+			set_state_channel(TX);
 			
 			break;
 			
 			case DISCARD:
 			default:
 			//delete what is here
-			memset((void *)(*proc), 0, sizeof(can_mob_t));
-			State_Channel = RX_INIT;
+			wipe_mob(&(*proc));
+			set_state_channel(RX_INIT);
 			break;
 		}
 	}
@@ -461,6 +578,19 @@ static inline void transmit(volatile can_mob_t **proc, volatile can_mob_t **tx, 
 			{
 				can_prepare_data_to_send_south();
 			}
+		} else {
+			 Disable_global_interrupt();
+			 //advance ptr
+			 if(*tx >= &que[CAN_MSG_QUE_SIZE - 1])
+			 {
+				 *tx = &que[0];
+				 } else {
+				 *tx = *tx + 1;
+			 }
+			 
+			 set_state_channel(RX_INIT);
+	
+			 Enable_global_interrupt();
 		}
 		
 	}
@@ -671,9 +801,9 @@ int main (void)
 	//can_ruleset_south_rx_north_tx[0] = test_pass;
 	for (int i = 0; i < SIZE_RULESET-1; i++)
 	{
-		can_ruleset_south_rx_north_tx[i] = test_block;
+		can_ruleset_south_rx_north_tx[i] = rule_test_block;
 	}
-	can_ruleset_south_rx_north_tx[15] = test_inside_range_allow;
+	can_ruleset_south_rx_north_tx[15] = rule_test_inside_range_xform_id_inv;
 
 	//bool test_new_rule = test_new_rule_creation();
 	//int size_can_msg = sizeof(can_msg_t);
