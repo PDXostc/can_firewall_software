@@ -17,7 +17,7 @@ rules_in_progress_t rules_in_progress = {
 
 rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 //test worst case pass through rule
-rule_t test_pass = {
+rule_t rule_test_pass = {
         .dtoperand = 0,
         .filter = 0x000,
         .mask = 0x000,
@@ -26,7 +26,7 @@ rule_t test_pass = {
         .xform = 0
     };
 	
-rule_t test_block = {
+rule_t rule_test_block = {
 	.dtoperand = 0,
 	.filter = 0xFFF,
 	.mask = 0xFFF,
@@ -35,16 +35,59 @@ rule_t test_block = {
 	.xform = 0
 };
 
-rule_t test_inside_range_allow = {
-	.dtoperand = 0,
+rule_t rule_test_inside_range_allow = {
+	.dtoperand = 0xFFAA55,
 	.filter = 0x6F0,
 	.mask = 0x7F0,
-	.idoperand = 0,
+	.idoperand = 0x7FF,
 	.prio = SIZE_RULESET,
 	.xform = 0
 	};
 	
+rule_t rule_test_inside_range_xform_id_set = {
+	.dtoperand = 0,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x7A5,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_SET << 4
+};
+	
+rule_t rule_test_inside_range_xform_id_or = {
+	.dtoperand = 0,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_OR << 4
+};
 
+rule_t rule_test_inside_range_xform_id_and = {
+	.dtoperand = 0,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_AND << 4
+};
+
+rule_t rule_test_inside_range_xform_id_xor = {
+	.dtoperand = 0,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_XOR << 4
+};
+
+rule_t rule_test_inside_range_xform_id_inv = {
+	.dtoperand = 0,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_INV << 4
+};
 
 
 //init to zero for now. this should become a secret number pulled from flash

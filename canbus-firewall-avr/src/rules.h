@@ -86,6 +86,22 @@
 #define BITFIELD_POSITION_PREP_09            8
 #define BITFIELD_COMPLETE                    0x1FF
 
+/* Xform enumeration
+ * The transform field "xform" describes the operations to be applied to an incoming
+ * message filtered before it is passed on. We are hard coding using defines
+ * because driver understanding of xform must correspond to the external standard.
+ * Value corresponds to the half byte value range 0:F
+ */
+#define XFORM_SET		0x00
+#define XFORM_OR		0x01
+#define XFORM_AND		0x02
+#define XFORM_XOR		0x03
+#define XFORM_INV		0x04
+#define XFORM_BLOCK		0x05
+#define XFORM_PASS		0x06
+//should not exceed		0x0F
+
+
 /* Rules in progress setting */
 #define MAX_RULES_IN_PROGRESS                16
 
@@ -212,9 +228,23 @@ static int stored_sequence
 ;
 
 //test pass all rule
-rule_t test_pass;
-rule_t test_block;
-rule_t test_inside_range_allow;
+rule_t rule_test_pass;
+rule_t rule_test_block;
+rule_t rule_test_inside_range_allow;
+rule_t rule_test_inside_range_xform_id_set;
+rule_t rule_test_inside_range_xform_id_or;
+rule_t rule_test_inside_range_xform_id_and;
+rule_t rule_test_inside_range_xform_id_xor;
+rule_t rule_test_inside_range_xform_id_inv;
+rule_t rule_test_inside_range_xform_id_block;
+rule_t rule_test_inside_range_xform_id_pass;
+rule_t rule_test_inside_range_xform_data_set;
+rule_t rule_test_inside_range_xform_data_or;
+rule_t rule_test_inside_range_xform_data_and;
+rule_t rule_test_inside_range_xform_data_xor;
+rule_t rule_test_inside_range_xform_data_inv;
+rule_t rule_test_inside_range_xform_data_block;
+rule_t rule_test_inside_range_xform_data_pass;
 
 //extern rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 /**
