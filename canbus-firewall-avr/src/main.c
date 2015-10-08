@@ -45,6 +45,7 @@
 #include "conf_messages.h"
 #include "conf_rules.h"
 #include "rules.h"
+#include "rules_test.h"
 #include "sleep.h"
 #include "polarssl/sha2.h"
 //#include "conf_can_example.h"
@@ -726,7 +727,7 @@ int main (void)
 	{
 		can_ruleset_south_rx_north_tx[i] = rule_test_block;
 	}
-	can_ruleset_south_rx_north_tx[15] = rule_test_inside_range_xform_data_block;
+	can_ruleset_south_rx_north_tx[15] = rule_test_inside_range_xform_data_set;
 
 	//bool test_new_rule = test_new_rule_creation();
 	//int size_can_msg = sizeof(can_msg_t);

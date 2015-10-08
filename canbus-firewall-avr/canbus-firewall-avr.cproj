@@ -612,6 +612,12 @@
     <Compile Include="src\rules.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\rules_test.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\rules_test.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\sleep.c">
       <SubType>compile</SubType>
     </Compile>
