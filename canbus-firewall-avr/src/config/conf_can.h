@@ -51,6 +51,11 @@
 #ifndef _CONF_CAN_H
 #define _CONF_CAN_H
 
+/* Atmel chip CANIF peripheral specifc bit timings. Largly invalidated by board
+ * revision using MCP controllers. Preserved for now, but will be deprecated/delted
+ * in the future. A new configuration file will be created for MCP specific settings.
+ */
+
 //! Define the number of MOB per channel. It is a fixed value: 16.
 #define NB_MOB_CHANNEL     16
 //! Setup the usage of CAN Under interruption
