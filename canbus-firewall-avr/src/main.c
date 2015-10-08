@@ -123,13 +123,11 @@ static void can_out_callback_south_tx(U8 handle, U8 event){
 	#endif
 	// Transmission Only
 	can_mob_free(CAN_CH_SOUTH,handle);
-	message_transmitted_south = true;
 }
 //
 static void can_prepare_data_to_send_south(void){
 	//TODO
 	//stub
-	message_transmitted_south = false;
 	//Init channel south
 	can_init(CAN_CH_SOUTH,
 	((uint32_t)&CAN_MOB_NORTH_RX_SOUTH_TX),
@@ -198,7 +196,6 @@ static void can_out_callback_south_rx(U8 handle, U8 event){
 	can_mob_free(CAN_CH_SOUTH, handle);
 	//set ready to evaluate message
 	//TODO: state machine call
-	message_received_south = true;
 	
 	set_state_channel(RX);
 	
@@ -208,7 +205,6 @@ static void can_out_callback_south_rx(U8 handle, U8 event){
 static void can_prepare_data_to_receive_south(void){
 	//TODO
 	//stub//Init channel north
-	message_received_south = false;
 	
 	can_init(CAN_CH_SOUTH,
 	((uint32_t)&CAN_MOB_SOUTH_RX_NORTH_TX),
@@ -241,7 +237,6 @@ static void can_prepare_data_to_receive_south(void){
 static void can_prepare_next_receive_south(void)
 {
 	//Disable_global_interrupt();
-	message_received_south = false;
 	
 	rx_s->handle = can_mob_alloc(CAN_CH_SOUTH);
 	
