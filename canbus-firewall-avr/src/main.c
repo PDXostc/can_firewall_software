@@ -70,17 +70,6 @@ volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA00000
 volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 #endif
 
-//Single channel rx/tx state switcher, TESTING ONLY, REMOVE IN NEXT VERSION
-enum State_Channel_t{
-	WAIT, RX_INIT, RX, TX
-};
-
-enum State_Channel_t State_Channel = RX_INIT;
-
-static inline void set_state_channel(enum State_Channel_t state){
-	State_Channel = state;
-}
-
 //SRAM Allocation for loaded filter rulesets
 static rule_t can_ruleset_north_rx_south_tx[SIZE_RULESET];
 static rule_t can_ruleset_south_rx_north_tx[SIZE_RULESET];
@@ -92,12 +81,11 @@ volatile can_mob_t *tx_n =   &can_msg_que_south_rx_north_tx[0];
 
 volatile can_mob_t *rx_n =   &can_msg_que_north_rx_south_tx[0];
 volatile can_mob_t *proc_n = &can_msg_que_north_rx_south_tx[0];
-/*volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];*/
+volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
 
-//single channel test, transmit lives on south..
-volatile can_mob_t *tx_s =   &can_msg_que_south_rx_north_tx[0];
-
-/* Call backs */
+/************************************************************************/
+/* CAN data prep and callbacks. Included for posterity.                 */
+/************************************************************************/
 
 static void can_out_callback_south_tx(U8 handle, U8 event){
 	//TODO
@@ -151,11 +139,6 @@ static void can_prepare_data_to_send_south(void){
 		} else {
 		tx_s = tx_s + 1;
 	}
-	
-	set_state_channel(RX_INIT);
-	
-	//Enable_global_interrupt();
-
 }
 
 static void can_out_callback_south_rx(U8 handle, U8 event){
@@ -186,12 +169,6 @@ static void can_out_callback_south_rx(U8 handle, U8 event){
 
 	//release mob in hsb
 	can_mob_free(CAN_CH_SOUTH, handle);
-	//set ready to evaluate message
-	//TODO: state machine call
-	
-	set_state_channel(RX);
-	
-	//Enable_global_interrupt();
 }
 
 static void can_prepare_data_to_receive_south(void){
@@ -222,8 +199,6 @@ static void can_prepare_data_to_receive_south(void){
 	#if DBG_CAN_MSG
 	print_dbg("\n\rCAN Init Receive Ready...");
 	#endif
-	
-	set_state_channel(WAIT);
 }
 
 static void can_prepare_next_receive_south(void)
@@ -244,14 +219,20 @@ static void can_prepare_next_receive_south(void)
 	#endif
 	//Enable_global_interrupt();
 }
+//end can data prep and callbacks///////////////////////////////////////////////
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 
+/* Utility wrapper for deleting an Atmel CAN message object
+ */
 static inline void wipe_mob(volatile can_mob_t **mob)
 {
 	memset((void *)(*mob), 0, sizeof(can_mob_t));
 }
 
+/* Process function to be deprecated. Shows handling of messages based on
+ * evaluation function included in filter
+ */
 static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, rule_t* ruleset, volatile can_mob_t *que)
 {
 	//check for each proc ptr to not equal the location we will copy to
@@ -280,7 +261,6 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 				//does not check for success
 				handle_new_rule_data(&(*proc)->can_msg->data);
 			}
-			set_state_channel(RX_INIT);
 			break;
 			
 			case FILTER:
@@ -306,23 +286,12 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 				wipe_mob(&(*proc));
 				break;
 			}			
-			
-			//test of single channel que for transmit:
-			if((*proc)->can_msg->id > 0)
-			{
-				set_state_channel(TX);	
-			} else {
-				set_state_channel(RX_INIT);
-			}
-			
-			
 			break;
 			
 			case DISCARD:
 			default:
 			//delete what is here
 			wipe_mob(&(*proc));
-			set_state_channel(RX_INIT);
 			break;
 		}
 	}
@@ -340,6 +309,9 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 	//Enable_global_interrupt();
 }
 
+/* Transmit function to be deprecated. Shows simple queue output logic.
+ * 
+ */
 static inline void transmit(volatile can_mob_t **proc, volatile can_mob_t **tx, volatile can_mob_t *que, int tx_direction)
 {
 	if (*tx == *proc)
@@ -362,35 +334,20 @@ static inline void transmit(volatile can_mob_t **proc, volatile can_mob_t **tx, 
 			}
 			else if(tx_direction == 1)
 			{
-				can_prepare_data_to_send_south();
+				//can_prepare_data_to_send_south();
 			}
-		} else {
-			 Disable_global_interrupt();
-			 //advance ptr
-			 if(*tx >= &que[CAN_MSG_QUE_SIZE - 1])
-			 {
-				 *tx = &que[0];
-				 } else {
-				 *tx = *tx + 1;
-			 }
-			 
-			 set_state_channel(RX_INIT);
-	
-			 Enable_global_interrupt();
-		}
-		
+		}		
 	}
-	//     //increment
-	//     //Disable_global_interrupt();
-	//     //advance ptr
-	//     if(*tx >= &que[CAN_MSG_QUE_SIZE - 1])
-	//     {
-	//         *tx = &que[0];
-	//         } else {
-	//         *tx = *tx + 1;
-	//     }
-	//
-	//     Enable_global_interrupt();
+	
+	//increment
+	//advance ptr
+	if(*tx >= &que[CAN_MSG_QUE_SIZE - 1])
+	{
+	    *tx = &que[0];
+	    } else {
+	    *tx = *tx + 1;
+	}
+	
 }
 
 static void init(void) {
@@ -418,6 +375,11 @@ static void init(void) {
 	#endif
 }
 
+/* Old CAN Initialization. Uses CANIF peripheral and internal generic clock,
+ * deprecated in favor MCP25625. 
+ * 
+ * TODO: Rewrite to init MCP25625
+ */
 static void init_can(void) {
 	/* Setup generic clock for CAN */
 	/* Remember to calibrate this correctly to our external osc*/
@@ -504,34 +466,6 @@ static inline void run_firewall(void)
 	//     transmit(&proc_n, &tx_s, can_msg_que_north_rx_south_tx);
 }
 
-/* Single channel usage of firewall */
-static inline void run_firewall_single_channel(void)
-{
-	//Disable_global_interrupt();
-	//first iteration just flips over when rx or tx
-	switch(State_Channel)
-	{
-		case RX_INIT:
-		can_prepare_data_to_receive_south();
-		//State_Channel = RX;
-		break;
-		
-		case RX:
-		process(&rx_s, &proc_s, can_ruleset_south_rx_north_tx, can_msg_que_south_rx_north_tx);
-		//State_Channel = TX;
-		break;
-		
-		case TX:
-		transmit(&proc_s, &tx_s, can_msg_que_south_rx_north_tx, CAN_CH_SOUTH);
-		break;
-		
-		case WAIT:
-		//wait for callback
-		break;
-	}
-	//Enable_global_interrupt();
-}
-
 int main (void)
 {
 	//setup
@@ -547,27 +481,16 @@ int main (void)
 	}
 	can_ruleset_south_rx_north_tx[15] = rule_test_inside_range_xform_data_set;
 
-	#if 1
-
-	while (1)
+	while (0)
 	{
 		//run_firewall();
-		run_firewall_single_channel();
+		//run_firewall_single_channel();
 	}
-	
-	#endif
 	
 	delay_ms(1000);
 	
 	//wait for end while debugging
 	
 	sleep_mode_start();
-	
-	#if 0
-	while(true){
-		delay_ms(1000);
-	}
-	#endif
-
 	
 }
