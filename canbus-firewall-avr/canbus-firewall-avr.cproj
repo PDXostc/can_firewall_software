@@ -600,6 +600,12 @@
     <Compile Include="src\config\conf_messages.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\filter.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\filter.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\hmac.c">
       <SubType>compile</SubType>
     </Compile>

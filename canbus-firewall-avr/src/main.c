@@ -46,6 +46,7 @@
 #include "conf_rules.h"
 #include "rules.h"
 #include "rules_test.h"
+#include "filter.h"
 #include "sleep.h"
 #include "polarssl/sha2.h"
 //#include "conf_can_example.h"
@@ -298,91 +299,6 @@ static inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rul
 	
 	//got here without any match
 	return DISCARD;
-}
-
-
-static inline int operate_transform_id(volatile can_msg_t *msg, U32 *rule_operand, int xform)
-{
-	
-	
-	switch(xform)
-	{
-		case XFORM_SET:
-		msg->id = *rule_operand;
-		break;
-		
-		case XFORM_OR:
-		msg->id |= *rule_operand;
-		break;
-		
-		case XFORM_AND:
-		msg->id &= *rule_operand;
-		break;
-		
-		case XFORM_XOR:
-		msg->id ^= *rule_operand;
-		break;
-		
-		case XFORM_INV:
-		msg->id = ~msg->id;
-		break;
-		
-		case XFORM_PASS:
-		break;
-		
-		case XFORM_BLOCK:
-		//return discard
-		//wipe id so it is not transmitted
-		msg->id = 0;
-		return 1;
-		
-		default:
-		//encountered unhandled xform, return failure
-		return -1;
-		//break;		
-	}
-	return 0;
-}
-
-static inline int operate_transform_u64(U64 *data, U64 *rule_operand, int xform)
-{
-	switch(xform)
-	{
-		case XFORM_SET:
-		*data = *rule_operand;
-		break;
-		
-		case XFORM_OR:
-		*data |= *rule_operand;
-		break;
-		
-		case XFORM_AND:
-		*data &= *rule_operand;
-		break;
-		
-		case XFORM_XOR:
-		*data ^= *rule_operand;
-		break;
-		
-		case XFORM_INV:
-		*data = ~*data;
-		break;
-		
-		case XFORM_PASS:
-		break;
-		
-		case XFORM_BLOCK:
-		//return discard
-		//wipe id so it is not transmitted
-		*data = 0;
-		return 1;
-		
-		default:
-		//encountered unhandled xform, return failure
-		return -1;
-		break;
-	}
-	return 0;
 }
 
 static inline void wipe_mob(volatile can_mob_t **mob)
