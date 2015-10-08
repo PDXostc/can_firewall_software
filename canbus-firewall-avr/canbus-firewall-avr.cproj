@@ -618,12 +618,6 @@
     <Compile Include="src\sleep.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\test.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="src\test.h">
-      <SubType>compile</SubType>
-    </Compile>
     <None Include="src\ASF\avr32\drivers\cpu\avr32_reset_cause.h">
       <SubType>compile</SubType>
     </None>

@@ -46,7 +46,6 @@
 #include "conf_rules.h"
 #include "rules.h"
 #include "sleep.h"
-#include "test.h"
 #include "polarssl/sha2.h"
 //#include "conf_can_example.h"
 
