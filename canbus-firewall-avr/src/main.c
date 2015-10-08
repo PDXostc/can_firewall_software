@@ -85,10 +85,6 @@ static inline void set_state_channel(enum State_Channel_t state){
 static rule_t can_ruleset_north_rx_south_tx[SIZE_RULESET];
 static rule_t can_ruleset_south_rx_north_tx[SIZE_RULESET];
 
-//physical security shunt, override to true during software testing
-//if this is true, we can accept new rules
-static bool detected_shunt = DETECTED_SHUNT;
-
 //ptrs to que, initialize to beginning
 volatile can_mob_t *rx_s =   &can_msg_que_south_rx_north_tx[0];
 volatile can_mob_t *proc_s = &can_msg_que_south_rx_north_tx[0];
@@ -100,10 +96,6 @@ volatile can_mob_t *proc_n = &can_msg_que_north_rx_south_tx[0];
 
 //single channel test, transmit lives on south..
 volatile can_mob_t *tx_s =   &can_msg_que_south_rx_north_tx[0];
-
-const enum Eval_t {
-	DISCARD, NEW, FILTER
-} Eval_t;
 
 /* Call backs */
 
@@ -254,38 +246,6 @@ static void can_prepare_next_receive_south(void)
 }
 
 #define member_size(type, member) sizeof(((type *)0)->member)
-
-static inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **out_rule){
-	//note: does not handle extended CAN yet
-	
-	//if shunt connected, check against new rule case
-	if(detected_shunt == true)
-	{
-		if(msg->can_msg->id == msg_new_rule.id){
-			return NEW;
-		}
-	}
-	
-	int i = 0;
-	while(i != SIZE_RULESET){
-		//look for match
-		//test of values:
-		// 		int and_msg = msg->can_msg->id & ruleset[i].mask;
-		// 		int filter = ruleset[i].filter;
-		
-		if((msg->can_msg->id & ruleset[i].mask) == ruleset[i].filter)
-		{
-			//match found, set out_rule and return evaluation case
-			*out_rule = &ruleset[i];
-			return FILTER;
-		}
-		
-		i += 1;
-	}
-	
-	//got here without any match
-	return DISCARD;
-}
 
 static inline void wipe_mob(volatile can_mob_t **mob)
 {

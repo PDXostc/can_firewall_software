@@ -7,6 +7,8 @@
 
 #include "filter.h"
 
+
+
 inline int operate_transform_id(volatile can_msg_t *msg, U32 *rule_operand, int xform)
 {
 	
@@ -89,4 +91,36 @@ inline int operate_transform_u64(U64 *data, U64 *rule_operand, int xform)
 		break;
 	}
 	return 0;
+}
+
+inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **out_rule){
+	//note: does not handle extended CAN yet
+	
+	//if shunt connected, check against new rule case
+	if(detected_shunt == true)
+	{
+		if(msg->can_msg->id == msg_new_rule.id){
+			return NEW;
+		}
+	}
+	
+	int i = 0;
+	while(i != SIZE_RULESET){
+		//look for match
+		//test of values:
+		// 		int and_msg = msg->can_msg->id & ruleset[i].mask;
+		// 		int filter = ruleset[i].filter;
+		
+		if((msg->can_msg->id & ruleset[i].mask) == ruleset[i].filter)
+		{
+			//match found, set out_rule and return evaluation case
+			*out_rule = &ruleset[i];
+			return FILTER;
+		}
+		
+		i += 1;
+	}
+	
+	//got here without any match
+	return DISCARD;
 }

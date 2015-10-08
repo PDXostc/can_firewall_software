@@ -16,7 +16,6 @@ can_msg_t msg_new_rule;
 
 // -----------------------------------------------------------------
 
-
 extern void print_can_message(can_msg_t *msg);
 
 //test messages section ----///////////////////////////////////////
