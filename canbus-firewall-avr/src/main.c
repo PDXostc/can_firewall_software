@@ -111,24 +111,6 @@ const enum Eval_t {
 } Eval_t;
 
 /* Call backs */
-static void can_out_callback_north_rx(U8 handle, U8 event){
-	//message has been received, move data from hsb mob to local mob
-	north_rx_msg[0].can_msg->data.u64 = can_get_mob_data(CAN_CH_NORTH, handle).u64;
-	north_rx_msg[0].can_msg->id = can_get_mob_id(CAN_CH_NORTH, handle);
-	north_rx_msg[0].dlc = can_get_mob_dlc(CAN_CH_NORTH, handle);
-	north_rx_msg[0].status = event;
-	
-	//print what we got
-	#if DBG_CAN_MSG
-	print_dbg("\n\rReceived can message on NORTH line:\n\r");
-	print_dbg_ulong(north_rx_msg[0].can_msg->data.u64);
-	PRINT_NEWLINE
-	#endif
-	//release mob in hsb
-	can_mob_free(CAN_CH_NORTH, handle);
-	//set ready to evaluate message
-	message_received_north = true;
-}
 
 static void can_out_callback_south_tx(U8 handle, U8 event){
 	//TODO
@@ -147,33 +129,6 @@ static void can_out_callback_south_tx(U8 handle, U8 event){
 	// Transmission Only
 	can_mob_free(CAN_CH_SOUTH,handle);
 	message_transmitted_south = true;
-}
-
-static void can_prepare_data_to_receive_north(void){
-	//TODO
-	//stub
-	message_received_north = false;
-	//Init channel north
-	can_init(CAN_CH_NORTH,
-	((U32)&CAN_MOB_NORTH_RX_SOUTH_TX),
-	CANIF_CHANNEL_MODE_NORMAL,
-	can_out_callback_north_rx);
-	//Allocate mob for TX
-	north_rx_msg[0].handle = can_mob_alloc(CAN_CH_NORTH);
-
-	//Check no mob available
-	//if(north_rx_msg[0].handle==CAN_CMD_REFUSED){
-	//
-	//}
-	//--example has conversion of data to meet adc standard from dsp lib.. not sure if necessary
-
-	can_rx(CAN_CH_NORTH,
-	north_rx_msg[0].handle,
-	north_rx_msg[0].req_type,
-	north_rx_msg[0].can_msg);
-
-	//or ??
-	//while(north_tx_msg[0].handle==CAN_CMD_REFUSED);
 }
 //
 static void can_prepare_data_to_send_south(void){
@@ -218,44 +173,7 @@ static void can_prepare_data_to_send_south(void){
 
 }
 
-static void can_out_callback_north_tx(U8 handle, U8 event){
-	//TODO
-	//stub
-	#if 0
-	print_dbg("\r\nNorth_CAN_msg\n\r");
-	print_dbg_ulong(north_tx_msg[0].handle);
-	print_dbg_ulong(north_tx_msg[0].can_msg->data.u64);
-	#endif
-	// Transmission Only
-	can_mob_free(CAN_CH_NORTH,handle);
-	message_transmitted_north = true;
-}
 
-static void can_prepare_data_to_send_north(void){
-	//TODO
-	//stub
-	message_transmitted_north = false;
-	//Init channel north
-	can_init(CAN_CH_NORTH,
-	((U32)&CAN_MOB_SOUTH_RX_NORTH_TX),
-	CANIF_CHANNEL_MODE_NORMAL,
-	can_out_callback_north_tx);
-
-	north_tx_msg[0].handle = can_mob_alloc(CAN_CH_NORTH);
-	/* Check return if no mob are available */
-	if (north_tx_msg[0].handle==CAN_CMD_REFUSED) {
-		while(1);
-	}
-
-	can_tx(CAN_CH_NORTH,
-	north_tx_msg[0].handle,
-	north_tx_msg[0].dlc,
-	north_tx_msg[0].req_type,
-	north_tx_msg[0].can_msg);
-	
-	//or ??
-	//while(tx_n->handle==CAN_CMD_REFUSED);
-}
 
 static void can_out_callback_south_rx(U8 handle, U8 event){
 	
