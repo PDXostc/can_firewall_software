@@ -49,7 +49,6 @@
 #include "filter.h"
 #include "sleep.h"
 #include "polarssl/sha2.h"
-//#include "conf_can_example.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
@@ -89,12 +88,6 @@ static rule_t can_ruleset_south_rx_north_tx[SIZE_RULESET];
 //physical security shunt, override to true during software testing
 //if this is true, we can accept new rules
 static bool detected_shunt = DETECTED_SHUNT;
-
-//booleans for rx/tx
-volatile bool message_received_north = false;
-volatile bool message_received_south = false;
-volatile bool message_transmitted_north = false;
-volatile bool message_transmitted_south = false;
 
 //ptrs to que, initialize to beginning
 volatile can_mob_t *rx_s =   &can_msg_que_south_rx_north_tx[0];
@@ -174,8 +167,6 @@ static void can_prepare_data_to_send_south(void){
 	//Enable_global_interrupt();
 
 }
-
-
 
 static void can_out_callback_south_rx(U8 handle, U8 event){
 	
@@ -547,50 +538,6 @@ static void init_rules(void)
 	load_ruleset(&flash_can_ruleset[SIZE_RULESET], can_ruleset_north_rx_south_tx, SIZE_RULESET);
 }
 
-static inline void run_test_loop(void) {
-	//function scratch area, will be rewritten as needed by the current test we are running
-	//not great practice, used for rapid proto
-	//     if (message_received_north == true)
-	//     {
-	// //        can_prepare_data_to_receive_north();
-	//         #if DBG_ON
-	//         print_dbg("\n\rPrepared to receive north...\n\r");
-	//         #endif
-	//     }
-	if (message_received_south == true)
-	{
-		can_prepare_data_to_receive_south();
-		//can_prepare_next_receive_south();
-		#if DBG_ON
-		print_dbg("\n\rPrepared to receive south...\n\r");
-		#endif
-	}
-	
-	
-	//     if (message_transmitted_north == true)
-	//     {
-	//         can_prepare_data_to_send_north();
-	//         #if DBG_ON
-	//         print_dbg("\n\rPrepared to send north...\n\r");
-	//         #endif
-	//     }
-	//
-	//     if (message_transmitted_south == true)
-	//     {
-	//        can_prepare_data_to_send_south();
-	//         #if DBG_ON
-	//         print_dbg("\n\rPrepared to send south...\n\r");
-	//         #endif
-	//     }
-	#if 0
-	print_dbg_ulong((unsigned long)can_get_mob_id(CAN_CH_SOUTH, south_rx_msg01.handle));
-	print_dbg("\n\r");
-	print_dbg_ulong((unsigned long)can_get_mob_id(CAN_CH_SOUTH, south_rx_msg02.handle));
-	print_dbg("\n\r");
-	#endif
-	
-}
-
 /* Main filter loop; designed to be a linear pipeline that we will try to get done as quickly as possible */
 static inline void run_firewall(void)
 {
@@ -645,15 +592,10 @@ int main (void)
 	}
 	can_ruleset_south_rx_north_tx[15] = rule_test_inside_range_xform_data_set;
 
-	//bool test_new_rule = test_new_rule_creation();
-	//int size_can_msg = sizeof(can_msg_t);
 	#if 1
-	
-	//can_prepare_data_to_receive_south();
 
 	while (1)
 	{
-		//run_test_loop();
 		//run_firewall();
 		run_firewall_single_channel();
 	}
