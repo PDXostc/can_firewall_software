@@ -23,16 +23,16 @@
 // CAN Message Definition: Tx Message
 #if defined (__ICCAVR32__)
 can_msg_t msg_tx_sot = {
-    0x00,                    // Identifier
-    0x00,                    // Mask
+    0x000,                    // Identifier
+    0x000,                    // Mask
     0x0102030405060708LL,     // Data
 };
 #else
 can_msg_t msg_tx_sot = {
     {
         {
-            .id = 0x00,                    // Identifier
-            .id_mask  = 0x00,              // Mask
+            .id = 0x000,                    // Identifier
+            .id_mask  = 0x000,              // Mask
         },
     },
     .data.u64 = 0x0102030405060708LL,    // Data
@@ -117,22 +117,22 @@ can_mob_t north_rx_msg[8] = {
     },          // Status: by default CAN_STATUS_NOT_COMPLETED
 };
 can_mob_t south_rx_msg01 = {
-    {
+    
         CAN_MOB_NOT_ALLOCATED,            // Handle: by default CAN_MOB_NOT_ALLOCATED
         &msg_rx_listening01,                // Pointer on CAN Message
         8,                                // Data length DLC
         CAN_DATA_FRAME,                   // Request type : CAN_DATA_FRAME or CAN_REMOTE_FRAME
         CAN_STATUS_NOT_COMPLETED
-    },          // Status: by default CAN_STATUS_NOT_COMPLETED
+              // Status: by default CAN_STATUS_NOT_COMPLETED
 };
 can_mob_t south_rx_msg02 = {
-    {
+    
         CAN_MOB_NOT_ALLOCATED,            // Handle: by default CAN_MOB_NOT_ALLOCATED
         &msg_new_rule,                // Pointer on CAN Message
         8,                                // Data length DLC
         CAN_DATA_FRAME,                   // Request type : CAN_DATA_FRAME or CAN_REMOTE_FRAME
         CAN_STATUS_NOT_COMPLETED
-    },          // Status: by default CAN_STATUS_NOT_COMPLETED
+              // Status: by default CAN_STATUS_NOT_COMPLETED
 };
 
 //--------------------------------------------New Rule Msg
@@ -189,9 +189,9 @@ can_mob_t appli_remote_rx_msg = {
 
 void print_can_message(can_msg_t *msg) {
     print_dbg("\n\rCan Message:\n\r");
-    print_dbg("\n\ID:  \n\r");
+    print_dbg("\n\rID:  \n\r");
     print_dbg_hex(msg->id);
-    print_dbg("\n\:Data:  \n\r");
+    print_dbg("\n\r:Data:  \n\r");
     print_dbg_ulong(msg->data.u64 >> 32);
     print_dbg_ulong(msg->data.u64);
 }
@@ -298,4 +298,14 @@ can_msg_t msg_prep_10 = {
         },
     },
     .data.u64 = 0x040A000000010000LL,    // Data
+};
+
+can_msg_t msg_pass_all = {
+    {
+        {
+            .id = 0x000,                    // Identifier
+            .id_mask  = 0x000,              // Mask
+        },
+    },
+    .data.u64 = 0xFFFFFFFFFFFFFFFFLL,    // Data
 };

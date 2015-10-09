@@ -16,6 +16,17 @@ rules_in_progress_t rules_in_progress = {
 };
 
 rule_t flash_can_ruleset[(SIZE_RULESET*2)];
+//test worst case pass through rule
+// test_pass = {
+//         .dtoperand = 0,
+//         .filter = 0,
+//         .mask = 0,
+//         .idoperand = 0,
+//         .prio = SIZE_RULESET,
+//         .xform = 0
+//     };
+// 
+// flash_can_ruleset[SIZE_RULESET-1] = test_pass;
 
 //init to zero for now. this should become a secret number pulled from flash
 static int stored_sequence = 0;
@@ -675,7 +686,7 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
         //verified the rule, assemble and store it
         if (success == true)
         {
-            store_new_sequence_number(&rules_in_progress.working_sets[working_set_index]->store_sequence.sequence);
+            store_new_sequence_number(rules_in_progress.working_sets[working_set_index]);
             rule_t rule_to_save = create_rule_from_working_set(rules_in_progress.working_sets[working_set_index]);            
             success = save_rule_to_flash(&rule_to_save, &flash_can_ruleset[rule_to_save.prio]);
             
@@ -696,6 +707,7 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
 //assumes this data has already been identified as belonging to a new rule frame
 bool handle_new_rule_data(Union64 *data)
 {
+    Disable_global_interrupt();
     //successful handling
     bool success = false;
     //determine prio, ie which rule this frame should correspond to
@@ -738,6 +750,6 @@ bool handle_new_rule_data(Union64 *data)
             success = false;
         }
     }
-    
+    Enable_global_interrupt();
     return success;
 }

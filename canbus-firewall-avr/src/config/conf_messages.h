@@ -78,4 +78,7 @@ can_msg_t msg_prep_08;
 can_msg_t msg_prep_09;
 
 can_msg_t msg_prep_10;
+
+//test passing message
+can_msg_t msg_pass_all;
 #endif /* CONF_MESSAGES_H_ */
