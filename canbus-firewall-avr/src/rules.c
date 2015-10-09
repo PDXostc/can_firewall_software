@@ -17,16 +17,141 @@ rules_in_progress_t rules_in_progress = {
 
 rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 //test worst case pass through rule
-// test_pass = {
-//         .dtoperand = 0,
-//         .filter = 0,
-//         .mask = 0,
-//         .idoperand = 0,
-//         .prio = SIZE_RULESET,
-//         .xform = 0
-//     };
-// 
-// flash_can_ruleset[SIZE_RULESET-1] = test_pass;
+rule_t rule_test_pass = {
+        .dtoperand = 0,
+        .filter = 0x000,
+        .mask = 0x000,
+        .idoperand = 0,
+        .prio = SIZE_RULESET,
+        .xform = 0
+    };
+	
+rule_t rule_test_block = {
+	.dtoperand = 0,
+	.filter = 0xFFF,
+	.mask = 0xFFF,
+	.idoperand = 0,
+	.prio = SIZE_RULESET,
+	.xform = 0
+};
+
+rule_t rule_test_inside_range_allow = {
+	.dtoperand = 0xFFAA55,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x7FF,
+	.prio = SIZE_RULESET,
+	.xform = 0
+	};
+	
+rule_t rule_test_inside_range_xform_id_set = {
+	.dtoperand = 0,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x7A5,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_SET << 4
+};
+	
+rule_t rule_test_inside_range_xform_id_or = {
+	.dtoperand = 0,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_OR << 4
+};
+
+rule_t rule_test_inside_range_xform_id_and = {
+	.dtoperand = 0,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_AND << 4
+};
+
+rule_t rule_test_inside_range_xform_id_xor = {
+	.dtoperand = 0,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_XOR << 4
+};
+
+rule_t rule_test_inside_range_xform_id_inv = {
+	.dtoperand = 0,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_INV << 4
+};
+
+rule_t rule_test_inside_range_xform_id_block = {
+	.dtoperand = 0xFFFF,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_BLOCK << 4
+};
+
+//dtoperand test rules
+rule_t rule_test_inside_range_xform_data_set = {
+	.dtoperand = 0xFFFFFFFFFFFFFFFF,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x7A5,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_SET
+};
+
+rule_t rule_test_inside_range_xform_data_or = {
+	.dtoperand = 0x0F0F0F0F0F0F0F0F,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_OR
+};
+
+rule_t rule_test_inside_range_xform_data_and = {
+	.dtoperand = 0xFFFFFFFFFFFFFFFF,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_AND
+};
+
+rule_t rule_test_inside_range_xform_data_xor = {
+	.dtoperand = 0xFFFFFFFFFFFFFFFF,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_XOR
+};
+
+rule_t rule_test_inside_range_xform_data_inv = {
+	.dtoperand = 0xFFFF,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_INV
+};
+
+rule_t rule_test_inside_range_xform_data_block = {
+	.dtoperand = 0xFFFF,
+	.filter = 0x6F0,
+	.mask = 0x7F0,
+	.idoperand = 0x00F,
+	.prio = SIZE_RULESET,
+	.xform = XFORM_BLOCK
+};
 
 //init to zero for now. this should become a secret number pulled from flash
 static int stored_sequence = 0;
@@ -688,7 +813,7 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
         {
             store_new_sequence_number(rules_in_progress.working_sets[working_set_index]);
             rule_t rule_to_save = create_rule_from_working_set(rules_in_progress.working_sets[working_set_index]);            
-            success = save_rule_to_flash(&rule_to_save, &flash_can_ruleset[rule_to_save.prio]);
+            success = save_rule_to_flash(&rule_to_save, &flash_can_ruleset[(int)rule_to_save.prio]);
             
         }
         
