@@ -68,6 +68,8 @@ volatile can_mob_t can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE] __attribute__
 #elif defined (__ICCAVR32__)
 volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
+volatile __no_init can_mob_t can_msg_que_north_rx_south_tx[CAN_MSG_QUE_SIZE] @0xA0000000;
+volatile __no_init can_mob_t can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE] @0xA0000000;
 #endif
 
 //SRAM Allocation for loaded filter rulesets
@@ -82,144 +84,6 @@ volatile can_mob_t *tx_n =   &can_msg_que_south_rx_north_tx[0];
 volatile can_mob_t *rx_n =   &can_msg_que_north_rx_south_tx[0];
 volatile can_mob_t *proc_n = &can_msg_que_north_rx_south_tx[0];
 volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
-
-/************************************************************************/
-/* CAN data prep and callbacks. Included for posterity.                 */
-/************************************************************************/
-
-static void can_out_callback_south_tx(U8 handle, U8 event){
-	//TODO
-	//stub
-	//     handle = CANIF_mob_get_mob_txok(1) ;
-	//     if (handle != 0x20)
-	//     {
-	//         CANIF_mob_clear_txok_status(1,handle);
-	//         CANIF_mob_clear_status(1,handle); //   and reset MOb status
-	//     }
-	//event = CAN_STATUS_COMPLETED;
-	#if DBG_CAN_MSG
-	print_dbg("\n\rTransmitted CAN Msg\n\r");
-	print_can_message(tx_s->can_msg);
-	#endif
-	// Transmission Only
-	can_mob_free(CAN_CH_SOUTH,handle);
-}
-//
-static void can_prepare_data_to_send_south(void){
-	//TODO
-	//stub
-	//Init channel south
-	can_init(CAN_CH_SOUTH,
-	((uint32_t)&CAN_MOB_NORTH_RX_SOUTH_TX),
-	CANIF_CHANNEL_MODE_NORMAL,
-	can_out_callback_south_tx);
-
-	//INTC_register_interrupt(&can_out_callback_south_rx, AVR32_CANIF_RXOK_IRQ_1, CAN1_INT_RX_LEVEL);
-	//INTC_register_interrupt(&can_out_callback_south_tx, AVR32_CANIF_TXOK_IRQ_1, CAN1_INT_TX_LEVEL);
-
-	//Allocate mob for TX
-	tx_s->handle = can_mob_alloc(CAN_CH_SOUTH);
-	/* Check return if no mob are available */
-	while (tx_s->handle==CAN_CMD_REFUSED) {
-		
-	}
-
-	can_tx(CAN_CH_SOUTH,
-	tx_s->handle,
-	tx_s->dlc,
-	tx_s->req_type,
-	tx_s->can_msg);
-
-	//increment
-	//Disable_global_interrupt();
-	//advance ptr
-	if(tx_s >= &can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE - 1])
-	{
-		tx_s = &can_msg_que_south_rx_north_tx[0];
-		} else {
-		tx_s = tx_s + 1;
-	}
-}
-
-static void can_out_callback_south_rx(U8 handle, U8 event){
-	
-	//Disable_global_interrupt();
-	//inlining for now...
-	//copy to location of desired rx ptr in queue
-	rx_s->can_msg->data.u64 = can_get_mob_data(CAN_CH_SOUTH, handle).u64;
-	rx_s->can_msg->id = can_get_mob_id(CAN_CH_SOUTH, handle);
-	rx_s->dlc = DLC_LENGTH; //can_get_mob_dlc(CAN_CH_SOUTH, handle);
-	
-	//print what we got
-	#if DBG_CAN_MSG
-	print_dbg("\n\rReceived can message on SOUTH line:\n\r");
-	//print_dbg_ulong(south_rx_msg01.can_msg->data.u64);
-	PRINT_NEWLINE
-	print_can_message(rx_s->can_msg);
-	//print_can_message(south_rx_msg02.can_msg);
-	#endif
-	
-	//advance ptr
-	if(rx_s >= &can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE - 1])
-	{
-		rx_s = &can_msg_que_south_rx_north_tx[0];
-		} else {
-		rx_s = rx_s + 1;
-	}
-
-	//release mob in hsb
-	can_mob_free(CAN_CH_SOUTH, handle);
-}
-
-static void can_prepare_data_to_receive_south(void){
-	//TODO
-	//stub//Init channel north
-	
-	can_init(CAN_CH_SOUTH,
-	((uint32_t)&CAN_MOB_SOUTH_RX_NORTH_TX),
-	CANIF_CHANNEL_MODE_NORMAL,
-	can_out_callback_south_rx);
-	//Allocate mob for TX
-	rx_s->handle = can_mob_alloc(CAN_CH_SOUTH);
-	//south_rx_msg02.handle = can_mob_alloc(CAN_CH_SOUTH);
-	
-	//INTC_register_interrupt(&can_out_callback_south_rx, AVR32_CANIF_RXOK_IRQ_1, CAN1_INT_RX_LEVEL);
-	//INTC_register_interrupt(&can_out_callback_south_tx, AVR32_CANIF_TXOK_IRQ_1, CAN1_INT_TX_LEVEL);
-	
-	//Check no mob available
-	//if(south_rx_msg01.handle==CAN_CMD_REFUSED || south_rx_msg02.handle==CAN_CMD_REFUSED){
-	//while(1);
-	//}
-	
-	can_rx(CAN_CH_SOUTH,
-	rx_s->handle,
-	rx_s->req_type,
-	&msg_pass_all);
-	
-	#if DBG_CAN_MSG
-	print_dbg("\n\rCAN Init Receive Ready...");
-	#endif
-}
-
-static void can_prepare_next_receive_south(void)
-{
-	//Disable_global_interrupt();
-	
-	rx_s->handle = can_mob_alloc(CAN_CH_SOUTH);
-	
-	INTC_register_interrupt((void *)&can_out_callback_south_rx, AVR32_CANIF_RXOK_IRQ_1, CAN1_INT_RX_LEVEL);
-	
-	can_rx(CAN_CH_SOUTH,
-	rx_s->handle,
-	rx_s->req_type,
-	rx_s->can_msg);
-	
-	#if DBG_CAN_MSG
-	print_dbg("\n\rCAN Receive Ready...");
-	#endif
-	//Enable_global_interrupt();
-}
-//end can data prep and callbacks///////////////////////////////////////////////
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 
@@ -384,22 +248,11 @@ static void init_can(void) {
 	/* Setup generic clock for CAN */
 	/* Remember to calibrate this correctly to our external osc*/
 	int setup_gclk;
-	#if 1
+	
 	setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
 	SCIF_GCCTRL_PLL0,
 	AVR32_SCIF_GC_USES_PLL0,
 	4);
-	#elif 0
-	setup_gclk= scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-	SCIF_GCCTRL_PBCCLOCK,
-	AVR32_SCIF_GC_DIV_CLOCK,
-	CANIF_OSC_DIV);
-	#elif 0
-	setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-	SCIF_GCCTRL_OSC0,
-	AVR32_SCIF_GC_NO_DIV_CLOCK,
-	0);
-	#endif
 
 	#if DBG_CLKS
 	if (setup_gclk ==0)
@@ -407,8 +260,7 @@ static void init_can(void) {
 		print_dbg("\n\rGeneric clock setup\n\r");
 		}else {
 		print_dbg("\n\rGeneric clock NOT SETUP\n\r");
-	}
-	
+	}	
 	#endif
 
 	/* Enable generic clock */
@@ -458,12 +310,14 @@ static void init_rules(void)
 /* Main filter loop; designed to be a linear pipeline that we will try to get done as quickly as possible */
 static inline void run_firewall(void)
 {
+	#if 0
 	//maintain and move proc_ ptrs
 	process(&rx_s, &proc_s, can_ruleset_south_rx_north_tx, can_msg_que_south_rx_north_tx);
 	process(&rx_n, &proc_n, can_ruleset_north_rx_south_tx, can_msg_que_north_rx_south_tx);
 	//maintain and move tx_ ptrs
-	//     transmit(&proc_s, &tx_n, can_msg_que_south_rx_north_tx);
-	//     transmit(&proc_n, &tx_s, can_msg_que_north_rx_south_tx);
+	transmit(&proc_s, &tx_n, can_msg_que_south_rx_north_tx);
+	transmit(&proc_n, &tx_s, can_msg_que_north_rx_south_tx);
+	#endif
 }
 
 int main (void)
@@ -473,18 +327,9 @@ int main (void)
 	init_can();
 	init_rules();
 
-	//set rules in ruleset for testing
-	//can_ruleset_south_rx_north_tx[0] = test_pass;
-	for (int i = 0; i < SIZE_RULESET-1; i++)
-	{
-		can_ruleset_south_rx_north_tx[i] = rule_test_block;
-	}
-	can_ruleset_south_rx_north_tx[15] = rule_test_inside_range_xform_data_set;
-
 	while (0)
 	{
-		//run_firewall();
-		//run_firewall_single_channel();
+		run_firewall();
 	}
 	
 	delay_ms(1000);
