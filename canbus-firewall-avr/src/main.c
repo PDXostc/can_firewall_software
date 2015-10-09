@@ -45,10 +45,10 @@
 #include "conf_messages.h"
 #include "conf_rules.h"
 #include "rules.h"
+#include "rules_test.h"
+#include "filter.h"
 #include "sleep.h"
-#include "test.h"
 #include "polarssl/sha2.h"
-//#include "conf_can_example.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
@@ -85,16 +85,6 @@ static inline void set_state_channel(enum State_Channel_t state){
 static rule_t can_ruleset_north_rx_south_tx[SIZE_RULESET];
 static rule_t can_ruleset_south_rx_north_tx[SIZE_RULESET];
 
-//physical security shunt, override to true during software testing
-//if this is true, we can accept new rules
-static bool detected_shunt = DETECTED_SHUNT;
-
-//booleans for rx/tx
-volatile bool message_received_north = false;
-volatile bool message_received_south = false;
-volatile bool message_transmitted_north = false;
-volatile bool message_transmitted_south = false;
-
 //ptrs to que, initialize to beginning
 volatile can_mob_t *rx_s =   &can_msg_que_south_rx_north_tx[0];
 volatile can_mob_t *proc_s = &can_msg_que_south_rx_north_tx[0];
@@ -107,29 +97,7 @@ volatile can_mob_t *proc_n = &can_msg_que_north_rx_south_tx[0];
 //single channel test, transmit lives on south..
 volatile can_mob_t *tx_s =   &can_msg_que_south_rx_north_tx[0];
 
-const enum Eval_t {
-	DISCARD, NEW, FILTER
-} Eval_t;
-
 /* Call backs */
-static void can_out_callback_north_rx(U8 handle, U8 event){
-	//message has been received, move data from hsb mob to local mob
-	north_rx_msg[0].can_msg->data.u64 = can_get_mob_data(CAN_CH_NORTH, handle).u64;
-	north_rx_msg[0].can_msg->id = can_get_mob_id(CAN_CH_NORTH, handle);
-	north_rx_msg[0].dlc = can_get_mob_dlc(CAN_CH_NORTH, handle);
-	north_rx_msg[0].status = event;
-	
-	//print what we got
-	#if DBG_CAN_MSG
-	print_dbg("\n\rReceived can message on NORTH line:\n\r");
-	print_dbg_ulong(north_rx_msg[0].can_msg->data.u64);
-	PRINT_NEWLINE
-	#endif
-	//release mob in hsb
-	can_mob_free(CAN_CH_NORTH, handle);
-	//set ready to evaluate message
-	message_received_north = true;
-}
 
 static void can_out_callback_south_tx(U8 handle, U8 event){
 	//TODO
@@ -147,40 +115,11 @@ static void can_out_callback_south_tx(U8 handle, U8 event){
 	#endif
 	// Transmission Only
 	can_mob_free(CAN_CH_SOUTH,handle);
-	message_transmitted_south = true;
-}
-
-static void can_prepare_data_to_receive_north(void){
-	//TODO
-	//stub
-	message_received_north = false;
-	//Init channel north
-	can_init(CAN_CH_NORTH,
-	((U32)&CAN_MOB_NORTH_RX_SOUTH_TX),
-	CANIF_CHANNEL_MODE_NORMAL,
-	can_out_callback_north_rx);
-	//Allocate mob for TX
-	north_rx_msg[0].handle = can_mob_alloc(CAN_CH_NORTH);
-
-	//Check no mob available
-	//if(north_rx_msg[0].handle==CAN_CMD_REFUSED){
-	//
-	//}
-	//--example has conversion of data to meet adc standard from dsp lib.. not sure if necessary
-
-	can_rx(CAN_CH_NORTH,
-	north_rx_msg[0].handle,
-	north_rx_msg[0].req_type,
-	north_rx_msg[0].can_msg);
-
-	//or ??
-	//while(north_tx_msg[0].handle==CAN_CMD_REFUSED);
 }
 //
 static void can_prepare_data_to_send_south(void){
 	//TODO
 	//stub
-	message_transmitted_south = false;
 	//Init channel south
 	can_init(CAN_CH_SOUTH,
 	((uint32_t)&CAN_MOB_NORTH_RX_SOUTH_TX),
@@ -219,45 +158,6 @@ static void can_prepare_data_to_send_south(void){
 
 }
 
-static void can_out_callback_north_tx(U8 handle, U8 event){
-	//TODO
-	//stub
-	#if 0
-	print_dbg("\r\nNorth_CAN_msg\n\r");
-	print_dbg_ulong(north_tx_msg[0].handle);
-	print_dbg_ulong(north_tx_msg[0].can_msg->data.u64);
-	#endif
-	// Transmission Only
-	can_mob_free(CAN_CH_NORTH,handle);
-	message_transmitted_north = true;
-}
-
-static void can_prepare_data_to_send_north(void){
-	//TODO
-	//stub
-	message_transmitted_north = false;
-	//Init channel north
-	can_init(CAN_CH_NORTH,
-	((U32)&CAN_MOB_SOUTH_RX_NORTH_TX),
-	CANIF_CHANNEL_MODE_NORMAL,
-	can_out_callback_north_tx);
-
-	north_tx_msg[0].handle = can_mob_alloc(CAN_CH_NORTH);
-	/* Check return if no mob are available */
-	if (north_tx_msg[0].handle==CAN_CMD_REFUSED) {
-		while(1);
-	}
-
-	can_tx(CAN_CH_NORTH,
-	north_tx_msg[0].handle,
-	north_tx_msg[0].dlc,
-	north_tx_msg[0].req_type,
-	north_tx_msg[0].can_msg);
-	
-	//or ??
-	//while(tx_n->handle==CAN_CMD_REFUSED);
-}
-
 static void can_out_callback_south_rx(U8 handle, U8 event){
 	
 	//Disable_global_interrupt();
@@ -288,7 +188,6 @@ static void can_out_callback_south_rx(U8 handle, U8 event){
 	can_mob_free(CAN_CH_SOUTH, handle);
 	//set ready to evaluate message
 	//TODO: state machine call
-	message_received_south = true;
 	
 	set_state_channel(RX);
 	
@@ -298,7 +197,6 @@ static void can_out_callback_south_rx(U8 handle, U8 event){
 static void can_prepare_data_to_receive_south(void){
 	//TODO
 	//stub//Init channel north
-	message_received_south = false;
 	
 	can_init(CAN_CH_SOUTH,
 	((uint32_t)&CAN_MOB_SOUTH_RX_NORTH_TX),
@@ -331,7 +229,6 @@ static void can_prepare_data_to_receive_south(void){
 static void can_prepare_next_receive_south(void)
 {
 	//Disable_global_interrupt();
-	message_received_south = false;
 	
 	rx_s->handle = can_mob_alloc(CAN_CH_SOUTH);
 	
@@ -349,123 +246,6 @@ static void can_prepare_next_receive_south(void)
 }
 
 #define member_size(type, member) sizeof(((type *)0)->member)
-
-static inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **out_rule){
-	//note: does not handle extended CAN yet
-	
-	//if shunt connected, check against new rule case
-	if(detected_shunt == true)
-	{
-		if(msg->can_msg->id == msg_new_rule.id){
-			return NEW;
-		}
-	}
-	
-	int i = 0;
-	while(i != SIZE_RULESET){
-		//look for match
-		//test of values:
-		// 		int and_msg = msg->can_msg->id & ruleset[i].mask;
-		// 		int filter = ruleset[i].filter;
-		
-		if((msg->can_msg->id & ruleset[i].mask) == ruleset[i].filter)
-		{
-			//match found, set out_rule and return evaluation case
-			*out_rule = &ruleset[i];
-			return FILTER;
-		}
-		
-		i += 1;
-	}
-	
-	//got here without any match
-	return DISCARD;
-}
-
-
-static inline int operate_transform_id(volatile can_msg_t *msg, U32 *rule_operand, int xform)
-{
-	
-	
-	switch(xform)
-	{
-		case XFORM_SET:
-		msg->id = *rule_operand;
-		break;
-		
-		case XFORM_OR:
-		msg->id |= *rule_operand;
-		break;
-		
-		case XFORM_AND:
-		msg->id &= *rule_operand;
-		break;
-		
-		case XFORM_XOR:
-		msg->id ^= *rule_operand;
-		break;
-		
-		case XFORM_INV:
-		msg->id = ~msg->id;
-		break;
-		
-		case XFORM_PASS:
-		break;
-		
-		case XFORM_BLOCK:
-		//return discard
-		//wipe id so it is not transmitted
-		msg->id = 0;
-		return 1;
-		
-		default:
-		//encountered unhandled xform, return failure
-		return -1;
-		//break;		
-	}
-	return 0;
-}
-
-static inline int operate_transform_u64(U64 *data, U64 *rule_operand, int xform)
-{
-	switch(xform)
-	{
-		case XFORM_SET:
-		*data = *rule_operand;
-		break;
-		
-		case XFORM_OR:
-		*data |= *rule_operand;
-		break;
-		
-		case XFORM_AND:
-		*data &= *rule_operand;
-		break;
-		
-		case XFORM_XOR:
-		*data ^= *rule_operand;
-		break;
-		
-		case XFORM_INV:
-		*data = ~*data;
-		break;
-		
-		case XFORM_PASS:
-		break;
-		
-		case XFORM_BLOCK:
-		//return discard
-		//wipe id so it is not transmitted
-		*data = 0;
-		return 1;
-		
-		default:
-		//encountered unhandled xform, return failure
-		return -1;
-		break;
-	}
-	return 0;
-}
 
 static inline void wipe_mob(volatile can_mob_t **mob)
 {
@@ -713,50 +493,6 @@ static void init_rules(void)
 	load_ruleset(&flash_can_ruleset[SIZE_RULESET], can_ruleset_north_rx_south_tx, SIZE_RULESET);
 }
 
-static inline void run_test_loop(void) {
-	//function scratch area, will be rewritten as needed by the current test we are running
-	//not great practice, used for rapid proto
-	//     if (message_received_north == true)
-	//     {
-	// //        can_prepare_data_to_receive_north();
-	//         #if DBG_ON
-	//         print_dbg("\n\rPrepared to receive north...\n\r");
-	//         #endif
-	//     }
-	if (message_received_south == true)
-	{
-		can_prepare_data_to_receive_south();
-		//can_prepare_next_receive_south();
-		#if DBG_ON
-		print_dbg("\n\rPrepared to receive south...\n\r");
-		#endif
-	}
-	
-	
-	//     if (message_transmitted_north == true)
-	//     {
-	//         can_prepare_data_to_send_north();
-	//         #if DBG_ON
-	//         print_dbg("\n\rPrepared to send north...\n\r");
-	//         #endif
-	//     }
-	//
-	//     if (message_transmitted_south == true)
-	//     {
-	//        can_prepare_data_to_send_south();
-	//         #if DBG_ON
-	//         print_dbg("\n\rPrepared to send south...\n\r");
-	//         #endif
-	//     }
-	#if 0
-	print_dbg_ulong((unsigned long)can_get_mob_id(CAN_CH_SOUTH, south_rx_msg01.handle));
-	print_dbg("\n\r");
-	print_dbg_ulong((unsigned long)can_get_mob_id(CAN_CH_SOUTH, south_rx_msg02.handle));
-	print_dbg("\n\r");
-	#endif
-	
-}
-
 /* Main filter loop; designed to be a linear pipeline that we will try to get done as quickly as possible */
 static inline void run_firewall(void)
 {
@@ -809,17 +545,12 @@ int main (void)
 	{
 		can_ruleset_south_rx_north_tx[i] = rule_test_block;
 	}
-	can_ruleset_south_rx_north_tx[15] = rule_test_inside_range_xform_data_block;
+	can_ruleset_south_rx_north_tx[15] = rule_test_inside_range_xform_data_set;
 
-	//bool test_new_rule = test_new_rule_creation();
-	//int size_can_msg = sizeof(can_msg_t);
 	#if 1
-	
-	//can_prepare_data_to_receive_south();
 
 	while (1)
 	{
-		//run_test_loop();
 		//run_firewall();
 		run_firewall_single_channel();
 	}

@@ -98,9 +98,6 @@
 // From module: Interrupt management - UC3 implementation
 #include <interrupt.h>
 
-// From module: PDCA - Peripheral DMA Controller
-#include <pdca.h>
-
 // From module: PM Power Manager - UC3 C0/C1/C2 implementation
 #include <power_clocks_lib.h>
 #include <sleep.h>
@@ -145,9 +142,6 @@
 
 // From module: TC - Timer/Counter
 #include <tc.h>
-
-// From module: TWI - Two-Wire Master Interface
-#include <twim.h>
 
 // From module: USART - Universal Synchronous/Asynchronous Receiver/Transmitter
 #include <usart.h>
