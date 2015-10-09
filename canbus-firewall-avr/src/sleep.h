@@ -15,6 +15,13 @@
 
 #include <asf.h>
 
+/**
+ * \brief Turn off active peripherals, set wakeup modes, and initiate sleep of micro
+ * 
+ * \param 
+ * 
+ * \return extern void
+ */
 extern void sleep_mode_start(void);
 
 
