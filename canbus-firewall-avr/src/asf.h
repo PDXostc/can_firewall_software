@@ -98,15 +98,38 @@
 // From module: Interrupt management - UC3 implementation
 #include <interrupt.h>
 
-// From module: PDCA - Peripheral DMA Controller
-#include <pdca.h>
-
 // From module: PM Power Manager - UC3 C0/C1/C2 implementation
 #include <power_clocks_lib.h>
 #include <sleep.h>
 
 // From module: Part identification macros
 #include <parts.h>
+
+// From module: PolarSSL - Small Cryptographic and SSL/TLS Library
+#include <polarssl/aes.h>
+#include <polarssl/arc4.h>
+#include <polarssl/base64.h>
+#include <polarssl/bignum.h>
+#include <polarssl/bn_mul.h>
+#include <polarssl/camellia.h>
+#include <polarssl/certs.h>
+#include <polarssl/config.h>
+#include <polarssl/debug.h>
+#include <polarssl/des.h>
+#include <polarssl/dhm.h>
+#include <polarssl/havege.h>
+#include <polarssl/md2.h>
+#include <polarssl/md4.h>
+#include <polarssl/md5.h>
+#include <polarssl/padlock.h>
+#include <polarssl/rsa.h>
+#include <polarssl/sha1.h>
+#include <polarssl/sha2.h>
+#include <polarssl/sha4.h>
+#include <polarssl/ssl.h>
+#include <polarssl/timing.h>
+#include <polarssl/x509.h>
+#include <polarssl/xtea.h>
 
 // From module: SCIF System Control Interface - UC3C implementation
 #include <scif_uc3c.h>
@@ -120,10 +143,10 @@
 // From module: TC - Timer/Counter
 #include <tc.h>
 
-// From module: TWI - Two-Wire Master Interface
-#include <twim.h>
-
 // From module: USART - Universal Synchronous/Asynchronous Receiver/Transmitter
 #include <usart.h>
+
+// From module: USART Debug strings
+#include <print_funcs.h>
 
 #endif // ASF_H

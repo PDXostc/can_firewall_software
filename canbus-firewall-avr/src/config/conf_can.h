@@ -51,25 +51,73 @@
 #ifndef _CONF_CAN_H
 #define _CONF_CAN_H
 
+/* Atmel chip CANIF peripheral specifc bit timings. Largly invalidated by board
+ * revision using MCP controllers. Preserved for now, but will be deprecated/delted
+ * in the future. A new configuration file will be created for MCP specific settings.
+ */
+
 //! Define the number of MOB per channel. It is a fixed value: 16.
 #define NB_MOB_CHANNEL     16
 //! Setup the usage of CAN Under interruption
 #define CAN_LIB_UNDER_INTERRUPT
 
+//beware, pres is actually a divisor
+#if 0
+ //good @ 1000k baud, assuming 16mhz clock
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_SJW         1
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRES        1
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS         2
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS1        1
 #define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS2        1
+#elif 1
+//test in progress field
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_SJW         1
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRES        1
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS         1
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS1        1
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS2        2
+#elif 0
+//good @ 100k baud, 12mhz clock
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_SJW         1
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRES        1
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS         5
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS1        3
+#define CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS2        3
+#endif
 
-#define BAUDRATE        CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz
-#define BAUDRATE_HZ     1000000
-#define BAUDRATE_SJW    CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_SJW
-#define BAUDRATE_PRES   CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRES
-#define BAUDRATE_PRS    CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PRS
-#define BAUDRATE_PHS1   CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS1
-#define BAUDRATE_PHS2   CAN_BAUDRATE_1MHZ_CANCLOCK_16MHz_PHS2
+//good @ 500k baud, 16mhz
+#define CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz
+#define CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_SJW         1
+#define CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_PRES        1
+#define CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_PRS         4
+#define CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_PHS1        4
+#define CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_PHS2        4
+//good @ 100k baud, 16mhz clock
+#define CAN_BAUDRATE_100KHZ_CANCLOCK_16MHz
+#define CAN_BAUDRATE_100KHZ_CANCLOCK_16MHz_SJW         1
+#define CAN_BAUDRATE_100KHZ_CANCLOCK_16MHz_PRES        9
+#define CAN_BAUDRATE_100KHZ_CANCLOCK_16MHz_PRS         4
+#define CAN_BAUDRATE_100KHZ_CANCLOCK_16MHz_PHS1        4
+#define CAN_BAUDRATE_100KHZ_CANCLOCK_16MHz_PHS2        4
+//500k baud, 8 Mhz clock
+#define CAN_BAUDRATE_500KHZ_CANCLOCK_8MHz
+#define CAN_BAUDRATE_500KHZ_CANCLOCK_8MHz_SJW         1
+#define CAN_BAUDRATE_500KHZ_CANCLOCK_8MHz_PRES        1
+#define CAN_BAUDRATE_500KHZ_CANCLOCK_8MHz_PRS         1
+#define CAN_BAUDRATE_500KHZ_CANCLOCK_8MHz_PHS1        1
+#define CAN_BAUDRATE_500KHZ_CANCLOCK_8MHz_PHS2        2
+
+#define BAUDRATE        CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz
+#define BAUDRATE_SJW    CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_SJW
+#define BAUDRATE_PRES   CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_PRES
+#define BAUDRATE_PRS    CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_PRS
+#define BAUDRATE_PHS1   CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_PHS1
+#define BAUDRATE_PHS2   CAN_BAUDRATE_500KHZ_CANCLOCK_16MHz_PHS2
+
+#define BAUDRATE_HZ     500000
 
 #define CAN0_INT_TX_LEVEL           AVR32_INTC_INT0
 #define CAN0_INT_RX_LEVEL           AVR32_INTC_INT0
@@ -82,5 +130,14 @@
 #define CAN1_INT_ERR_LEVEL          AVR32_INTC_INT0
 #define CAN1_INT_BOFF_LEVEL         AVR32_INTC_INT0
 #define CAN1_INT_WAKE_UP_LEVEL      AVR32_INTC_INT0
+
+// Name CAN channels
+// IVI to use CAN channel 0
+// CAR to use CAN channel 1
+#define CAN_CH_NORTH     0
+#define CAN_CH_SOUTH     1
+
+#define CAN_MOB_NORTH_RX_SOUTH_TX     mob_ram_ch0
+#define CAN_MOB_SOUTH_RX_NORTH_TX     mob_ram_ch1
 
 #endif // _CONF_CAN_H
