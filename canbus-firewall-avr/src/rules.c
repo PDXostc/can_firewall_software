@@ -17,6 +17,9 @@ rules_in_progress_t rules_in_progress = {
 
 rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 
+//init to zero for now. this should become a secret number pulled from flash
+static int stored_sequence = 0;
+
 /* Useful extraction methods for getting what we need out of the CAN frame data field */
  inline void get_frame_prio(const Union64 *data, uint8_t *prio) {
     get_frame_data_u8(data, prio, DATA_PRIO_MASK, DATA_PRIO_OFFSET);
@@ -80,6 +83,11 @@ inline void get_frame_hmac_02(const Union64 *data, uint16_t *dtoperand_out)
 inline void get_frame_hmac_03(const Union64 *data, uint16_t *dtoperand_out)
 {
     get_frame_data_u16(data, dtoperand_out, DATA_HMAC_03_MASK, DATA_HMAC_03_OFFSET);
+}
+
+inline void get_frame_sequence(const Union64 *data, uint32_t *sequence_out)
+{
+    get_frame_data_u32(data, sequence_out, DATA_SEQUENCE_MASK, DATA_SEQUENCE_OFFSET);
 }
 
 inline void get_frame_data_u8(const Union64 *data, uint8_t *target, unsigned long long mask, int offset)
@@ -299,20 +307,271 @@ void load_ruleset(rule_t *source, rule_t *dest, int num)
     }
 }
 
-bool verify_new_rule_sequence(rule_working_t *working)
+void store_new_sequence_number(rule_working_t *working)
 {
-    //TODO: actually check sequence
-    
-    //stub returns true
-    return true;
+    if (working->store_sequence.sequence > stored_sequence)
+    {
+        //set our new sequence to be at least the number that we got for the sequence check
+        //stored_sequence = working->store_sequence.sequence;
+        //assume we store our sequence in flash memory...
+        flashc_memcpy(&stored_sequence, &working->store_sequence.sequence, sizeof(stored_sequence), true);
+        #if DBG_RULES
+        print_dbg("\n\rNew sequence number: ");
+        print_dbg_ulong(stored_sequence);
+        print_dbg("\n\r\n\r");
+        #endif
+    } 
+    else
+    {
+        #if DBG_RULES
+        print_dbg("\n\rSequence check failed...received number not greater than stored...");
+        print_dbg("\n\rReceived: ");
+        print_dbg_ulong(working->store_sequence.sequence);
+        print_dbg("\n\rStored: ");
+        print_dbg_ulong(stored_sequence);
+        #endif
+    }
 }
 
+bool verify_new_rule_sequence(rule_working_t *working)
+{    
+    if (working->store_sequence.sequence > stored_sequence)
+    {
+        //this should only verify, so we can store later when other verifications are complete
+        //flashc_memcpy(&stored_sequence, &working->store_sequence.sequence, sizeof(stored_sequence), true);
+        #if DBG_RULES
+        print_dbg("\n\rSequence check successful...");
+        print_dbg("\n\r\n\r");
+        #endif
+        return true;
+    } 
+    else
+    {
+        #if DBG_RULES
+        print_dbg("\n\rSequence check failed...received number not greater than stored...");
+        print_dbg("\n\rReceived: ");
+        print_dbg_ulong(working->store_sequence.sequence);
+        print_dbg("\n\rStored: ");
+        print_dbg_ulong(stored_sequence);
+        #endif
+        return false;
+    }
+}
+
+
 bool verify_new_rule_hmac(rule_working_t *working)
-{
-    //TODO:actually validate HMAC
+{    
+    //Need for sha2_hmac function:
+    //key - provided by hmac module
+    //key_length - provided by hmac module
+    //input data - store our structure to a large buffer to be evaluated
+    //input data length - should be 29, size the "payload"
+        //--note: payload data differs from rule that will be stored in memory
+        //where rsvd = 0x00 and unused = 0x0000
+        //==prio || mask || xform || rsvd || filter || dtoperand || idoperand || sequence || unused
+    //output - char output[32] hmac result, to be compared with out sender hmac
     
-    //stub returns true
-    return true;
+    //input data = buffer created from our working set, is already declared in hmac so use it
+    
+    
+    //Process:
+    //Generate buffer of data from working set
+    //hash buffer with key
+    //compare output of hash with hmac from sender
+    
+    generate_payload_buffer_from_working_set(working);
+    generate_hmac_buffer_from_working_set(working);
+    
+    sha2_hmac(HMAC_KEY, HMAC_KEY_LEN, PAYLOAD_SIG_BUF, PAYLOAD_SIG_BUF_LEN, hmac_sum, 0);
+    
+    if (memcmp(hmac_sum, hmac_compare_buffer, HMAC_SIZE) == 0)
+    {
+        #if DBG_HMAC
+        print_dbg("\n\rHMAC Validation SUCCESS\n\r");        
+        #endif
+        return true;
+    } 
+    else
+    {
+        #if DBG_HMAC
+        print_dbg("\n\rHMAC Validation FAIL\n\r");
+        #endif
+        return false;
+    }
+}
+
+void print_hmac_operation_result(void)
+{
+        #if DBG_HMAC
+        
+        print_dbg("\n\rHMAC Key HEX: ====");
+        for (int i = 0; i < HMAC_KEY_LEN; i++)
+        {
+            print_dbg_char_hex(HMAC_KEY[i]);
+        }
+        print_dbg("\n\r++++HMAC Key HEX END");
+        
+
+        print_dbg("\n\rHMAC Key CHAR: ====");
+        for (int i = 0; i < HMAC_KEY_LEN; i++)
+        {
+            print_dbg_char(HMAC_KEY[i]);
+        }
+        print_dbg("\n\r++++HMAC Key CHAR END");
+            
+
+        print_dbg("\n\rPayload Signature Buffer===");
+        for(int i = 0; i < PAYLOAD_SIG_BUF_LEN; i++)
+        {
+            print_dbg_char_hex(payload_signature_buffer[i]);
+        }
+        print_dbg("\n\rHMAC Payload Buffer END________\n\r");
+        
+
+        print_dbg("\n\rHMAC Comparison Buffer===");
+        for(int i = 0; i < 32; i++)
+        {
+            print_dbg_char_hex(hmac_compare_buffer[i]);
+        }
+        print_dbg("\n\rHMAC Comparison Buffer END________\n\r");
+        
+
+        print_dbg("\n\rHMAC SUM===");
+        for(int i = 0; i < 32; i++)
+        {
+            print_dbg_char_hex(hmac_sum[i]);
+        }
+        print_dbg("\n\rHMAC SUM END________\n\r");
+        
+        #endif
+}
+
+void generate_payload_buffer_from_working_set(rule_working_t *working/*, unsigned char *buffer, int buflen*/)
+{
+    //this name is specific because this is not a generic buffer creation
+    //this creates a signature payload in a very implementation specific order, according to the firewall documentation spec requirements
+    //therefore, the input values are assumed by this function to be predeclared
+    //--note: payload data differs from rule that will be stored in memory
+    //cast all to unsigned char
+    //where rsvd = 0x00 and unused = 0x0000
+    //==prio || mask || xform || rsvd || filter || dtoperand || idoperand || sequence || unused
+    //==buf[0] = prio
+    //==buf[1] = mask >> 24
+    //==buf[2] = mask >> 16
+    //==buf[3] = mask >> 8
+    //==buf[4] = mask
+    //==buf[5] = xform
+    //==buf[6] = rsvd = 00
+    //==buf[7] = filter >> 24
+    //==buf[8] = filter >> 16
+    //==buf[9] = filter >> 8
+    //==buf[10] = filter
+    //==buf[11] = dtoperand >> 56
+    //==buf[12] = dtoperand >> 48
+    //==buf[13] = dtoperand >> 40
+    //==buf[14] = dtoperand >> 32
+    //==buf[15] = dtoperand >> 24
+    //==buf[16] = dtoperand >> 16
+    //==buf[17] = dtoperand >> 8
+    //==buf[18] = dtoperand
+    //==buf[19] = idoperand >> 24
+    //==buf[20] = idoperand >> 16
+    //==buf[21] = idoeprand >> 8
+    //==buf[22] = idoperand
+    //==buf[23] = sequence >> 24
+    //==buf[24] = sequence >> 16
+    //==buf[25] = sequence >> 8
+    //==buf[26] = sequence
+    //==buf[27] = unused = 00
+    //==buf[28] = unused = 00
+    
+    //function as written expects signature size according to spec. there's probably a better way to do this...
+    int check_payload_buffer_size = 29;
+    
+    if (PAYLOAD_SIG_BUF_LEN == check_payload_buffer_size)
+    {
+	    //clear input buffer before use
+	    memset(PAYLOAD_SIG_BUF, 0, PAYLOAD_SIG_BUF_LEN);
+	    
+	    //load values from working set
+	    //manual offsets here should be moved to defines instead
+	    PAYLOAD_SIG_BUF[0] =  (unsigned char) ( working->prio);
+	    PAYLOAD_SIG_BUF[1] =  (unsigned char) ( working->mask_xform.mask >> 24);
+	    PAYLOAD_SIG_BUF[2] =  (unsigned char) ( working->mask_xform.mask >> 16);
+	    PAYLOAD_SIG_BUF[3] =  (unsigned char) ( working->mask_xform.mask >> 8);
+	    PAYLOAD_SIG_BUF[4] =  (unsigned char) ( working->mask_xform.mask);
+	    PAYLOAD_SIG_BUF[5] =  (unsigned char) ( working->mask_xform.xform);
+	    PAYLOAD_SIG_BUF[6] =  0; //rsvd                       
+	    PAYLOAD_SIG_BUF[7] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 24);
+	    PAYLOAD_SIG_BUF[8] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 16);
+	    PAYLOAD_SIG_BUF[9] =  (unsigned char) ( working->filter_dtoperand_01.filter >> 8);
+	    PAYLOAD_SIG_BUF[10] = (unsigned char) ( working->filter_dtoperand_01.filter);
+	    PAYLOAD_SIG_BUF[11] = (unsigned char) ( working->filter_dtoperand_01.dtoperand01 >> 8);
+	    PAYLOAD_SIG_BUF[12] = (unsigned char) ( working->filter_dtoperand_01.dtoperand01);
+	    PAYLOAD_SIG_BUF[13] = (unsigned char) ( working->dt_operand_02.dtoperand02[0] >> 8);
+	    PAYLOAD_SIG_BUF[14] = (unsigned char) ( working->dt_operand_02.dtoperand02[0]);
+	    PAYLOAD_SIG_BUF[15] = (unsigned char) ( working->dt_operand_02.dtoperand02[1] >> 8);
+	    PAYLOAD_SIG_BUF[16] = (unsigned char) ( working->dt_operand_02.dtoperand02[1] );
+	    PAYLOAD_SIG_BUF[17] = (unsigned char) ( working->dt_operand_02.dtoperand02[2] >> 8);
+	    PAYLOAD_SIG_BUF[18] = (unsigned char) ( working->dt_operand_02.dtoperand02[2] );
+	    PAYLOAD_SIG_BUF[19] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 24);
+	    PAYLOAD_SIG_BUF[20] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 16);
+	    PAYLOAD_SIG_BUF[21] = (unsigned char) ( working->id_operand_hmac_01.idoperand >> 8);
+	    PAYLOAD_SIG_BUF[22] = (unsigned char) ( working->id_operand_hmac_01.idoperand);
+	    PAYLOAD_SIG_BUF[23] = (unsigned char) ( working->store_sequence.sequence >> 24);
+	    PAYLOAD_SIG_BUF[24] = (unsigned char) ( working->store_sequence.sequence >> 16);
+	    PAYLOAD_SIG_BUF[25] = (unsigned char) ( working->store_sequence.sequence >> 8);
+	    PAYLOAD_SIG_BUF[26] = (unsigned char) ( working->store_sequence.sequence);
+	    PAYLOAD_SIG_BUF[27] = 0; //unused
+	    PAYLOAD_SIG_BUF[28] = 0; //unused
+    }
+   
+}
+
+
+void generate_hmac_buffer_from_working_set(rule_working_t *working)
+{
+    //function as written expects hmac standard size of 32 bytes
+    int check_hmac_buffer_size = 32;
+    if (HMAC_SIZE == check_hmac_buffer_size)
+    {
+	    //clear compare buffer
+	    memset(hmac_compare_buffer, 0, HMAC_SIZE);
+	    
+	    hmac_compare_buffer[0] =  (unsigned char) (working->id_operand_hmac_01.hmac >> 8);
+	    hmac_compare_buffer[1] =  (unsigned char) (working->id_operand_hmac_01.hmac);
+	    hmac_compare_buffer[2] =  (unsigned char) (working->hmac_02.hmac[0] >> 8);
+	    hmac_compare_buffer[3] =  (unsigned char) (working->hmac_02.hmac[0]);
+	    hmac_compare_buffer[4] =  (unsigned char) (working->hmac_02.hmac[1] >> 8);
+	    hmac_compare_buffer[5] =  (unsigned char) (working->hmac_02.hmac[1]);
+	    hmac_compare_buffer[6] =  (unsigned char) (working->hmac_02.hmac[2] >> 8);
+	    hmac_compare_buffer[7] =  (unsigned char) (working->hmac_02.hmac[2]);
+	    hmac_compare_buffer[8] =  (unsigned char) (working->hmac_03.hmac[0] >> 8);
+	    hmac_compare_buffer[9] =  (unsigned char) (working->hmac_03.hmac[0]);
+	    hmac_compare_buffer[10] = (unsigned char) (working->hmac_03.hmac[1] >> 8);
+	    hmac_compare_buffer[11] = (unsigned char) (working->hmac_03.hmac[1]);
+	    hmac_compare_buffer[12] = (unsigned char) (working->hmac_03.hmac[2] >> 8);
+	    hmac_compare_buffer[13] = (unsigned char) (working->hmac_03.hmac[2]);
+	    hmac_compare_buffer[14] = (unsigned char) (working->hmac_04.hmac[0] >> 8);
+	    hmac_compare_buffer[15] = (unsigned char) (working->hmac_04.hmac[0]);
+	    hmac_compare_buffer[16] = (unsigned char) (working->hmac_04.hmac[1] >> 8);
+	    hmac_compare_buffer[17] = (unsigned char) (working->hmac_04.hmac[1]);
+	    hmac_compare_buffer[18] = (unsigned char) (working->hmac_04.hmac[2] >> 8);
+	    hmac_compare_buffer[19] = (unsigned char) (working->hmac_04.hmac[2]);
+	    hmac_compare_buffer[20] = (unsigned char) (working->hmac_05.hmac[0] >> 8);
+	    hmac_compare_buffer[21] = (unsigned char) (working->hmac_05.hmac[0]);
+	    hmac_compare_buffer[22] = (unsigned char) (working->hmac_05.hmac[1] >> 8);
+	    hmac_compare_buffer[23] = (unsigned char) (working->hmac_05.hmac[1]);
+	    hmac_compare_buffer[24] = (unsigned char) (working->hmac_05.hmac[2] >> 8);
+	    hmac_compare_buffer[25] = (unsigned char) (working->hmac_05.hmac[2]);
+	    hmac_compare_buffer[26] = (unsigned char) (working->hmac_06.hmac[0] >> 8);
+	    hmac_compare_buffer[27] = (unsigned char) (working->hmac_06.hmac[0]);
+	    hmac_compare_buffer[28] = (unsigned char) (working->hmac_06.hmac[1] >> 8);
+	    hmac_compare_buffer[29] = (unsigned char) (working->hmac_06.hmac[1]);
+	    hmac_compare_buffer[30] = (unsigned char) (working->hmac_06.hmac[2] >> 8);
+	    hmac_compare_buffer[31] = (unsigned char) (working->hmac_06.hmac[2]);
+    }
+
 }
 
 bool verify_new_rule_complete(rule_working_t *working)
@@ -402,7 +661,8 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
         case CMD_STORE:
         //it's a store rule, panic!
         
-        //to be written:
+        //grab sequence
+        get_frame_sequence(data, &rules_in_progress.working_sets[working_set_index]->store_sequence.sequence);
         //success = verify_sequence & verify_hmac & verify_rule_complete & store_rule_to_flash
         success = verify_new_rule_sequence(rules_in_progress.working_sets[working_set_index])
         & verify_new_rule_hmac(rules_in_progress.working_sets[working_set_index])
@@ -415,8 +675,10 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
         //verified the rule, assemble and store it
         if (success == true)
         {
-            rule_t rule_to_save = create_rule_from_working_set(rules_in_progress.working_sets[working_set_index]);
+            store_new_sequence_number(&rules_in_progress.working_sets[working_set_index]->store_sequence.sequence);
+            rule_t rule_to_save = create_rule_from_working_set(rules_in_progress.working_sets[working_set_index]);            
             success = save_rule_to_flash(&rule_to_save, &flash_can_ruleset[rule_to_save.prio]);
+            
         }
         
         //we got here because of a store command. whether or not we are successful, we should destroy the work in progress

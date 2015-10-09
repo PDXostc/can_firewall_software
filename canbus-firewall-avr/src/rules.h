@@ -9,8 +9,11 @@
 #ifndef RULES_H_
 #define RULES_H_
 
+#include <string.h>
 #include "asf.h"
 #include "conf_debug.h"
+#include "polarssl/sha2.h"
+#include "hmac.h"
 
 /* Defines for extraction methods */
 #define REF_                        0x0807060504030201
@@ -53,6 +56,9 @@
 #define DATA_HMAC_03_MASK           0x000000000000FFFF
 #define DATA_HMAC_03_OFFSET         0
 
+#define DATA_SEQUENCE_MASK         0X0000FFFFFFFF0000
+#define DATA_SEQUENCE_OFFSET       16
+
 /* Command enumeration defines, directly corresponds to value of CMD byte in a preparation frame */
 #define CMD_PREP_01                         1
 #define CMD_PREP_02                         2
@@ -84,7 +90,6 @@
 #define MAX_RULES_IN_PROGRESS                16
 
 #define SIZE_RULESET        16
-
 
 
 //Memory structures, proposed
@@ -197,7 +202,16 @@ extern rule_t flash_can_ruleset[(SIZE_RULESET*2)]
 #endif
 ;
 
-extern rule_t flash_can_ruleset[(SIZE_RULESET*2)];
+#if defined (__GNUC__)
+__attribute__((__section__(".userpage")))
+#endif
+static int stored_sequence
+#if defined (__ICAVR32__)
+@ "USERPAGE"
+#endif
+;
+
+//extern rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 /**
  * \brief Extract prio information from can frame data field
  * Prio indicates the overall priority index intended for the final rule. All preparation frames
@@ -343,9 +357,62 @@ extern  void get_frame_hmac_02(const Union64 *data, uint16_t *hmac_out);
  */
 extern void get_frame_hmac_03(const Union64 *data, uint16_t *hmac_out);
 
+/**
+ * \brief Extract sequence number from CAN frame data field
+ * 
+ * \param data Pointer to CAN frame data field
+ * \param sequence_out Pointer to struct member
+ * 
+ * \return extern void
+ */
+extern void get_frame_sequence(const Union64 *data, uint32_t *sequence_out);
+
+/**
+ * \brief Utility for getting unsigned 8 bit val from 64 bit val. 
+ * 
+ * \param data    Pointer to 64 bit data field
+ * \param target Pointer target for output
+ * \param mask   64 bit mask, & with data to isolate value
+ * \param offset  least significant bit of desired value, used to shift before conversion to output
+ * 
+ * \return extern void
+ */
 extern void get_frame_data_u8(const Union64 *data, uint8_t *target, unsigned long long mask, int offset);
+
+/**
+ * \brief Utility for getting unsigned 16 bit val from 64 bit val. 
+ * 
+ * \param data    Pointer to 64 bit data field
+ * \param target Pointer target for output
+ * \param mask   64 bit mask, & with data to isolate value
+ * \param offset  least significant bit of desired value, used to shift before conversion to output
+ * 
+ * \return extern void
+ */
 extern void get_frame_data_u16(const Union64 *data, uint16_t *target, unsigned long long mask, int offset);
+
+/**
+ * \brief Utility for getting unsigned 32 bit val from 64 bit val. 
+ * 
+ * \param data    Pointer to 64 bit data field
+ * \param target Pointer target for output
+ * \param mask   64 bit mask, & with data to isolate value
+ * \param offset  least significant bit of desired value, used to shift before conversion to output
+ * 
+ * \return extern void
+ */
 extern void get_frame_data_u32(const Union64 *data, uint32_t *target, unsigned long long mask, int offset);
+
+/**
+ * \brief Utility for getting unsigned 64 bit val from 64 bit val. 
+ * 
+ * \param data    Pointer to 64 bit data field
+ * \param target Pointer target for output
+ * \param mask   64 bit mask, & with data to isolate value
+ * \param offset  least significant bit of desired value, used to shift before conversion to output
+ * 
+ * \return extern void
+ */
 extern void get_frame_data_u64(const Union64 *data, uint64_t *target, unsigned long long mask, int offset);
 
 /**
@@ -460,7 +527,16 @@ extern void load_rule(rule_t *source_rule, rule_t *dest_rule);
 extern void load_ruleset(rule_t *source, rule_t *dest, int num);
 
 /**
- * \brief STUB FOR NOW -- Will verify that the sequence number received is and should be greater than number stored
+ * \brief Store new sequence number not greater than number already stored
+ * 
+ * \param working Pointer to working set
+ * 
+ * \return void
+ */
+void store_new_sequence_number(rule_working_t *working);
+
+/**
+ * \brief Will verify that the sequence number received is and should be greater than number stored
  * 
  * \param working Pointer to working set where rule in progress resides
  * 
@@ -469,7 +545,7 @@ extern void load_ruleset(rule_t *source, rule_t *dest, int num);
 extern bool verify_new_rule_sequence(rule_working_t *working);
 
 /**
- * \brief STUB FOR NOW -- Will verify the message sender and contents using the hmac received from the preparation frames
+ * \brief Will verify the message sender and contents using the hmac received from the preparation frames
  * 
  * \param working Pointer to working set rule in progress
  * 
@@ -477,6 +553,33 @@ extern bool verify_new_rule_sequence(rule_working_t *working);
  */
 extern bool verify_new_rule_hmac(rule_working_t *working);
 
+/**
+ * \brief Print the entire result of an HMAC operation
+ * 
+ * \param 
+ * 
+ * \return void
+ */
+void print_hmac_operation_result(void);
+
+/**
+ * \brief Payload signature is used to generate the HMAC result. Payload signature conforms to a specific convention,
+ * not necessarily how we are storing a frame, rule or working set internally
+ * 
+ * \param working Pointer to working set
+ * 
+ * \return void
+ */
+void generate_payload_buffer_from_working_set(rule_working_t *working);
+
+/**
+ * \brief Copies received HMAC signature values from a working set into a buffer for validation
+ * 
+ * \param working Pointer to working set
+ * 
+ * \return void
+ */
+void generate_hmac_buffer_from_working_set(rule_working_t *working);
 /**
  * \brief Checks that the bitfield for the working set is marked complete for every frame expected to build a rule
  * 

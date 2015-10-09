@@ -47,14 +47,17 @@
 #include "rules.h"
 #include "sleep.h"
 #include "test.h"
+#include "polarssl/sha2.h"
 //#include "conf_can_example.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
 // CAN MOB allocation into HSB RAM
 #if defined (__GNUC__) && defined (__AVR32__)
-volatile can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
-volatile can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] __attribute__ ((section (".hsb_ram_loc")));
+volatile can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] __attribute__ ((__section__(".hsb_ram_loc")));
+volatile can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] __attribute__ ((__section__(".hsb_ram_loc")));
+volatile can_msg_t can_msg_que_northbound[64] __attribute__ ((__section__(".hsb_ram_loc")));
+volatile can_msg_t can_msg_que_southbound[64] __attribute__ ((__section__(".hsb_ram_loc")));
 #elif defined (__ICCAVR32__)
 volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
@@ -68,7 +71,7 @@ static rule_t can_ruleset_south[16];
 
 //pointer to working rulesets, incoming
 static rule_working_t *rule_working = NULL;
-static num_rules_working = SIZE_RULESET;
+static int num_rules_working = SIZE_RULESET;
 
 //physical security shunt, override to true during software testing
 //if this is true, we can accept new rules
@@ -170,13 +173,17 @@ void can_out_callback_south_rx(U8 handle, U8 event){
     south_rx_msg01.dlc = can_get_mob_dlc(CAN_CH_SOUTH, handle);
     south_rx_msg01.status = event;
     
+    //handle the message, just testing purposes right now
+    //TODO: write actual error handling
+    handle_new_rule_data(&south_rx_msg01.can_msg->data);
+    
     //print what we got
     #if DBG_CAN_MSG
     print_dbg("\n\rReceived can message on SOUTH line:\n\r");
     //print_dbg_ulong(south_rx_msg01.can_msg->data.u64);
     PRINT_NEWLINE
     print_can_message(south_rx_msg01.can_msg);
-    print_can_message(south_rx_msg02.can_msg);
+    //print_can_message(south_rx_msg02.can_msg);
     #endif
     //release mob in hsb
     can_mob_free(CAN_CH_SOUTH, handle);
@@ -333,10 +340,14 @@ void can_prepare_data_to_receive_south(void){
     south_rx_msg01.req_type,
     south_rx_msg01.can_msg);
     
-    can_rx(CAN_CH_SOUTH,
-    south_rx_msg02.handle,
-    south_rx_msg02.req_type,
-    south_rx_msg02.can_msg);
+    #if DBG_CAN_MSG
+    print_dbg("\n\rCAN Receive Ready...");
+    #endif
+    
+//     can_rx(CAN_CH_SOUTH,
+//     south_rx_msg02.handle,
+//     south_rx_msg02.req_type,
+//     south_rx_msg02.can_msg);
     //or ??
     //while(north_tx_msg[0].handle==CAN_CMD_REFUSED);
 }
@@ -454,13 +465,18 @@ void init_can(void) {
     Enable_global_interrupt();
 }
 
+#define member_size(type, member) sizeof(((type *)0)->member)
+
 int main (void)
 {
     //setup
     init();
     init_can();
     
-    #if 0
+    //test of hmac print
+    bool test_new_rule = test_new_rule_creation();
+    
+    #if 1
     
     can_prepare_data_to_receive_south();
     //can_prepare_data_to_send_south();
@@ -469,41 +485,9 @@ int main (void)
         run_test_loop();
     }
     
-    #endif
-    
-    bool test_new_rule = test_new_rule_creation();
+    #endif    
     
     delay_ms(1000);
-    
-    //Special Case: New Rule Acquisition
-    //Intercept CAN frame carrying New Rule payload
-    //determine that mask and filter combination meets requirements to match New Rule Frame to New Rule Creation Rule (stored in flash)
-    //Verify hardware shunt connect. Discard frame on fail.
-    //Interpret frame (according to format)
-    //According to Prio field, either:
-    //If this is the first frame for this PREP_RULE received:
-    //allocate memory for new working set for rule construction
-    //copy frame data to working set
-    //increment bitfield tracker for frame received
-    //If this frame corresponds to a PREP_RULE construction in progress:
-    //copy frame data to working set
-    //increment bitfield tracker for frame received
-    //If this frame is the STORE_RULE frame, evaluate against working set:
-    //sequence value received must be incremented past stored value; if rule storage succeeds, increment stored value up
-    //bitfield check for all necessary frames received to build rule
-    //HMAC validation
-    //use stored key to decrypt signature
-    //signature payload should match rule data payload
-    //Validation SUCCESS:
-    //Copy relevant components of working set to Rule structure, save structure to flash
-    //clear working set for rule
-    //Validation FAIL:
-    //clear working set memory for rule in progress
-    //END (shunt disconnect detected):
-    //clear working set memory for all rules in progress
-    
-    //
-    //state: receiving rules --
     
     //wait for end while debugging
     

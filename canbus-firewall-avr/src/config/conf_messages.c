@@ -128,7 +128,7 @@ can_mob_t south_rx_msg01 = {
 can_mob_t south_rx_msg02 = {
     {
         CAN_MOB_NOT_ALLOCATED,            // Handle: by default CAN_MOB_NOT_ALLOCATED
-        &msg_rx_listening02,                // Pointer on CAN Message
+        &msg_new_rule,                // Pointer on CAN Message
         8,                                // Data length DLC
         CAN_DATA_FRAME,                   // Request type : CAN_DATA_FRAME or CAN_REMOTE_FRAME
         CAN_STATUS_NOT_COMPLETED
@@ -136,11 +136,21 @@ can_mob_t south_rx_msg02 = {
 };
 
 //--------------------------------------------New Rule Msg
-can_msg_t new_rule_msg = {
+// can_msg_t msg_new_rule = {
+//     {
+//         {
+//             .id = 0x7FE,                      // Identifier, should be last number in address space
+//             .id_mask  = 0x7FF,                // Mask, should check all bits
+//         },
+//     },
+//     .data.u64 = 0x0LL,                 // Data, should be uninitialized
+// };
+
+can_msg_t msg_new_rule = {
     {
         {
             .id = 0x7FE,                      // Identifier, should be last number in address space
-            .id_mask  = 0x7FF,                // Mask, should check all bits
+            .id_mask  = 0x000,                // Mask, should check all bits
         },
     },
     .data.u64 = 0x0LL,                 // Data, should be uninitialized
@@ -180,7 +190,7 @@ can_mob_t appli_remote_rx_msg = {
 void print_can_message(can_msg_t *msg) {
     print_dbg("\n\rCan Message:\n\r");
     print_dbg("\n\ID:  \n\r");
-    print_dbg_char_hex(msg->id);
+    print_dbg_hex(msg->id);
     print_dbg("\n\:Data:  \n\r");
     print_dbg_ulong(msg->data.u64 >> 32);
     print_dbg_ulong(msg->data.u64);
@@ -189,6 +199,7 @@ void print_can_message(can_msg_t *msg) {
 //test messages section ----///////////////////////////////////////
 
 //basic test messages for new rule incoming test
+//TODO: get new hmac; hmac generation for this frame set was not valid. hmac fields need to be updated
 can_msg_t msg_prep_01 = {
     {
         {
@@ -226,7 +237,7 @@ can_msg_t msg_prep_04 = {
             .id_mask  = 0x7FF,              // Mask
         },
     },
-    .data.u64 = 0x0404FFFF00001F1ELL,    // Data
+    .data.u64 = 0x0404FFFF00003e0cLL,    // Data
 };
 
 can_msg_t msg_prep_05 = {
@@ -236,7 +247,7 @@ can_msg_t msg_prep_05 = {
             .id_mask  = 0x7FF,              // Mask
         },
     },
-    .data.u64 = 0x04051D1C1B1A1918LL,    // Data
+    .data.u64 = 0x040507ab0b451614LL,    // Data
 };
 
 can_msg_t msg_prep_06 = {
@@ -246,7 +257,7 @@ can_msg_t msg_prep_06 = {
             .id_mask  = 0x7FF,              // Mask
         },
     },
-    .data.u64 = 0x0406171615141312LL,    // Data
+    .data.u64 = 0x0406d402afec3afdLL,    // Data
 };
 
 can_msg_t msg_prep_07 = {
@@ -256,7 +267,7 @@ can_msg_t msg_prep_07 = {
             .id_mask  = 0x7FF,              // Mask
         },
     },
-    .data.u64 = 0x040711100F0E0D0CLL,    // Data
+    .data.u64 = 0x0407b55862880ce6LL,    // Data
 };
 
 can_msg_t msg_prep_08 = {
@@ -266,7 +277,7 @@ can_msg_t msg_prep_08 = {
             .id_mask  = 0x7FF,              // Mask
         },
     },
-    .data.u64 = 0x04080B0A09080706LL,    // Data
+    .data.u64 = 0x0408d461b5ee17acLL,    // Data
 };
 
 can_msg_t msg_prep_09 = {
@@ -276,7 +287,7 @@ can_msg_t msg_prep_09 = {
             .id_mask  = 0x7FF,              // Mask
         },
     },
-    .data.u64 = 0x0409050403020100LL,    // Data
+    .data.u64 = 0x0409692d2089a6a2LL,    // Data
 };
 
 can_msg_t msg_prep_10 = {
