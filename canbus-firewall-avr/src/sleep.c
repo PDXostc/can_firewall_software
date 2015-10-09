@@ -14,8 +14,8 @@ void sleep_mode_start()
     CANIF_disable(1);
     
     //wait for actual disable
-    while(!CANIF_channel_enable_status(0));
-    while(!CANIF_channel_enable_status(1));
+    while(CANIF_channel_enable_status(0));
+    while(CANIF_channel_enable_status(1));
     
     //enable wakeup
     CANIF_enable_wakeup(0);
