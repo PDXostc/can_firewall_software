@@ -9,13 +9,11 @@
 void init_led_gpio_ports()
 {
 	#ifdef LED_01
-	gpio_configure_pin(LED_01, GPIO_DIR_OUTPUT | LED_OFF);
-	set_led(LED_01, LED_OFF);
+	gpio_configure_pin(LED_01, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
 	#endif
 	
 	#ifdef LED_02
-	gpio_configure_pin(LED_02, GPIO_DIR_OUTPUT | LED_OFF);
-	set_led(LED_02, LED_OFF);
+	gpio_configure_pin(LED_02, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
 	#endif
 	
 	//more if needed, etc...
