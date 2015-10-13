@@ -618,6 +618,12 @@
     <Compile Include="src\led.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\loopback.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\loopback.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\rules.c">
       <SubType>compile</SubType>
     </Compile>

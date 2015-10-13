@@ -96,11 +96,15 @@ inline int operate_transform_u64(U64 *data, U64 *rule_operand, int xform)
 inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **out_rule){
 	//note: does not handle extended CAN yet
 	
-	//if shunt connected, check against new rule case
-	if(detected_shunt == true)
+	//if new rule case, check for shunt connection	
+	if (msg->can_msg->id == msg_new_rule.id)
 	{
-		if(msg->can_msg->id == msg_new_rule.id){
+		if (test_loopback() == true)
+		{
 			return NEW;
+		} else {
+			//new rule attempted without proper connection; no mercy.
+			return DISCARD;
 		}
 	}
 	
