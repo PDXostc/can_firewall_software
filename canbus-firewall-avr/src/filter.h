@@ -11,15 +11,8 @@
 
 #include "asf.h"
 #include "rules.h"
+#include "loopback.h"
 #include "conf_messages.h"
-
-#define OVERRIDE_DETECTED_SHUNT   true
-#define DETECTED_SHUNT            OVERRIDE_DETECTED_SHUNT
-
-//physical security shunt, override to true during software testing
-//if this is true, we can accept new rules
-// TODO: detect actual pin state dedicated to shunt
-static bool detected_shunt = DETECTED_SHUNT;
 
 /* Evaluation cases to be returned by evaluate function.
  * DISCARD: No matching rule was found, please discard message

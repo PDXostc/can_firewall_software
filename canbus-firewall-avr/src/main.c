@@ -49,6 +49,8 @@
 #include "filter.h"
 #include "sleep.h"
 #include "polarssl/sha2.h"
+#include "led.h"
+#include "loopback.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
@@ -121,7 +123,7 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 		
 		switch(eval) {
 			case NEW:
-			if(detected_shunt){
+			if(test_loopback() == true){
 				//does not check for success
 				handle_new_rule_data(&(*proc)->can_msg->data);
 			}
