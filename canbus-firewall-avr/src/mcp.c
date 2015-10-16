@@ -89,7 +89,7 @@ void test_mcp_spi_after_reset(void)
 	spi_select_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
 	spi_write_single(MCP_SPI, 0x03);
 	delay_us(3);
-	spi_write_single(MCP_SPI, 0x0F);
+	spi_write_single(MCP_SPI, MCP_ADD_CANSTAT);
 	delay_us(3);
 	spi_write_single(MCP_SPI, 0x00);
 	delay_us(3); //allow time for reset

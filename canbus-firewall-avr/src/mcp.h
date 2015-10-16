@@ -1,9 +1,9 @@
 /*
- * mcp.h
- *
- * Created: 10/14/2015 10:27:41 AM
- *  Author: smiller6
- */ 
+* mcp.h
+*
+* Created: 10/14/2015 10:27:41 AM
+*  Author: smiller6
+*/
 
 #include <asf.h>
 
@@ -24,7 +24,7 @@
 //#define MCP_RESET_DELAY	delay_us(SPI_RESET_DELAY_US);
 
 //Atmel SPI modes
-//MCP requires mode 0,0 or mode 1,1. 
+//MCP requires mode 0,0 or mode 1,1.
 // TODO / NOTE: current testing shows beter using mode 3...need concrete answer for why
 //#define MCP_SPI_MODE_0_0		SPI_MODE_1
 //#define MCP_SPI_MODE_1_1		SPI_MODE_2
@@ -181,6 +181,93 @@
 #define MCP_ADD_RXB1D5		0x7B
 #define MCP_ADD_RXB1D6		0x7C
 #define MCP_ADD_RXB1D7		0x7D
+
+/************************************************************************/
+/* Register Values                                                      */
+/************************************************************************/
+
+
+
+// Message Transmit Registers
+// TODO
+
+// Message Receive Registers
+// TODO
+
+// Acceptance Filter Registers
+// TODO
+
+// Bit Time Configuration Registers
+// 
+// CNF1 - Configuration 1
+#define MCP_VAL_SJW1		0x00
+#define MCP_VAL_SJW2		0x40
+#define MCP_VAL_SJW3		0x80
+#define	MCP_VAL_SJW4		0xC0
+// CNF2 - Configuration 2
+// TODO
+// CNF3 - Configuration 3
+// TODO
+
+
+// Error Detection Registers
+// TODO
+// TEC - Transmit Error Counter
+// TODO
+// REC - Receive Error Counter
+// TODO
+// EFLG - Error Flag
+
+// Interrupt Registers
+// 
+// CANINTE - CAN interrupt flag enable
+#define MCP_VAL_RX0IE		0x01
+#define MCP_VAL_RX1IE		0x02
+#define MCP_VAL_TX0IE		0x04
+#define MCP_VAL_TX1IE		0x08
+#define MCP_VAL_TX2IE		0x10
+#define MCP_VAL_ERRIE		0x20
+#define MCP_VAL_WAKIE		0x40
+#define MCP_VAL_MERRIE		0x80
+// combinations
+#define MCP_VAL_RX_INT_ENABLE		0x03 // enable all rx interrupts
+#define MCP_VAL_TX_INT_ENABLE		0x1C // enable all tx interrupts
+#define MCP_VAL_RX_TX_INT_ENABLE	0x1F // enable all rx and tx interrupts
+#define MCP_VAL_RX_TX_INT_DISABLE	0x00 // disable all rx and tx interrupts
+//
+// CANINTF - CAN interrupt flag
+// flags are single bits in a register
+// flag = bit is set
+#define MCP_FLAG_RX0IF		0x01
+#define MCP_FLAG_RX1IF		0x02
+#define MCP_FLAG_TX0IF		0x04
+#define MCP_FLAG_TX1IF		0x08
+#define MCP_FLAG_TX2IF		0x10
+#define MCP_FLAG_ERRIF		0x20
+#define MCP_FLAG_WAKIF		0x40
+#define MCP_FLAG_MERRIF		0x80
+
+// CAN Control Registers
+// 
+// CANSTAT
+//
+// CANCTRL
+// Note: Reading CANSTAT will return values consistent with all modes except PWRUP
+#define MCP_VAL_MODE_NORMAL		0x00
+#define MCP_VAL_MODE_SLEEP		0x20
+#define MCP_VAL_MODE_LOOPBACK	0x40
+#define MCP_VAL_MODE_LISTENONLY	0x60
+#define MCP_VAL_MODE_CONFIG		0x80
+//
+#define MCP_VAL_MODE_PWRUP		0xE0 // check against pwrup value to confirm that MCP has completed startup
+#define MCP_VAL_ABORT_TX		0x10
+#define MCP_VAL_TX_ONESHOT		0x08
+#define MCP_VAL_CLKOUT_ENABLE	0x04
+#define MCP_VAL_CLKOUT_DISABLE	0x00
+#define MCP_VAL_CLKOUT_PRE_1	0x00
+#define MCP_VAL_CLKOUT_PRE_2	0x01
+#define MCP_VAL_CLKOUT_PRE_4	0x02
+#define MCP_VAL_CLKOUT_PRE_8	0x03
 
 struct spi_device spi_device_MCP_CAN_NORTH_IVI_conf;
 struct spi_device spi_device_MCP_CAN_SOUTH_CAR_conf;
