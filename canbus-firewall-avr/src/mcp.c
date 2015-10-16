@@ -53,7 +53,7 @@ void init_mcp_spi(void)
 	// if not using this interface, remember to enable active manually,
 	// by setting the CSRn.CSAAT bit 1
 	spi_master_setup_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf,
-	MCP_SPI_MODE_1_0, MCP_SPI_BAUDRATE, 0);
+	MCP_SPI_MODE, MCP_SPI_BAUDRATE, 0);
 	
 	spi_enable(MCP_SPI);
 	
@@ -82,7 +82,7 @@ void test_mcp_spi_after_reset(void)
 	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
 	delay_us(3);
 	spi_select_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	spi_write_packet(MCP_SPI, &tx, 1);
+	spi_write_packet(MCP_SPI, tx, 1);
 	delay_us(3);
 	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
 	delay_us(2000);
