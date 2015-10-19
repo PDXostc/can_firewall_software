@@ -17,8 +17,8 @@
 #define MCP_SPI		(&AVR32_SPI0)
 #endif
 
-#define SPI_DELAY_US	3
-#define SPI_DELAY	delay_us(SPI_DELAY_US);
+#define RESET_PIN_HOLD_DELAY_US		3
+#define RESET_PIN_HOLD_DELAY()	delay_us(RESET_PIN_HOLD_DELAY_US)
 
 //#define MCP_RESET_DELAY_US	//NOT SET, TBD
 //#define MCP_RESET_DELAY	delay_us(SPI_RESET_DELAY_US);
@@ -272,9 +272,175 @@
 struct spi_device spi_device_MCP_CAN_NORTH_IVI_conf;
 struct spi_device spi_device_MCP_CAN_SOUTH_CAR_conf;
 
+#define MCP_NORTH &spi_device_MCP_CAN_NORTH_IVI_conf
+#define MCP_SOUTH &spi_device_MCP_CAN_SOUTH_CAR_conf
+
+#define MCP_NPCS_NORTH 2
+#define MCP_NPCS_SOUTH 0
+
+#define MCP_INST_DUMMY 0x00
+
 void init_mcp_pins(void);
+
+/**
+ * \brief Chip select an MCP device
+ * 
+ * \param device Pointer to struct holding Chip Select id
+ * 
+ * \return void
+ */
+static inline void mcp_select(struct spi_device *device)
+{
+	spi_select_device(MCP_SPI, device);
+}
+
+/**
+ * \brief Unselect a selected MCP device
+ * 
+ * \param device Pointer to struct holding Chip Select id
+ * 
+ * \return void
+ */
+static inline void mcp_deselect(struct spi_device *device)
+{
+	spi_deselect_device(MCP_SPI, device);
+}
+
+/**
+ * \brief Write a single byte of data to SPI and wait until transmission
+ * 
+ * \param data Byte to be written
+ * 
+ * \return void
+ */
+static inline void mcp_write_single(uint8_t data)
+{
+	spi_write_single(MCP_SPI, data);
+	//wait for transmission
+	while(!spi_is_tx_empty(MCP_SPI));
+}
+
+/**
+ * \brief Read a single byte of data from SPI
+ * 
+ * \param 
+ * 
+ * \return uint8_t Received byte 
+ */
+static inline uint8_t mcp_read_single(void)
+{
+	uint8_t data;
+	while(!spi_is_rx_ready(MCP_SPI));
+	spi_read_single(MCP_SPI, &data);
+	return data;
+}
+
+/**
+ * \brief Write a byte to SPI and return the byte received
+ * 
+ * \param in_data Byte to be written
+ * 
+ * \return uint8_t Byte received
+ */
+static inline uint8_t mcp_read_write_single(uint8_t in_data)
+{
+	uint8_t out_data;
+	mcp_write_single(in_data);
+	out_data = mcp_read_single();
+	return out_data;
+}
+
+/**
+ * \brief Given a register address on an MCP, return value of register
+ * 
+ * \param device Pointer to struct holding device specific chip select id
+ * \param addr Register address in MCP device
+ * 
+ * \return uint8_t Value of register read
+ */
+static inline uint8_t mcp_read_register(struct spi_device *device, const uint8_t addr)
+{
+	uint8_t val;
+	
+	mcp_select(device);
+	
+	mcp_write_single(MCP_INST_READ);
+	mcp_write_single(addr);
+	val = mcp_read_write_single(MCP_INST_DUMMY);
+	
+	mcp_deselect(device);
+	
+	return val;
+}
+
+/**
+ * \brief Set a specific register value in an MCP device
+ * 
+ * \param device Pointer to struct holding MCP chip select id
+ * \param addr Address of register to set
+ * \param val Value to be set
+ * 
+ * \return void
+ */
+static inline void mcp_set_register(struct spi_device *device, const uint8_t addr, const uint8_t val)
+{
+	mcp_select(device);
+	
+	//possibly refactor this to send this as a single array in loop...
+	mcp_write_single(MCP_INST_WRITE);
+	mcp_write_single(addr);
+	mcp_write_single(val);
+	
+	mcp_deselect(device);
+}
+
+/**
+ * \brief Send a reset instruction over SPI to an MCP device
+ * 
+ * \param device Pointer to struct holding MCP device chip select id
+ * 
+ * \return void
+ */
+static inline void mcp_reset_spi(struct spi_device *device)
+{
+	mcp_select(device);
+	//send reset instruction
+	mcp_write_single(MCP_INST_RESET);
+	mcp_deselect(device);
+}
+
+/**
+ * \brief Reset a device using the assigned pin. Pin is driven low for at least
+ * 2us, per MCP25625 manual
+ * 
+ * \param device Pointer to struct containing chip select id of target MCP device
+ * 
+ * \return void
+ */
+static inline void mcp_reset_pin(struct spi_device *device)
+{
+	switch(device->id)
+	{
+		case MCP_NPCS_NORTH:
+		gpio_set_pin_low(IVI_RESET);
+		RESET_PIN_HOLD_DELAY();
+		gpio_set_pin_high(IVI_RESET);
+		break;
+		
+		case MCP_NPCS_SOUTH:
+		gpio_set_pin_low(CAR_RESET);
+		RESET_PIN_HOLD_DELAY();
+		gpio_set_pin_high(CAR_RESET);
+		break;
+		
+		default:
+		break;
+	}
+}
+
 void init_mcp_spi(void);
 
+extern void init_mcp_module(void);
+
 extern void test_mcp_spi_after_reset(void);
-extern void test_mcp_spi_wip(void);
 #endif /* MCP_H_ */

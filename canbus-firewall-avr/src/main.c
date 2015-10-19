@@ -341,10 +341,8 @@ int main (void)
 	set_led(LED_01, LED_OFF);
 	set_led(LED_02, LED_OFF);
 	
-	init_mcp_pins();
-	init_mcp_spi();
+	init_mcp_module();
 	test_mcp_spi_after_reset();
-	test_mcp_spi_wip();
 
 	while (0)
 	{

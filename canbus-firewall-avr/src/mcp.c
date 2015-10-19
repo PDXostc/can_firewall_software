@@ -17,12 +17,12 @@ struct spi_device spi_device_MCP_CAN_SOUTH_CAR_conf = {
 
 void init_mcp_pins(void)
 {
-	//set external pins 
+	//set external pins
 	gpio_configure_pin(CAR_RESET, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
 	gpio_configure_pin(CAR_STBY, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
 	gpio_configure_pin(CAR_INT, GPIO_DIR_INPUT);
-		
-	gpio_configure_pin(IVI_RESET, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);	
+	
+	gpio_configure_pin(IVI_RESET, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
 	gpio_configure_pin(IVI_STBY, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
 	gpio_configure_pin(IVI_INT, GPIO_DIR_INPUT);
 	
@@ -46,26 +46,41 @@ void init_mcp_pins(void)
 
 void init_mcp_spi(void)
 {
+	mcp_reset_pin(MCP_NORTH);
+	mcp_reset_pin(MCP_SOUTH);
 	spi_master_init(MCP_SPI);
-	
+
 	//spi_master service enables some settings by default.
 	//of note is 'active mode', meaning that the CS remains active after a transfer.
 	// if not using this interface, remember to enable active manually,
 	// by setting the CSRn.CSAAT bit 1
 	spi_master_setup_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf,
-	MCP_SPI_MODE, MCP_SPI_BAUDRATE, 0);
-	
+	MCP_SPI_MODE, MCP_SPI_BAUDRATE, spi_device_MCP_CAN_NORTH_IVI_conf.id);
+
+	spi_master_setup_device(MCP_SPI, &spi_device_MCP_CAN_SOUTH_CAR_conf,
+	MCP_SPI_MODE, MCP_SPI_BAUDRATE, spi_device_MCP_CAN_SOUTH_CAR_conf.id);
+
 	spi_enable(MCP_SPI);
-	
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	delay_ms(1);
-	spi_select_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	spi_write_packet(MCP_SPI, 0, 1);
-	delay_ms(1);
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	
+
+	//prime spi
+	mcp_select(MCP_NORTH);
+	mcp_write_single(MCP_INST_DUMMY);
+	//delay_us(3);
+	mcp_deselect(MCP_NORTH);
+	mcp_select(MCP_SOUTH);
+	mcp_write_single(MCP_INST_DUMMY);
+	//delay_us(3);
+	mcp_deselect(MCP_SOUTH);	
 }
 
+void init_mcp_module(void)
+{
+	init_mcp_pins();
+	init_mcp_spi();
+}
+
+
+//quick test to make sure that we can get, set, and reset values
 void test_mcp_spi_after_reset(void)
 {
 	//send reset command
@@ -75,108 +90,32 @@ void test_mcp_spi_after_reset(void)
 	// reset
 	// ask for value
 	//
-	//
-	uint8_t rx[1];
-	uint8_t tx[1] = {MCP_INST_RESET};
 	//reset
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	delay_us(3);
-	spi_select_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	spi_write_packet(MCP_SPI, tx, 1);
-	delay_us(3);
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	delay_us(2000);
-	spi_select_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	spi_write_single(MCP_SPI, 0x03);
-	delay_us(3);
-	spi_write_single(MCP_SPI, MCP_ADD_CANSTAT);
-	delay_us(3);
-	spi_write_single(MCP_SPI, 0x00);
-	delay_us(3); //allow time for reset
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	delay_us(3);
+	mcp_deselect(MCP_NORTH);
+	mcp_select(MCP_NORTH);
+	mcp_write_single(MCP_INST_RESET);
+	//reset wait test:
+	//
+	delay_us(8);
+	mcp_deselect(MCP_NORTH);
 	
-	spi_select_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	delay_ms(1);
-	tx[0] = MCP_INST_READ;
-	spi_write_packet(MCP_SPI, tx, 1);
-	delay_ms(1);
-	//read to address of CANFG1
-	tx[0] = MCP_ADD_CANCTRL;
-	spi_write_packet(MCP_SPI, tx, 1);
-	delay_ms(1);
-	spi_read_packet(MCP_SPI, &rx[0], 1);
-	delay_ms(1);
-	print_dbg_short_hex(rx[0]);
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-}
+	mcp_select(MCP_NORTH);
+	print_dbg_short_hex(mcp_read_register(MCP_SOUTH, MCP_ADD_CANSTAT));
+	mcp_deselect(MCP_NORTH);
+	
+	mcp_deselect(MCP_SOUTH);
+	mcp_select(MCP_SOUTH);
+	mcp_write_single(MCP_INST_RESET);
+	//reset wait test:
+	//
+	delay_us(8);
+	mcp_deselect(MCP_SOUTH);
+	print_dbg_short_hex(mcp_read_register(MCP_SOUTH, MCP_ADD_CANSTAT));
 
-void test_mcp_spi_wip(void)
-{
-	//send reset command
-	//ask for value
-	// write register
-	// ask for value
-	// reset
-	// ask for value
-	//
-	//
-	uint8_t rx[1];
-	uint8_t tx[1] = {MCP_INST_RESET};
-	//reset
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	spi_select_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	spi_write_packet(MCP_SPI, tx, 1);
-	delay_ms(10); //allow time for reset
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
 	
-	spi_select_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	tx[0] = MCP_INST_READ;
-	spi_write_packet(MCP_SPI, tx, 1);
-	//read to address of CANFG1
-	tx[0] = MCP_ADD_CNF1;
-	spi_write_packet(MCP_SPI, tx, 1);
-	spi_read_single(MCP_SPI, &rx[0]);
-	print_dbg_short_hex(rx[0]);
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	
-	//write to CANF1
-	spi_select_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	tx[0] = MCP_INST_WRITE;
-	spi_write_packet(MCP_SPI, tx, 1);
-	tx[0] = MCP_ADD_CNF1;
-	spi_write_packet(MCP_SPI, tx, 1);
-	tx[0] = 0x11;
-	spi_write_packet(MCP_SPI, tx, 1);
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	
-	//read to make sure we got the write correct
-	spi_select_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	tx[0] = MCP_INST_READ;
-	spi_write_packet(MCP_SPI, tx, 1);
-	//read to address of CANFG1
-	tx[0] = MCP_ADD_CNF1;
-	spi_write_packet(MCP_SPI, tx, 1);
-	spi_read_single(MCP_SPI, &rx[0]);
-	print_dbg_short_hex(rx[0]);
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	
-	//reset
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	spi_select_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	spi_write_packet(MCP_SPI, tx, 1);
-	delay_ms(10); //allow time for reset
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	
-	//read to make sure we got the write correct
-	spi_select_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	tx[0] = MCP_INST_READ;
-	spi_write_packet(MCP_SPI, tx, 1);
-	//read to address of CANFG1
-	tx[0] = MCP_ADD_CNF1;
-	spi_write_packet(MCP_SPI, tx, 1);
-	spi_read_single(MCP_SPI, &rx[0]);
-	print_dbg_short_hex(rx[0]);
-	spi_deselect_device(MCP_SPI, &spi_device_MCP_CAN_NORTH_IVI_conf);
-	
+	mcp_set_register(MCP_SOUTH, MCP_ADD_CANCTRL, MCP_VAL_MODE_NORMAL);
+	mcp_read_register(MCP_SOUTH, MCP_ADD_CANSTAT);
+	mcp_reset_spi(MCP_SOUTH);
+	mcp_read_register(MCP_SOUTH, MCP_ADD_CANSTAT);
+
 }
