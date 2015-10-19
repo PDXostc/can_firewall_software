@@ -51,6 +51,7 @@
 #include "polarssl/sha2.h"
 #include "led.h"
 #include "loopback.h"
+#include "mcp.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
@@ -90,15 +91,15 @@ volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
 #define member_size(type, member) sizeof(((type *)0)->member)
 
 /* Utility wrapper for deleting an Atmel CAN message object
- */
+*/
 static inline void wipe_mob(volatile can_mob_t **mob)
 {
 	memset((void *)(*mob), 0, sizeof(can_mob_t));
 }
 
 /* Process function to be deprecated. Shows handling of messages based on
- * evaluation function included in filter
- */
+* evaluation function included in filter
+*/
 static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, rule_t* ruleset, volatile can_mob_t *que)
 {
 	//check for each proc ptr to not equal the location we will copy to
@@ -133,7 +134,7 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 			//check for transform and rule conditions
 			// switch on xform (once for each half byte)
 			//apply rule to message, que for transmit
-			// 
+			//
 			
 			//operate on id, mask and shift to isolate upper half byte
 			xform = (rule_match->xform & 0xF0) >> 4;
@@ -151,7 +152,7 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 			{
 				wipe_mob(&(*proc));
 				break;
-			}			
+			}
 			break;
 			
 			case DISCARD:
@@ -176,8 +177,8 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 }
 
 /* Transmit function to be deprecated. Shows simple queue output logic.
- * 
- */
+*
+*/
 static inline void transmit(volatile can_mob_t **proc, volatile can_mob_t **tx, volatile can_mob_t *que, int tx_direction)
 {
 	if (*tx == *proc)
@@ -202,16 +203,16 @@ static inline void transmit(volatile can_mob_t **proc, volatile can_mob_t **tx, 
 			{
 				//can_prepare_data_to_send_south();
 			}
-		}		
+		}
 	}
 	
 	//increment
 	//advance ptr
 	if(*tx >= &que[CAN_MSG_QUE_SIZE - 1])
 	{
-	    *tx = &que[0];
-	    } else {
-	    *tx = *tx + 1;
+		*tx = &que[0];
+		} else {
+		*tx = *tx + 1;
 	}
 	
 }
@@ -239,16 +240,19 @@ static void init(void) {
 	print_dbg("\n\rPBA Freq\n\r");
 	print_dbg_ulong(sysclk_get_pba_hz());
 	#endif
+
+	init_led_gpio_ports();
 }
 
 /* Old CAN Initialization. Uses CANIF peripheral and internal generic clock,
- * deprecated in favor MCP25625. 
- * 
- * TODO: Rewrite to init MCP25625
- */
+* deprecated in favor MCP25625.
+*
+* TODO: Rewrite to init MCP25625
+*/
 static void init_can(void) {
 	/* Setup generic clock for CAN */
 	/* Remember to calibrate this correctly to our external osc*/
+	#if 0
 	int setup_gclk;
 	
 	setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
@@ -262,7 +266,7 @@ static void init_can(void) {
 		print_dbg("\n\rGeneric clock setup\n\r");
 		}else {
 		print_dbg("\n\rGeneric clock NOT SETUP\n\r");
-	}	
+	}
 	#endif
 
 	/* Enable generic clock */
@@ -298,6 +302,8 @@ static void init_can(void) {
 	
 	/* Enable all interrupts. */
 	Enable_global_interrupt();
+	
+	#endif
 }
 
 static void init_rules(void)
@@ -329,6 +335,17 @@ int main (void)
 	init_can();
 	init_rules();
 
+	// 	init_led_gpio_ports();
+	set_led(LED_01, LED_ON);
+	set_led(LED_02, LED_ON);
+	set_led(LED_01, LED_OFF);
+	set_led(LED_02, LED_OFF);
+	
+	init_mcp_pins();
+	init_mcp_spi();
+	test_mcp_spi_after_reset();
+	test_mcp_spi_wip();
+
 	while (0)
 	{
 		run_firewall();
@@ -338,6 +355,5 @@ int main (void)
 	
 	//wait for end while debugging
 	
-	sleep_mode_start();
-	
+	sleep_mode_start();	
 }
