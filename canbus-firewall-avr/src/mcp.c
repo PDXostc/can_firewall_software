@@ -19,11 +19,11 @@ void init_mcp_pins(void)
 {
 	//set external pins
 	gpio_configure_pin(CAR_RESET, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
-	gpio_configure_pin(CAR_STBY, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
+	gpio_configure_pin(CAR_STBY, GPIO_DIR_OUTPUT | GPIO_INIT_LOW);
 	gpio_configure_pin(CAR_INT, GPIO_DIR_INPUT);
 	
 	gpio_configure_pin(IVI_RESET, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
-	gpio_configure_pin(IVI_STBY, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
+	gpio_configure_pin(IVI_STBY, GPIO_DIR_OUTPUT | GPIO_INIT_LOW);
 	gpio_configure_pin(IVI_INT, GPIO_DIR_INPUT);
 	
 	//setup gpio for mcp chips and spi connection
