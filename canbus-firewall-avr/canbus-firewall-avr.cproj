@@ -651,6 +651,9 @@
     <None Include="src\config\conf_spi_master.h">
       <SubType>compile</SubType>
     </None>
+    <Compile Include="src\config\mcp_definitions.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\filter.c">
       <SubType>compile</SubType>
     </Compile>

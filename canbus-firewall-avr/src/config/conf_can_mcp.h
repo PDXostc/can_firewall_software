@@ -9,6 +9,8 @@
 #ifndef CONF_CAN_MCP_H_
 #define CONF_CAN_MCP_H_
 
+#include "mcp_definitions.h"
+
 /************************************************************************/
 /* CNF1
  * bit 7-6 SJW<1:0>: Synchronization Jump Width Length bits
@@ -46,9 +48,6 @@
  * */
 /************************************************************************/
 
-#define MCP_VAL_BTL_MODE_ENABLE						(0x80)
-#define MCP_VAL_BTL_MODE_DISABLE					(Ox00)	
-
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_BTLMODE		(MCP_VAL_BTL_MODE_ENABLE)
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PRSEG		(0x07)
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG1		(0x04 << 3)
@@ -78,13 +77,6 @@
 
 //currently, default communication involves clock out start of frame disabled and wakeup filter disabled
 //wakeup filter should be set prior to going to sleep
-
-
-#define MCP_VAL_SOF_DISABLE    (0x00)
-#define MCP_VAL_SOF_ENABLE	   (0x80)
-
-#define MCP_VAL_WAKFIL_DISABLE (0x00)
-#define MCP_VAL_WAKFIL_ENABLE  (0x40)
 
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_SOF			(MCP_VAL_SOF_DISABLE)
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_WAKFIL		(MCP_VAL_WAKFIL_DISABLE)
