@@ -8,7 +8,7 @@
 #include <asf.h>
 
 #include "conf_debug.h"
-
+#include "conf_can_mcp.h"
 #ifndef MCP_H_
 #define MCP_H_
 
@@ -489,7 +489,10 @@ static inline void mcp_read_rx_buffer(struct spi_device *device, uint8_t read_in
 
 //TODO: mcp_load_tx_buffer()
 
+//TODO: mcp_configure_can_timings()
+
 //TODO: mcp_init_can()
+
 
 /**
  * \brief Special bit modify instruction for MCP to adjust single bit value in a register.
