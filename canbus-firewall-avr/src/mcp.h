@@ -7,6 +7,8 @@
 
 #include <asf.h>
 
+#include "conf_debug.h"
+
 #ifndef MCP_H_
 #define MCP_H_
 
@@ -20,8 +22,13 @@
 #define RESET_PIN_HOLD_DELAY_US		3
 #define RESET_PIN_HOLD_DELAY()	delay_us(RESET_PIN_HOLD_DELAY_US)
 
-//#define MCP_RESET_DELAY_US	//NOT SET, TBD
-//#define MCP_RESET_DELAY	delay_us(SPI_RESET_DELAY_US);
+#define MCP_CAN_MSG_SIZE		13 // bytes
+#define MCP_CAN_MSG_HEADER_SIZE 5
+#define MCP_CAN_MSG_DATA_SIZE	8
+
+//following the convention that functions return 0 if successful, >0 for fail states
+#define MCP_RETURN_SUCCESS		0
+#define MCP_RETURN_FAIL			1
 
 //Atmel SPI modes
 //MCP requires mode 0,0 or mode 1,1.
@@ -51,9 +58,13 @@
 #define MCP_INST_RTS_TXB2	0x83
 #define MCP_INST_RTS_ALL	0x87
 
-#define MCP_INST_READ_STATUS	0xB0
+#define MCP_INST_READ_STATUS	0xA0
+
+#define MCP_INST_READ_RX_STATUS	0xB0
 
 #define MCP_INST_BIT_MODIFY		0x05
+
+#define MCP_MASK_CTRL_MODE	0xE0
 
 /************************************************************************/
 /* MCP Register Addresses                                               */
@@ -374,6 +385,28 @@ static inline uint8_t mcp_read_register(struct spi_device *device, const uint8_t
 }
 
 /**
+ * \brief MCP supports reading of multiple registers. If after a read instruction,
+ * bytes are sent, MCP will read value of next consecutive register(s) in memory.
+ * \param device Pointer to struct holding device specific chip selection id
+ * \param start_addr Address to begin reading from
+ * \param rx_buffer Pointer to array where values will be stored
+ * \param length Number to be read <= read buffer length
+ * 
+ * \return void
+ */
+static inline void mcp_read_registers_consecutive(struct spi_device *device, 
+		const uint8_t start_addr, uint8_t *rx_buffer, const uint8_t length)
+{
+	mcp_select(device);
+	
+	mcp_write_single(MCP_INST_READ);
+	mcp_write_single(start_addr);
+	spi_read_packet(MCP_SPI, rx_buffer, length);
+	
+	mcp_deselect(device);
+}
+
+/**
  * \brief Set a specific register value in an MCP device
  * 
  * \param device Pointer to struct holding MCP chip select id
@@ -382,7 +415,8 @@ static inline uint8_t mcp_read_register(struct spi_device *device, const uint8_t
  * 
  * \return void
  */
-static inline void mcp_set_register(struct spi_device *device, const uint8_t addr, const uint8_t val)
+static inline void mcp_set_register(struct spi_device *device, const uint8_t addr, 
+		const uint8_t val)
 {
 	mcp_select(device);
 	
@@ -392,6 +426,149 @@ static inline void mcp_set_register(struct spi_device *device, const uint8_t add
 	mcp_write_single(val);
 	
 	mcp_deselect(device);
+}
+
+/**
+ * \brief MCP supports setting of multiple registers. If after a write instruction,
+ * bytes are sent, MCP will set value of next consecutive register(s) in memory.
+ * 
+ * \param device Pointer to struct holding device specific chip selection id
+ * \param start_addr Address to begin setting to
+ * \param tx_buffer Array holding byte values to be transmitted
+ * \param length Length of transmit buffer array
+ * 
+ * \return 
+ */
+static inline void mcp_set_registers_consecutive(struct spi_device *device, const uint8_t start_addr,
+		const uint8_t *tx_buffer, const uint8_t length)
+{
+	mcp_select(device);
+	
+	mcp_write_single(MCP_INST_WRITE);
+	mcp_write_single(start_addr);
+	spi_write_packet(MCP_SPI, tx_buffer, length);
+	
+	mcp_deselect(device);
+}
+
+/**
+ * \brief MCP allows a shorthand instruction for getting the bytes in an rx buffer.
+ * Like other read instructions, this is used as a consecutive read. User should
+ * anticipate a full sized CAN message, 13 bytes, and prepare a buffer size accordingly.
+ * After the device is deselected following this instruction, the MCP will clear
+ * the corresponding rx flag.
+ * 
+ * \param device Pointer to struct holding device specific chip selection id
+ * \param read_instruction Special read rx instruction following the pattern
+ * 1001 0nm0 where values for 'n,m' indicate one of the four rx locations.
+ * For instance nm 00 starts at RXB0SIDH and nm 10 starts at RXB1SIDH.
+ * \param rx_buffer
+ * 
+ * \return void
+ */
+static inline void mcp_read_rx_buffer(struct spi_device *device, uint8_t read_instruction,
+		uint8_t *rx_buffer)
+{
+	mcp_select(device);
+	
+	//rx buffer provided needs to be as large as largest possible size
+	//13 bytes = 5 <id + possible eid + dlc> + 8 <data> 
+	
+	//send instruction to read rx buffer
+	mcp_write_single(read_instruction);
+	
+	//packet read will get the id + eid + dlc, should be 5 bytes
+	spi_read_packet(MCP_SPI, rx_buffer, MCP_CAN_MSG_HEADER_SIZE);
+	
+	//decide based on dlc how many data bytes to copy into buffer
+	spi_read_packet(MCP_SPI, rx_buffer, rx_buffer[MCP_CAN_MSG_HEADER_SIZE - 1]);
+	
+	//instruction clears CANINTF.RXnIF when CS raised at end
+	mcp_deselect(device);
+}
+
+//TODO: mcp_load_tx_buffer()
+
+//TODO: mcp_init_can()
+
+/**
+ * \brief Special bit modify instruction for MCP to adjust single bit value in a register.
+ * Please note from the manual:
+ *		Executing the Bit Modify command on registers that are not bit-modifiable will
+ *		force the mask to FFh. This will allow bytewrites to the registers, not bit modify.
+ * 
+ * \param device Pointer to struct holding chip selection id of MCP target device
+ * \param addr Address of MCP register
+ * \param mask Mask applied to value to be set. 
+ * \param value Value to be masked, resulting in single bits modified in register.
+ * 
+ * \return void
+ */
+static inline void mcp_modify_register(struct spi_device *device, const uint8_t addr, 
+		const uint8_t mask, const uint8_t value)
+{
+	mcp_select(device);
+	
+	mcp_write_single(MCP_INST_BIT_MODIFY);
+	mcp_write_single(addr);
+	mcp_write_single(mask);
+	mcp_write_single(value);
+	
+	mcp_deselect(device);
+}
+
+/**
+ * \brief Set a desired mode for MCP. Function attmepts to verify that desired mode
+ * has been set, and will return result.
+ * 
+ * \param device Pointer to struct holding device specific chip selection id
+ * \param mode Byte value indicating desired mode of operation to move into
+ * 
+ * \return uint8_t 0 == Success, >0 == Fail
+ */
+static inline uint8_t mcp_set_control_mode(struct spi_device *device, const uint8_t mode)
+{
+	uint8_t result;
+	
+	//send new mode as a modification to existing  value in control register
+	mcp_modify_register(device, MCP_ADD_CANCTRL, MCP_MASK_CTRL_MODE, mode);
+	
+	result = mcp_read_register(device, MCP_ADD_CANCTRL);
+	result &= MCP_MASK_CTRL_MODE;
+	
+	if (result == mode)
+	{
+		return MCP_RETURN_SUCCESS;
+	} 
+	else
+	{
+		return MCP_RETURN_FAIL;
+	}
+}
+
+#if DBG_MCP
+//prints readable interpretation of MCP status request
+void mcp_print_status(uint8_t status, uint8_t device_id);
+#endif
+
+/**
+ * \brief Ask MCP device to return quick status information
+ * 
+ * \param device Struct pointer holding MCP device chip selection id
+ * \param instruction Status instruction, either MCP_INST_READ_STATUS or MCP_INST_READ_RX_STATUS
+ * 
+ * \return uint8_t Byte holding status information
+ */
+static inline uint8_t mcp_read_status(struct spi_device *device, uint8_t instruction)
+{
+	uint8_t status;
+	
+	mcp_select(device);
+	mcp_write_single(instruction);
+	status = mcp_read_write_single(instruction);	
+	mcp_deselect(device);
+	
+	return status;
 }
 
 /**

@@ -79,10 +79,55 @@ void init_mcp_module(void)
 	init_mcp_spi();
 }
 
+#if DBG_MCP
+void mcp_print_status(uint8_t status, uint8_t device_id)
+{
+	print_dbg("\n\r__MCP_STATUS__DEVICE_");
+	print_dbg_char_hex(device_id);
+	print_dbg(" __");
+	
+	PRINT_NEWLINE()
+	print_dbg("CANINTF.RX0IF -- ");
+	print_dbg_char_hex(status & 0x01);
+	
+	PRINT_NEWLINE()
+	print_dbg("CANINTF.RX1IF -- ");
+	print_dbg_char_hex(status & 0x02);
+	
+	PRINT_NEWLINE()
+	print_dbg("TXB0CNTRL.TXREQ -- ");
+	print_dbg_char_hex(status & 0x04);
+	
+	PRINT_NEWLINE()
+	print_dbg("CANINTF.TX0IF -- ");
+	print_dbg_char_hex(status & 0x08);
+	
+	PRINT_NEWLINE()
+	print_dbg("TXB1CTRL.TXREQ -- ");
+	print_dbg_char_hex(status & 0x10);
+	
+	PRINT_NEWLINE()
+	print_dbg("CANINTIF.TXB1IF -- ");
+	print_dbg_char_hex(status & 0x20);
+	
+	PRINT_NEWLINE()
+	print_dbg("TXB2CNTRL.TXREQ -- ");
+	print_dbg_char_hex(status & 0x40);
+	
+	PRINT_NEWLINE()
+	print_dbg("CANINTIF.TX2IF -- ");
+	print_dbg_char_hex(status & 0x80);
+	
+	print_dbg("\n\r_END_STATUS__________");
+}
+
+//TODO: mcp_print_rx_status
+#endif
 
 //quick test to make sure that we can get, set, and reset values
 void test_mcp_spi_after_reset(void)
 {
+	uint8_t status;
 	//send reset command
 	//ask for value
 	// write register
@@ -91,25 +136,32 @@ void test_mcp_spi_after_reset(void)
 	// ask for value
 	//
 	//reset
-	mcp_deselect(MCP_NORTH);
-	mcp_select(MCP_NORTH);
-	mcp_write_single(MCP_INST_RESET);
+	mcp_reset_spi(MCP_NORTH);
 	//reset wait test:
 	//
 	delay_us(8);
-	mcp_deselect(MCP_NORTH);
 	
-	mcp_select(MCP_NORTH);
+	status = mcp_read_status(MCP_NORTH, MCP_INST_READ_STATUS);
+	
+	mcp_print_status(status, *MCP_NORTH.id);
+	
+	print_dbg("\n\rMCP RX STATUS: ");
+	print_dbg_short_hex(mcp_read_status(MCP_NORTH, MCP_INST_READ_RX_STATUS));
+	
 	print_dbg_short_hex(mcp_read_register(MCP_SOUTH, MCP_ADD_CANSTAT));
-	mcp_deselect(MCP_NORTH);
-	
-	mcp_deselect(MCP_SOUTH);
-	mcp_select(MCP_SOUTH);
-	mcp_write_single(MCP_INST_RESET);
+
+	mcp_reset_spi(MCP_SOUTH);
 	//reset wait test:
 	//
 	delay_us(8);
-	mcp_deselect(MCP_SOUTH);
+	
+	status = mcp_read_status(MCP_NORTH, MCP_INST_READ_STATUS);
+	
+	mcp_print_status(status, *MCP_SOUTH.id);
+	
+	print_dbg("\n\rMCP RX STATUS: ");
+	print_dbg_short_hex(mcp_read_status(MCP_SOUTH, MCP_INST_READ_RX_STATUS));
+	
 	print_dbg_short_hex(mcp_read_register(MCP_SOUTH, MCP_ADD_CANSTAT));
 
 	
