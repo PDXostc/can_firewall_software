@@ -19,7 +19,8 @@
 #define DBG_FLASH       DBG_ON && 1 //flash
 #define DBG_HMAC        DBG_ON && 1 //hmac
 #define DBG_RULES       DBG_ON && 1 //rules
+#define DBG_MCP			DBG_ON && 1 //mcp chipsets
 
-#define PRINT_NEWLINE       { if(DBG_ON) {print_dbg("\n\r");} }
+#define PRINT_NEWLINE()       { if(DBG_ON) {print_dbg("\n\r");} }
 
 #endif /* CONF_DEBUG_H_ */
