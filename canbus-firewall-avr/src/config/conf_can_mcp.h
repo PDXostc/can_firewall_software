@@ -11,6 +11,9 @@
 
 #include "mcp_definitions.h"
 
+//enumerations
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz		1
+
 /************************************************************************/
 /* CNF1
  * bit 7-6 SJW<1:0>: Synchronization Jump Width Length bits
@@ -24,9 +27,9 @@
  * */
 /************************************************************************/
 
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz
+
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_BRP		(0x00)
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_SJW		(0x04)
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_SJW		(MCP_VAL_SJW4)
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_CNF1	(MCP_VAL_CAN_500kbps_CLOCK_16Mhz_BRP |\
 												 MCP_VAL_CAN_500kbps_CLOCK_16Mhz_SJW)
 
@@ -49,9 +52,10 @@
 /************************************************************************/
 
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_BTLMODE		(MCP_VAL_BTL_MODE_ENABLE)
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PRSEG		(0x07)
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG1		(0x04 << 3)
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_CNF2		(MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PRSEG |\
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PRSEG		(0x04 - 1)
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG1		((0x04 - 1) << 3)
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_CNF2		(MCP_VAL_CAN_500kbps_CLOCK_16Mhz_BTLMODE |\
+													 MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PRSEG |\
 													 MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG1)
 
 
@@ -80,8 +84,8 @@
 
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_SOF			(MCP_VAL_SOF_DISABLE)
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_WAKFIL		(MCP_VAL_WAKFIL_DISABLE)
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG		(0x04)
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_CNF3		(MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG |\
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG2		(0x04 - 1)
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_CNF3		(MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG2 |\
 													 MCP_VAL_CAN_500kbps_CLOCK_16Mhz_SOF |\
 													 MCP_VAL_CAN_500kbps_CLOCK_16Mhz_WAKFIL)
 

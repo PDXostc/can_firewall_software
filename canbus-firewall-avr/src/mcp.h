@@ -37,7 +37,7 @@
 //#define MCP_SPI_MODE_0_0		SPI_MODE_1
 //#define MCP_SPI_MODE_1_1		SPI_MODE_2
 #define MCP_SPI_MODE_1_0		SPI_MODE_3
-#define MCP_SPI_MODE		MCP_SPI_MODE_1_0
+#define MCP_SPI_MODE			 MCP_SPI_MODE_1_0
 
 
 
@@ -251,9 +251,10 @@ static inline void mcp_read_rx_buffer(struct spi_device *device, uint8_t read_in
 //TODO: mcp_load_tx_buffer()
 
 //TODO: mcp_configure_can_timings()
+extern uint8_t mcp_configure_bit_timings(struct spi_device *device, uint8_t mcp_val_can_rate);
 
 //TODO: mcp_init_can()
-
+extern uint8_t mcp_init_can(struct spi_device *device, uint8_t mcp_val_can_rate);
 
 /**
  * \brief Special bit modify instruction for MCP to adjust single bit value in a register.
@@ -313,6 +314,7 @@ static inline uint8_t mcp_set_control_mode(struct spi_device *device, const uint
 #if DBG_MCP
 //prints readable interpretation of MCP status request
 void mcp_print_status(uint8_t status, uint8_t device_id);
+void mcp_print_bit_timings(uint8_t device_id, uint8_t cnf1, uint8_t cnf2, uint8_t cnf3);
 #endif
 
 /**

@@ -73,6 +73,31 @@ void init_mcp_spi(void)
 	mcp_deselect(MCP_SOUTH);	
 }
 
+uint8_t mcp_configure_bit_timings(struct spi_device *device, uint8_t mcp_val_can_rate)
+{
+	uint8_t result = MCP_RETURN_FAIL;
+	
+	switch(mcp_val_can_rate)
+	{
+		case MCP_VAL_CAN_500kbps_CLOCK_16Mhz:
+		mcp_set_register(device, MCP_ADD_CNF1, MCP_VAL_CAN_500kbps_CLOCK_16Mhz_CNF1);
+		mcp_set_register(device, MCP_ADD_CNF2, MCP_VAL_CAN_500kbps_CLOCK_16Mhz_CNF2);
+		mcp_set_register(device, MCP_ADD_CNF3, MCP_VAL_CAN_500kbps_CLOCK_16Mhz_CNF3);
+		result = MCP_RETURN_SUCCESS;
+		break;
+	}
+	
+	return result;	
+	
+}
+
+
+
+// uint8_t mcp_init_can(struct spi_device *device, uint8_t mcp_val_can_rate)
+// {
+// 
+// }
+
 void init_mcp_module(void)
 {
 	init_mcp_pins();
@@ -121,6 +146,61 @@ void mcp_print_status(uint8_t status, uint8_t device_id)
 	print_dbg("\n\r_END_STATUS__________");
 }
 
+void mcp_print_bit_timings(uint8_t device_id, uint8_t cnf1, uint8_t cnf2, uint8_t cnf3)
+{
+	print_dbg("\n\r__MCP_BIT_TIMINGS__DEVICE_");
+	print_dbg_char_hex(device_id);
+	print_dbg(" __");
+	
+	PRINT_NEWLINE()
+	print_dbg("CNF1.SJW -- ");
+	print_dbg_char_hex(cnf1 & 0xC0);
+	print_dbg(" = ");
+	print_dbg_ulong(((cnf1 & 0xC0) >> 6) + 1);	
+	
+	PRINT_NEWLINE()
+	print_dbg("CNF1.BRP -- ");
+	print_dbg_char_hex(cnf1 & 0x3F);
+	print_dbg(" = ");
+	print_dbg_ulong(cnf1 & 0x3F);
+	
+	PRINT_NEWLINE()
+	print_dbg("CNF2.BTLMODE -- ");
+	print_dbg_char_hex((cnf2 & 0x80) >> 7);
+	
+	PRINT_NEWLINE()
+	print_dbg("CNF2.SAM -- ");
+	print_dbg_char_hex((cnf2 & 0x40) >> 6);
+	
+	PRINT_NEWLINE()
+	print_dbg("CNF2.PHSEG1 -- ");
+	print_dbg_char_hex(cnf2 & 0x38);
+	print_dbg(" = ");
+	print_dbg_ulong(((cnf2 & 0x38) >> 3) + 1);
+	
+	PRINT_NEWLINE()
+	print_dbg("CNF2.PRSEG -- ");
+	print_dbg_char_hex(cnf2 & 0x07);
+	print_dbg(" = ");
+	print_dbg_ulong((cnf2 & 0x07) + 1);
+	
+	PRINT_NEWLINE()
+	print_dbg("CNF3.SOF -- ");
+	print_dbg_char_hex((cnf3 & 0x80) >> 7);
+	
+	PRINT_NEWLINE()
+	print_dbg("CNF3.WAKFIL -- ");
+	print_dbg_char_hex((cnf3 & 0x40) >> 6);
+	
+	PRINT_NEWLINE()
+	print_dbg("CNF2.PHSEG2 -- ");
+	print_dbg_char_hex(cnf3 & 0x07);
+	print_dbg(" = ");
+	print_dbg_ulong((cnf3 & 0x07) + 1);
+	
+	print_dbg("\n\r_END_BIT_TIMINGS__________");
+}
+
 //TODO: mcp_print_rx_status
 #endif
 
@@ -149,6 +229,14 @@ void test_mcp_spi_after_reset(void)
 	print_dbg_short_hex(mcp_read_status(MCP_NORTH, MCP_INST_READ_RX_STATUS));
 	
 	print_dbg_short_hex(mcp_read_register(MCP_SOUTH, MCP_ADD_CANSTAT));
+	
+	//test CAN config setting
+	mcp_configure_bit_timings(MCP_NORTH, MCP_VAL_CAN_500kbps_CLOCK_16Mhz);
+
+	mcp_print_bit_timings(*MCP_NORTH.id, 
+			mcp_read_register(MCP_NORTH, MCP_ADD_CNF1),
+			mcp_read_register(MCP_NORTH, MCP_ADD_CNF2),
+			mcp_read_register(MCP_NORTH, MCP_ADD_CNF3));
 
 	mcp_reset_spi(MCP_SOUTH);
 	//reset wait test:
@@ -163,6 +251,13 @@ void test_mcp_spi_after_reset(void)
 	print_dbg_short_hex(mcp_read_status(MCP_SOUTH, MCP_INST_READ_RX_STATUS));
 	
 	print_dbg_short_hex(mcp_read_register(MCP_SOUTH, MCP_ADD_CANSTAT));
+
+	mcp_configure_bit_timings(MCP_SOUTH, MCP_VAL_CAN_500kbps_CLOCK_16Mhz);
+
+	mcp_print_bit_timings(*MCP_SOUTH.id,
+		mcp_read_register(MCP_SOUTH, MCP_ADD_CNF1),
+		mcp_read_register(MCP_SOUTH, MCP_ADD_CNF2),
+		mcp_read_register(MCP_SOUTH, MCP_ADD_CNF3));
 
 	
 	mcp_set_register(MCP_SOUTH, MCP_ADD_CANCTRL, MCP_VAL_MODE_NORMAL);
