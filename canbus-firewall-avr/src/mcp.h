@@ -10,6 +10,8 @@
 #include "conf_debug.h"
 #include "mcp_definitions.h"
 #include "conf_can_mcp.h"
+#include "led.h"
+
 #ifndef MCP_H_
 #define MCP_H_
 
@@ -52,6 +54,9 @@ struct spi_device spi_device_MCP_CAN_SOUTH_CAR_conf;
 
 #define MCP_INST_DUMMY 0x00
 
+//LED TESTING
+#define USE_LED 0
+
 void init_mcp_pins(void);
 
 /**
@@ -64,6 +69,16 @@ void init_mcp_pins(void);
 static inline void mcp_select(struct spi_device *device)
 {
 	spi_select_device(MCP_SPI, device);
+	delay_us(4);
+	
+// 	for (int i = 0; i < 3; i++)
+// 	{
+// 		nop();
+// 	}
+	#if USE_LED
+	if(device->id > 0) {set_led(LED_01, LED_ON);} else {set_led(LED_02, LED_ON);}
+	
+	#endif
 }
 
 /**
@@ -76,6 +91,15 @@ static inline void mcp_select(struct spi_device *device)
 static inline void mcp_deselect(struct spi_device *device)
 {
 	spi_deselect_device(MCP_SPI, device);
+	for (int i = 0; i < 3; i++)
+	{
+		nop();
+	}
+	
+	#if USE_LED
+	if(device->id > 0) {set_led(LED_01, LED_OFF);} else {set_led(LED_02, LED_OFF);}
+	
+	#endif
 }
 
 /**
@@ -253,6 +277,7 @@ static inline void mcp_read_rx_buffer(struct spi_device *device, uint8_t read_in
 //TODO: mcp_configure_can_timings()
 extern uint8_t mcp_configure_bit_timings(struct spi_device *device, uint8_t mcp_val_can_rate);
 
+void mcp_configure_can_id(struct spi_device *device, uint8_t start_addr, uint32_t id, bool exide);
 //TODO: mcp_init_can()
 extern uint8_t mcp_init_can(struct spi_device *device, uint8_t mcp_val_can_rate);
 
@@ -315,6 +340,7 @@ static inline uint8_t mcp_set_control_mode(struct spi_device *device, const uint
 //prints readable interpretation of MCP status request
 void mcp_print_status(uint8_t status, uint8_t device_id);
 void mcp_print_bit_timings(uint8_t device_id, uint8_t cnf1, uint8_t cnf2, uint8_t cnf3);
+void mcp_print_registers(struct spi_device *device, uint8_t start_addr, int length);
 #endif
 
 /**
@@ -385,5 +411,8 @@ void init_mcp_spi(void);
 
 extern void init_mcp_module(void);
 
-extern void test_mcp_spi_after_reset(void);
+extern void test_mcp_spi_after_reset(struct spi_device *device);
+extern void test_setup_mcp_can(struct spi_device *device);
+extern void test_setup_transmit_mcp_can(struct spi_device *device);
+extern void mcp_request_to_send(struct spi_device *device, uint8_t txb);
 #endif /* MCP_H_ */

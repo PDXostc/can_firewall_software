@@ -172,9 +172,16 @@
 
 // Message Transmit Registers
 // TODO
+#define MCP_VAL_RTR					(0x40)
 
 // Message Receive Registers
 // TODO
+#define MCP_VAL_RXM_OFF				(0x60) // note: this setting receives ALL messages
+#define MCP_VAL_RXM_EXT_ONLY		(0x40) // only receive ext id msgs that pass filter
+#define MCP_VAL_RXM_STD_ONLY		(0x20) // only receive std id msgs that pass filter
+#define MCP_VAL_RXM_STD_EXT			(0x00) // receive both std and ext id msgs that pass filter
+
+#define MCP_VAL_BUKT_ROLLOVER_EN    (0x40) // RXB0 will rollover and rewrite RXB1 if full
 
 // Acceptance Filter Registers
 // TODO

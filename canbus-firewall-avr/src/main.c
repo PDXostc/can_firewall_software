@@ -342,11 +342,26 @@ int main (void)
 	set_led(LED_02, LED_OFF);
 	
 	init_mcp_module();
-	test_mcp_spi_after_reset();
-
-	while (0)
+	test_mcp_spi_after_reset(MCP_NORTH);
+	test_mcp_spi_after_reset(MCP_SOUTH);
+	
+	test_setup_mcp_can(MCP_NORTH);
+	test_setup_mcp_can(MCP_SOUTH);
+	
+	test_setup_transmit_mcp_can(MCP_NORTH);
+	test_setup_transmit_mcp_can(MCP_SOUTH);
+	
+	mcp_request_to_send(MCP_NORTH, MCP_INST_RTS_TXB0);
+	mcp_request_to_send(MCP_NORTH, MCP_INST_RTS_TXB1);
+	mcp_request_to_send(MCP_NORTH, MCP_INST_RTS_TXB2);
+	
+	mcp_request_to_send(MCP_SOUTH, MCP_INST_RTS_TXB0);
+	mcp_request_to_send(MCP_SOUTH, MCP_INST_RTS_TXB1);
+	mcp_request_to_send(MCP_SOUTH, MCP_INST_RTS_TXB2);
+	while (1)
 	{
-		run_firewall();
+		//run_firewall();
+		nop();
 	}
 	
 	delay_ms(1000);
