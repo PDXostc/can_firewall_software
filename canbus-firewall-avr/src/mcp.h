@@ -36,8 +36,8 @@
 //Atmel SPI modes
 //MCP requires mode 0,0 or mode 1,1.
 // TODO / NOTE: current testing shows beter using mode 3...need concrete answer for why
-//#define MCP_SPI_MODE_0_0		SPI_MODE_1
-//#define MCP_SPI_MODE_1_1		SPI_MODE_2
+#define MCP_SPI_MODE_0_0		SPI_MODE_1
+#define MCP_SPI_MODE_1_1		SPI_MODE_2
 #define MCP_SPI_MODE_1_0		SPI_MODE_3
 #define MCP_SPI_MODE			 MCP_SPI_MODE_1_0
 
@@ -266,7 +266,7 @@ static inline void mcp_read_rx_buffer(struct spi_device *device, uint8_t read_in
 	spi_read_packet(MCP_SPI, rx_buffer, MCP_CAN_MSG_HEADER_SIZE);
 	
 	//decide based on dlc how many data bytes to copy into buffer
-	spi_read_packet(MCP_SPI, rx_buffer, rx_buffer[MCP_CAN_MSG_HEADER_SIZE - 1]);
+	spi_read_packet(MCP_SPI, rx_buffer, (rx_buffer[MCP_CAN_MSG_HEADER_SIZE - 1] & 0x0F));
 	
 	//instruction clears CANINTF.RXnIF when CS raised at end
 	mcp_deselect(device);

@@ -341,7 +341,53 @@ int main (void)
 	set_led(LED_01, LED_OFF);
 	set_led(LED_02, LED_OFF);
 	
+	uint8_t tx_test[4];
+	tx_test[0] = 0x00;
+	tx_test[1] = 0x0F;
+	tx_test[2] = 0xF0;
+	tx_test[3] = 0xFF;
+	
+	uint8_t rx_test[MCP_CAN_MSG_SIZE];
+	
 	init_mcp_module();
+#if 0
+	//#define HUGE_DELAY() nop(); //delay_us(4);
+	int count1 = 0;
+	int count2 = 0;
+// 	while (count1 < 100000)
+// 	{
+// 		mcp_select(MCP_NORTH);
+// 		//HUGE_DELAY()
+// 		//spi_write_single(MCP_SPI, tx_test[0]);
+// 		//HUGE_DELAY()
+// 		spi_write_packet(MCP_SPI, tx_test, 4);
+// 		//HUGE_DELAY()
+// 		mcp_deselect(MCP_NORTH);
+// 		//HUGE_DELAY()
+// 		//eventually go to sleep if i forget to turn this off
+// 		print_dbg_ulong(count1);
+// 		PRINT_NEWLINE()
+// 		count1++;
+// 	}
+	
+	while (count2 < 100000)
+	{
+		mcp_select(MCP_NORTH);
+		//HUGE_DELAY()
+		//spi_write_single(MCP_SPI, tx_test[0]);
+		//HUGE_DELAY()
+		spi_write_packet(MCP_SPI, tx_test, 4);
+		//HUGE_DELAY()
+		mcp_deselect(MCP_NORTH);
+		//HUGE_DELAY()
+		//eventually go to sleep if i forget to turn this off
+		print_dbg_ulong(count2);
+		PRINT_NEWLINE()
+		count2++;
+	}
+#endif
+
+#if 1	
 	test_mcp_spi_after_reset(MCP_NORTH);
 	test_mcp_spi_after_reset(MCP_SOUTH);
 	
@@ -360,8 +406,48 @@ int main (void)
 	mcp_request_to_send(MCP_SOUTH, MCP_INST_RTS_TXB2);
 	while (1)
 	{
+		//ask for msg received
+		mcp_read_rx_buffer(MCP_NORTH, MCP_INST_READ_RX_0, rx_test);
+		//print msg coarse
+		PRINT_NEWLINE()
+		for (int i = 0; i < MCP_CAN_MSG_SIZE - 1; i++)
+		{
+			print_dbg_char_hex(rx_test[i]);			
+		}
+		
+		//ask for msg received
+		mcp_read_rx_buffer(MCP_NORTH, MCP_INST_READ_RX_1, rx_test);
+		//print msg coarse
+		PRINT_NEWLINE()
+		for (int j = 0; j < MCP_CAN_MSG_SIZE - 1; j++)
+		{
+			print_dbg_char_hex(rx_test[j]);
+		}		
+		
+		mcp_read_rx_buffer(MCP_SOUTH, MCP_INST_READ_RX_0, rx_test);
+		//print msg coarse
+		PRINT_NEWLINE()
+		for (int i = 0; i < MCP_CAN_MSG_SIZE - 1; i++)
+		{
+			print_dbg_char_hex(rx_test[i]);
+		}
+		
+		//ask for msg received
+		mcp_read_rx_buffer(MCP_SOUTH, MCP_INST_READ_RX_1, rx_test);
+		//print msg coarse
+		PRINT_NEWLINE()
+		for (int j = 0; j < MCP_CAN_MSG_SIZE - 1; j++)
+		{
+			print_dbg_char_hex(rx_test[j]);
+		}
+	}
+#endif
+
+	while (1)
+	{
+		
 		//run_firewall();
-		nop();
+		//nop();
 	}
 	
 	delay_ms(1000);

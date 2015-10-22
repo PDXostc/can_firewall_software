@@ -416,45 +416,59 @@ void test_mcp_spi_after_reset(struct spi_device *device)
 void test_setup_mcp_can(struct spi_device *device)
 {
 	//test CAN config setting
+	//while (1)
+//{
 	if(mcp_configure_bit_timings(device, MCP_VAL_CAN_500kbps_CLOCK_16Mhz) == MCP_RETURN_SUCCESS)
-	{
-		print_dbg("\n\rConfigure Bit timings Success...");
-	} else {
-		print_dbg("\n\rConfigure Bit timings FAIL!...");
-	}
-
-	mcp_print_bit_timings(device->id,
-		mcp_read_register(device, MCP_ADD_CNF1),
-		mcp_read_register(device, MCP_ADD_CNF2),
-		mcp_read_register(device, MCP_ADD_CNF3)
-		);
-
-	//test filter and mask setting action
-	//set all for accept standard
-	mcp_configure_can_id(device, MCP_ADD_RXF0SIDH, 0x00000000, false);
-	mcp_configure_can_id(device, MCP_ADD_RXF1SIDH, 0x00000000, false);
-	mcp_configure_can_id(device, MCP_ADD_RXF2SIDH, 0x00000000, false);
-	mcp_configure_can_id(device, MCP_ADD_RXF3SIDH, 0x00000000, false);
-	mcp_configure_can_id(device, MCP_ADD_RXF4SIDH, 0x00000000, false);
-	mcp_configure_can_id(device, MCP_ADD_RXF5SIDH, 0x00000000, false);
-	mcp_configure_can_id(device, MCP_ADD_RXM0SIDH, 0x00000000, false);
-	mcp_configure_can_id(device, MCP_ADD_RXM1SIDH, 0x00000000, false);
+		{
+			print_dbg("\n\rConfigure Bit timings Success...");
+		} else {
+			print_dbg("\n\rConfigure Bit timings FAIL!...");
+		}
 	
-	//set rxb0 and rxb1 configurations...
-	//TODO
-	// if we don't configure the RXBnCTRL, they remain in accept all mode...
-	mcp_set_register(device, MCP_ADD_RXB0CTRL, MCP_VAL_RXM_OFF);
-	mcp_set_register(device, MCP_ADD_RXB1CTRL, MCP_VAL_RXM_OFF);
+		mcp_print_bit_timings(device->id,
+			mcp_read_register(device, MCP_ADD_CNF1),
+			mcp_read_register(device, MCP_ADD_CNF2),
+			mcp_read_register(device, MCP_ADD_CNF3)
+			);
 	
-	//enter normal mode
-	if(mcp_set_control_mode(device, MCP_VAL_MODE_NORMAL) == MCP_RETURN_SUCCESS)
-	{
-		PRINT_NEWLINE()
-		print_dbg("\n\rNormal Configuration Accepted...\n\r");
-	} else {
-		PRINT_NEWLINE()
-		print_dbg("\n\rFAILED TO ENTER NORMAL CONFIGURATION MODE!");
-	}
+		//test filter and mask setting action
+		//set all for accept standard
+		mcp_configure_can_id(device, MCP_ADD_RXF0SIDH, 0x00000000, false);
+		mcp_configure_can_id(device, MCP_ADD_RXF1SIDH, 0x00000000, false);
+		mcp_configure_can_id(device, MCP_ADD_RXF2SIDH, 0x00000000, false);
+		mcp_configure_can_id(device, MCP_ADD_RXF3SIDH, 0x00000000, false);
+		mcp_configure_can_id(device, MCP_ADD_RXF4SIDH, 0x00000000, false);
+		mcp_configure_can_id(device, MCP_ADD_RXF5SIDH, 0x00000000, false);
+		mcp_configure_can_id(device, MCP_ADD_RXM0SIDH, 0x00000000, false);
+		mcp_configure_can_id(device, MCP_ADD_RXM1SIDH, 0x00000000, false);
+		
+		//set rxb0 and rxb1 configurations...
+		//TODO
+		// if we don't configure the RXBnCTRL, they remain in accept all mode...
+		mcp_set_register(device, MCP_ADD_RXB0CTRL, MCP_VAL_RXM_OFF);
+		mcp_set_register(device, MCP_ADD_RXB1CTRL, MCP_VAL_RXM_OFF);
+	//spi test -- good till...
+	//test forcing control mode and entire CANCTRL register...
+	//enter normal mode and set 0 in osm and clkout
+	// 
+	mcp_set_register(device, MCP_ADD_CANCTRL, 0x00);
+	//mcp_modify_register(device, MCP_ADD_CANCTRL, MCP_MASK_CTRL_MODE, MCP_VAL_MODE_NORMAL);
+	// 
+	//mcp_set_control_mode(device, MCP_VAL_MODE_NORMAL);
+// 	if(mcp_set_control_mode(device, MCP_VAL_MODE_NORMAL) == MCP_RETURN_SUCCESS)
+// 	{
+// 		PRINT_NEWLINE()
+// 		print_dbg("\n\rNormal Configuration Accepted...\n\r");
+// 	} else {
+// 		PRINT_NEWLINE()
+// 		print_dbg("\n\rFAILED TO ENTER NORMAL CONFIGURATION MODE!");
+// 	}
+	
+	print_dbg("\n\rControl Mode Register: ");
+	print_dbg_char_hex(mcp_read_register(device, MCP_ADD_CANCTRL));
+	print_dbg("\n\rControl Status Register: ");
+	print_dbg_char_hex(mcp_read_register(device, MCP_ADD_CANSTAT));
+//}
 }
 
 void test_setup_transmit_mcp_can(struct spi_device *device)
