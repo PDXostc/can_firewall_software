@@ -26,7 +26,7 @@
 
 #define MCP_INST_RTS_TXB0		0x81
 #define MCP_INST_RTS_TXB1		0x82
-#define MCP_INST_RTS_TXB2		0x83
+#define MCP_INST_RTS_TXB2		0x84
 #define MCP_INST_RTS_ALL		0x87
 
 #define MCP_INST_READ_STATUS	0xA0
@@ -174,6 +174,14 @@
 // TODO
 #define MCP_VAL_RTR					(0x40)
 
+// Transmit register enumerations, used when case switching to figure addresses or quick instructions...
+#define MCP_ENUM_TXB_0				0
+#define MCP_ENUM_TXB_1				1
+#define MCP_ENUM_TXB_2				2
+
+#define MCP_VAL_TXRTS_DIGITAL_INPUT	(0x00)
+#define MCP_VAL_TXBnCTRL_CLEAR		(0x00)
+
 // Message Receive Registers
 // TODO
 #define MCP_VAL_RXM_OFF				(0x60) // note: this setting receives ALL messages
@@ -224,10 +232,10 @@
 #define MCP_VAL_WAKIE				(0x40)
 #define MCP_VAL_MERRIE				(0x80)
 // combinations
-#define MCP_VAL_RX_INT_ENABLE		(0x03) // enable all rx interrupts
-#define MCP_VAL_TX_INT_ENABLE		(0x1C) // enable all tx interrupts
-#define MCP_VAL_RX_TX_INT_ENABLE	(0x1F) // enable all rx and tx interrupts
-#define MCP_VAL_RX_TX_INT_DISABLE	(0x00) // disable all rx and tx interrupts
+#define MCP_VAL_INT_RX_ENABLE		(0x03) // enable all rx interrupts
+#define MCP_VAL_INT_TX_ENABLE		(0x1C) // enable all tx interrupts
+#define MCP_VAL_INT_RX_TX_ENABLE	(0x1F) // enable all rx and tx interrupts
+#define MCP_VAL_INT_RX_TX_DISABLE	(0x00) // disable all rx and tx interrupts
 //
 // CANINTF - CAN interrupt flag
 // flags are single bits in a register
