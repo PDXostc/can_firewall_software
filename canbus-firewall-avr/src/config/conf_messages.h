@@ -22,4 +22,11 @@ extern void print_can_message(can_msg_t *msg);
 
 //test passing message
 can_msg_t msg_pass_all;
+can_msg_t msg_00;
+can_msg_t msg_a5;
+can_msg_t msg_7ff;
+
+can_mob_t mob_test_00;
+can_mob_t mob_test_a5;
+can_mob_t mob_test_7ff;
 #endif /* CONF_MESSAGES_H_ */

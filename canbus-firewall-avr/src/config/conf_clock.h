@@ -77,8 +77,8 @@
 //#define CONFIG_PLL0_SOURCE          PLL_SRC_RC8M
 
 /* Fpll0 = (Fclk * PLL_mul) / PLL_div */
-#define CONFIG_PLL0_MUL               (192000000UL / BOARD_OSC0_HZ)
-#define CONFIG_PLL0_DIV               3
+#define CONFIG_PLL0_MUL               (64000000UL / BOARD_OSC0_HZ)
+#define CONFIG_PLL0_DIV               1
 
 //#define CONFIG_PLL1_SOURCE          PLL_SRC_OSC0
 //#define CONFIG_PLL1_SOURCE          PLL_SRC_OSC1

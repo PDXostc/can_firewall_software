@@ -49,6 +49,9 @@
 #include "filter.h"
 #include "sleep.h"
 #include "polarssl/sha2.h"
+#include "led.h"
+#include "loopback.h"
+#include "mcp.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
@@ -68,18 +71,9 @@ volatile can_mob_t can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE] __attribute__
 #elif defined (__ICCAVR32__)
 volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA0000000;
 volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
+volatile __no_init can_mob_t can_msg_que_north_rx_south_tx[CAN_MSG_QUE_SIZE] @0xA0000000;
+volatile __no_init can_mob_t can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE] @0xA0000000;
 #endif
-
-//Single channel rx/tx state switcher, TESTING ONLY, REMOVE IN NEXT VERSION
-enum State_Channel_t{
-	WAIT, RX_INIT, RX, TX
-};
-
-enum State_Channel_t State_Channel = RX_INIT;
-
-static inline void set_state_channel(enum State_Channel_t state){
-	State_Channel = state;
-}
 
 //SRAM Allocation for loaded filter rulesets
 static rule_t can_ruleset_north_rx_south_tx[SIZE_RULESET];
@@ -92,166 +86,61 @@ volatile can_mob_t *tx_n =   &can_msg_que_south_rx_north_tx[0];
 
 volatile can_mob_t *rx_n =   &can_msg_que_north_rx_south_tx[0];
 volatile can_mob_t *proc_n = &can_msg_que_north_rx_south_tx[0];
-/*volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];*/
-
-//single channel test, transmit lives on south..
-volatile can_mob_t *tx_s =   &can_msg_que_south_rx_north_tx[0];
-
-/* Call backs */
-
-static void can_out_callback_south_tx(U8 handle, U8 event){
-	//TODO
-	//stub
-	//     handle = CANIF_mob_get_mob_txok(1) ;
-	//     if (handle != 0x20)
-	//     {
-	//         CANIF_mob_clear_txok_status(1,handle);
-	//         CANIF_mob_clear_status(1,handle); //   and reset MOb status
-	//     }
-	//event = CAN_STATUS_COMPLETED;
-	#if DBG_CAN_MSG
-	print_dbg("\n\rTransmitted CAN Msg\n\r");
-	print_can_message(tx_s->can_msg);
-	#endif
-	// Transmission Only
-	can_mob_free(CAN_CH_SOUTH,handle);
-}
-//
-static void can_prepare_data_to_send_south(void){
-	//TODO
-	//stub
-	//Init channel south
-	can_init(CAN_CH_SOUTH,
-	((uint32_t)&CAN_MOB_NORTH_RX_SOUTH_TX),
-	CANIF_CHANNEL_MODE_NORMAL,
-	can_out_callback_south_tx);
-
-	//INTC_register_interrupt(&can_out_callback_south_rx, AVR32_CANIF_RXOK_IRQ_1, CAN1_INT_RX_LEVEL);
-	//INTC_register_interrupt(&can_out_callback_south_tx, AVR32_CANIF_TXOK_IRQ_1, CAN1_INT_TX_LEVEL);
-
-	//Allocate mob for TX
-	tx_s->handle = can_mob_alloc(CAN_CH_SOUTH);
-	/* Check return if no mob are available */
-	while (tx_s->handle==CAN_CMD_REFUSED) {
-		
-	}
-
-	can_tx(CAN_CH_SOUTH,
-	tx_s->handle,
-	tx_s->dlc,
-	tx_s->req_type,
-	tx_s->can_msg);
-
-	//increment
-	//Disable_global_interrupt();
-	//advance ptr
-	if(tx_s >= &can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE - 1])
-	{
-		tx_s = &can_msg_que_south_rx_north_tx[0];
-		} else {
-		tx_s = tx_s + 1;
-	}
-	
-	set_state_channel(RX_INIT);
-	
-	//Enable_global_interrupt();
-
-}
-
-static void can_out_callback_south_rx(U8 handle, U8 event){
-	
-	//Disable_global_interrupt();
-	//inlining for now...
-	//copy to location of desired rx ptr in queue
-	rx_s->can_msg->data.u64 = can_get_mob_data(CAN_CH_SOUTH, handle).u64;
-	rx_s->can_msg->id = can_get_mob_id(CAN_CH_SOUTH, handle);
-	rx_s->dlc = DLC_LENGTH; //can_get_mob_dlc(CAN_CH_SOUTH, handle);
-	
-	//print what we got
-	#if DBG_CAN_MSG
-	print_dbg("\n\rReceived can message on SOUTH line:\n\r");
-	//print_dbg_ulong(south_rx_msg01.can_msg->data.u64);
-	PRINT_NEWLINE
-	print_can_message(rx_s->can_msg);
-	//print_can_message(south_rx_msg02.can_msg);
-	#endif
-	
-	//advance ptr
-	if(rx_s >= &can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE - 1])
-	{
-		rx_s = &can_msg_que_south_rx_north_tx[0];
-		} else {
-		rx_s = rx_s + 1;
-	}
-
-	//release mob in hsb
-	can_mob_free(CAN_CH_SOUTH, handle);
-	//set ready to evaluate message
-	//TODO: state machine call
-	
-	set_state_channel(RX);
-	
-	//Enable_global_interrupt();
-}
-
-static void can_prepare_data_to_receive_south(void){
-	//TODO
-	//stub//Init channel north
-	
-	can_init(CAN_CH_SOUTH,
-	((uint32_t)&CAN_MOB_SOUTH_RX_NORTH_TX),
-	CANIF_CHANNEL_MODE_NORMAL,
-	can_out_callback_south_rx);
-	//Allocate mob for TX
-	rx_s->handle = can_mob_alloc(CAN_CH_SOUTH);
-	//south_rx_msg02.handle = can_mob_alloc(CAN_CH_SOUTH);
-	
-	//INTC_register_interrupt(&can_out_callback_south_rx, AVR32_CANIF_RXOK_IRQ_1, CAN1_INT_RX_LEVEL);
-	//INTC_register_interrupt(&can_out_callback_south_tx, AVR32_CANIF_TXOK_IRQ_1, CAN1_INT_TX_LEVEL);
-	
-	//Check no mob available
-	//if(south_rx_msg01.handle==CAN_CMD_REFUSED || south_rx_msg02.handle==CAN_CMD_REFUSED){
-	//while(1);
-	//}
-	
-	can_rx(CAN_CH_SOUTH,
-	rx_s->handle,
-	rx_s->req_type,
-	&msg_pass_all);
-	
-	#if DBG_CAN_MSG
-	print_dbg("\n\rCAN Init Receive Ready...");
-	#endif
-	
-	set_state_channel(WAIT);
-}
-
-static void can_prepare_next_receive_south(void)
-{
-	//Disable_global_interrupt();
-	
-	rx_s->handle = can_mob_alloc(CAN_CH_SOUTH);
-	
-	INTC_register_interrupt((void *)&can_out_callback_south_rx, AVR32_CANIF_RXOK_IRQ_1, CAN1_INT_RX_LEVEL);
-	
-	can_rx(CAN_CH_SOUTH,
-	rx_s->handle,
-	rx_s->req_type,
-	rx_s->can_msg);
-	
-	#if DBG_CAN_MSG
-	print_dbg("\n\rCAN Receive Ready...");
-	#endif
-	//Enable_global_interrupt();
-}
+volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 
+//test of our rx_config struct
+struct RX_config rx_config_default = {
+	._RXM0 = 0x00000000,
+	._RXF0 = 0x00000000,
+	._RXF1 = 0x00000000,
+	._RX0_EID = 0x00,
+	._RXM1 = 0x00000000,
+	._RXF2 = 0x00000000,
+	._RXF3 = 0x00000000,
+	._RXF4 = 0x00000000,
+	._RXF5 = 0x00000000,
+	._RX1_EID = (MCP_MASK_RXM1_EID |\
+				 MCP_MASK_RXF2_EID |\
+				 MCP_MASK_RXF3_EID |\
+				 MCP_MASK_RXF4_EID |\
+				 MCP_MASK_RXF5_EID),
+	._RXB0_BUKT = MCP_VAL_BUKT_ROLLOVER_EN,
+	._MCP_VAL_RX0_CTRL = MCP_VAL_RXM_STD_EXT,
+	._MCP_VAL_RX1_CTRL = MCP_VAL_RXM_STD_EXT
+	};
+	
+struct RX_config rx_config_test_01 = {
+	._RXM0 = 0x7FF,
+	._RXF0 = 0x7FF,
+	._RXF1 = 0x0A5,
+	._RX0_EID = 0x00,
+	._RXM1 = 0x1FFFFFFF,
+	._RXF2 = 0x1FFFFFFF,
+	._RXF3 = 0x1A5A5A5A,
+	._RXF4 = 0x00000000,
+	._RXF5 = 0x00000000,
+	._RX1_EID = (MCP_MASK_RXM1_EID |\
+	MCP_MASK_RXF2_EID |\
+	MCP_MASK_RXF3_EID |\
+	MCP_MASK_RXF4_EID |\
+	MCP_MASK_RXF5_EID),
+	//._RXB0_BUKT = MCP_VAL_BUKT_ROLLOVER_EN,
+	._MCP_VAL_RX0_CTRL = MCP_VAL_RXM_STD_ONLY,
+	._MCP_VAL_RX1_CTRL = MCP_VAL_RXM_EXT_ONLY
+};
+
+/* Utility wrapper for deleting an Atmel CAN message object
+*/
 static inline void wipe_mob(volatile can_mob_t **mob)
 {
 	memset((void *)(*mob), 0, sizeof(can_mob_t));
 }
 
+/* Process function to be deprecated. Shows handling of messages based on
+* evaluation function included in filter
+*/
 static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, rule_t* ruleset, volatile can_mob_t *que)
 {
 	//check for each proc ptr to not equal the location we will copy to
@@ -276,18 +165,17 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 		
 		switch(eval) {
 			case NEW:
-			if(detected_shunt){
+			if(test_loopback() == true){
 				//does not check for success
 				handle_new_rule_data(&(*proc)->can_msg->data);
 			}
-			set_state_channel(RX_INIT);
 			break;
 			
 			case FILTER:
 			//check for transform and rule conditions
 			// switch on xform (once for each half byte)
 			//apply rule to message, que for transmit
-			// 
+			//
 			
 			//operate on id, mask and shift to isolate upper half byte
 			xform = (rule_match->xform & 0xF0) >> 4;
@@ -305,24 +193,13 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 			{
 				wipe_mob(&(*proc));
 				break;
-			}			
-			
-			//test of single channel que for transmit:
-			if((*proc)->can_msg->id > 0)
-			{
-				set_state_channel(TX);	
-			} else {
-				set_state_channel(RX_INIT);
 			}
-			
-			
 			break;
 			
 			case DISCARD:
 			default:
 			//delete what is here
 			wipe_mob(&(*proc));
-			set_state_channel(RX_INIT);
 			break;
 		}
 	}
@@ -340,6 +217,9 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 	//Enable_global_interrupt();
 }
 
+/* Transmit function to be deprecated. Shows simple queue output logic.
+*
+*/
 static inline void transmit(volatile can_mob_t **proc, volatile can_mob_t **tx, volatile can_mob_t *que, int tx_direction)
 {
 	if (*tx == *proc)
@@ -362,35 +242,20 @@ static inline void transmit(volatile can_mob_t **proc, volatile can_mob_t **tx, 
 			}
 			else if(tx_direction == 1)
 			{
-				can_prepare_data_to_send_south();
+				//can_prepare_data_to_send_south();
 			}
-		} else {
-			 Disable_global_interrupt();
-			 //advance ptr
-			 if(*tx >= &que[CAN_MSG_QUE_SIZE - 1])
-			 {
-				 *tx = &que[0];
-				 } else {
-				 *tx = *tx + 1;
-			 }
-			 
-			 set_state_channel(RX_INIT);
-	
-			 Enable_global_interrupt();
 		}
-		
 	}
-	//     //increment
-	//     //Disable_global_interrupt();
-	//     //advance ptr
-	//     if(*tx >= &que[CAN_MSG_QUE_SIZE - 1])
-	//     {
-	//         *tx = &que[0];
-	//         } else {
-	//         *tx = *tx + 1;
-	//     }
-	//
-	//     Enable_global_interrupt();
+	
+	//increment
+	//advance ptr
+	if(*tx >= &que[CAN_MSG_QUE_SIZE - 1])
+	{
+		*tx = &que[0];
+		} else {
+		*tx = *tx + 1;
+	}
+	
 }
 
 static void init(void) {
@@ -416,28 +281,25 @@ static void init(void) {
 	print_dbg("\n\rPBA Freq\n\r");
 	print_dbg_ulong(sysclk_get_pba_hz());
 	#endif
+
+	init_led_gpio_ports();
 }
 
+/* Old CAN Initialization. Uses CANIF peripheral and internal generic clock,
+* deprecated in favor MCP25625.
+*
+* TODO: Rewrite to init MCP25625
+*/
 static void init_can(void) {
 	/* Setup generic clock for CAN */
 	/* Remember to calibrate this correctly to our external osc*/
+	#if 0
 	int setup_gclk;
-	#if 1
+	
 	setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
 	SCIF_GCCTRL_PLL0,
 	AVR32_SCIF_GC_USES_PLL0,
 	4);
-	#elif 0
-	setup_gclk= scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-	SCIF_GCCTRL_PBCCLOCK,
-	AVR32_SCIF_GC_DIV_CLOCK,
-	CANIF_OSC_DIV);
-	#elif 0
-	setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-	SCIF_GCCTRL_OSC0,
-	AVR32_SCIF_GC_NO_DIV_CLOCK,
-	0);
-	#endif
 
 	#if DBG_CLKS
 	if (setup_gclk ==0)
@@ -446,7 +308,6 @@ static void init_can(void) {
 		}else {
 		print_dbg("\n\rGeneric clock NOT SETUP\n\r");
 	}
-	
 	#endif
 
 	/* Enable generic clock */
@@ -482,6 +343,8 @@ static void init_can(void) {
 	
 	/* Enable all interrupts. */
 	Enable_global_interrupt();
+	
+	#endif
 }
 
 static void init_rules(void)
@@ -496,40 +359,14 @@ static void init_rules(void)
 /* Main filter loop; designed to be a linear pipeline that we will try to get done as quickly as possible */
 static inline void run_firewall(void)
 {
+	#if 0
 	//maintain and move proc_ ptrs
 	process(&rx_s, &proc_s, can_ruleset_south_rx_north_tx, can_msg_que_south_rx_north_tx);
 	process(&rx_n, &proc_n, can_ruleset_north_rx_south_tx, can_msg_que_north_rx_south_tx);
 	//maintain and move tx_ ptrs
-	//     transmit(&proc_s, &tx_n, can_msg_que_south_rx_north_tx);
-	//     transmit(&proc_n, &tx_s, can_msg_que_north_rx_south_tx);
-}
-
-/* Single channel usage of firewall */
-static inline void run_firewall_single_channel(void)
-{
-	//Disable_global_interrupt();
-	//first iteration just flips over when rx or tx
-	switch(State_Channel)
-	{
-		case RX_INIT:
-		can_prepare_data_to_receive_south();
-		//State_Channel = RX;
-		break;
-		
-		case RX:
-		process(&rx_s, &proc_s, can_ruleset_south_rx_north_tx, can_msg_que_south_rx_north_tx);
-		//State_Channel = TX;
-		break;
-		
-		case TX:
-		transmit(&proc_s, &tx_s, can_msg_que_south_rx_north_tx, CAN_CH_SOUTH);
-		break;
-		
-		case WAIT:
-		//wait for callback
-		break;
-	}
-	//Enable_global_interrupt();
+	transmit(&proc_s, &tx_n, can_msg_que_south_rx_north_tx);
+	transmit(&proc_n, &tx_s, can_msg_que_north_rx_south_tx);
+	#endif
 }
 
 int main (void)
@@ -539,35 +376,125 @@ int main (void)
 	init_can();
 	init_rules();
 
-	//set rules in ruleset for testing
-	//can_ruleset_south_rx_north_tx[0] = test_pass;
-	for (int i = 0; i < SIZE_RULESET-1; i++)
-	{
-		can_ruleset_south_rx_north_tx[i] = rule_test_block;
-	}
-	can_ruleset_south_rx_north_tx[15] = rule_test_inside_range_xform_data_set;
+	// 	init_led_gpio_ports();
+	set_led(LED_01, LED_ON);
+	set_led(LED_02, LED_ON);
+	set_led(LED_01, LED_OFF);
+	set_led(LED_02, LED_OFF);
+	
+	init_mcp_module();
 
-	#if 1
+#if 1	
+// 	test_mcp_spi_after_reset(MCP_NORTH);
+// 	test_mcp_spi_after_reset(MCP_SOUTH);
+	
+	uint8_t init_success = 0xFF;
+
+	init_success = mcp_init_can(MCP_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
+	if (init_success != MCP_RETURN_SUCCESS)
+	{
+		print_dbg("\n\rInit FAIL NORTH");
+	}
+	init_success = mcp_init_can(MCP_SOUTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
+	if (init_success != MCP_RETURN_SUCCESS)
+	{
+		print_dbg("\n\rInit FAIL SOUTH");
+	}
+	
+	test_setup_transmit_mcp_can(MCP_NORTH);
+	test_setup_transmit_mcp_can(MCP_SOUTH);
+	
+	uint8_t rx_test[MCP_CAN_MSG_SIZE] = {0};
+	
+	mcp_print_status(MCP_NORTH);
+		mcp_print_status(MCP_SOUTH);
+		
+	mcp_print_txbnctrl(MCP_NORTH);
+		
+	mcp_print_error_registers(MCP_NORTH);		
+
+	mcp_print_txbnctrl(MCP_SOUTH);
+	
+	mcp_print_error_registers(MCP_SOUTH);
+		
+	while (1)
+{
+
+// }
+// 	
+// 	
+// 	//read all rx buffers
+// 	while (0)
+// 	{
+// 	
+		#define set_rx_test_0() {\
+			for (int z = 0; z < MCP_CAN_MSG_SIZE; z++)\
+			{\
+				rx_test[z] = 0x00;\
+			}\
+		};\
+		//ask for msg received
+		mcp_read_rx_buffer(MCP_NORTH, MCP_INST_READ_RX_0, rx_test);
+		//mcp_read_registers_consecutive(MCP_NORTH, MCP_ADD_RXB0SIDH, rx_test, MCP_CAN_MSG_SIZE);
+		//mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, ~MCP_FLAG_RX0IF);
+		//print msg coarse
+		PRINT_NEWLINE()
+		for (int i = 0; i < MCP_CAN_MSG_SIZE; i++)
+		{
+			print_dbg_char_hex(rx_test[i]);			
+		}
+		set_rx_test_0()
+		
+		//ask for msg received
+		mcp_read_rx_buffer(MCP_NORTH, MCP_INST_READ_RX_1, rx_test);
+		//mcp_read_registers_consecutive(MCP_NORTH, MCP_ADD_RXB1SIDH, rx_test, MCP_CAN_MSG_SIZE);
+		//mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, ~MCP_FLAG_RX1IF);
+		//print msg coarse
+		PRINT_NEWLINE()
+		for (int j = 0; j < MCP_CAN_MSG_SIZE; j++)
+		{
+			print_dbg_char_hex(rx_test[j]);
+		}		
+		set_rx_test_0()
+		
+		mcp_read_rx_buffer(MCP_SOUTH, MCP_INST_READ_RX_0, rx_test);
+		//mcp_read_registers_consecutive(MCP_NORTH, MCP_ADD_RXB0SIDH, rx_test, MCP_CAN_MSG_SIZE);
+		//mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, ~MCP_FLAG_RX0IF);
+		//print msg coarse
+		PRINT_NEWLINE()
+		for (int k = 0; k < MCP_CAN_MSG_SIZE; k++)
+		{
+			print_dbg_char_hex(rx_test[k]);
+		}
+		set_rx_test_0()
+		
+		//ask for msg received
+		mcp_read_rx_buffer(MCP_SOUTH, MCP_INST_READ_RX_1, rx_test);
+		//mcp_read_registers_consecutive(MCP_NORTH, MCP_ADD_RXB1SIDH, rx_test, MCP_CAN_MSG_SIZE);
+		//mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, ~MCP_FLAG_RX1IF);
+		//print msg coarse
+		PRINT_NEWLINE()
+		for (int l = 0; l < MCP_CAN_MSG_SIZE; l++)
+		{
+			print_dbg_char_hex(rx_test[l]);
+		}
+		set_rx_test_0()
+		
+		mcp_print_status(MCP_NORTH);
+		mcp_print_status(MCP_SOUTH);
+	}
+#endif
 
 	while (1)
 	{
+		
 		//run_firewall();
-		run_firewall_single_channel();
+		//nop();
 	}
-	
-	#endif
 	
 	delay_ms(1000);
 	
 	//wait for end while debugging
 	
-	sleep_mode_start();
-	
-	#if 0
-	while(true){
-		delay_ms(1000);
-	}
-	#endif
-
-	
+	sleep_mode_start();	
 }

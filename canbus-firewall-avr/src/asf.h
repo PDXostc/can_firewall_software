@@ -77,6 +77,9 @@
 // From module: Delay routines
 #include <delay.h>
 
+// From module: EIC - External Interrupt Controller
+#include <eic.h>
+
 // From module: FLASHC - Flash Controller
 #include <flashc.h>
 
@@ -136,6 +139,10 @@
 
 // From module: SPI - Serial Peripheral Interface
 #include <spi.h>
+
+// From module: SPI - UC3 implementation
+#include <spi_master.h>
+#include <spi_master.h>
 
 // From module: System Clock Control - UC3 C implementation
 #include <sysclk.h>
