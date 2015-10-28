@@ -51,6 +51,7 @@
 #include "polarssl/sha2.h"
 #include "led.h"
 #include "loopback.h"
+#include "mcp.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
@@ -89,16 +90,57 @@ volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 
+//test of our rx_config struct
+struct RX_config rx_config_default = {
+	._RXM0 = 0x00000000,
+	._RXF0 = 0x00000000,
+	._RXF1 = 0x00000000,
+	._RX0_EID = 0x00,
+	._RXM1 = 0x00000000,
+	._RXF2 = 0x00000000,
+	._RXF3 = 0x00000000,
+	._RXF4 = 0x00000000,
+	._RXF5 = 0x00000000,
+	._RX1_EID = (MCP_MASK_RXM1_EID |\
+				 MCP_MASK_RXF2_EID |\
+				 MCP_MASK_RXF3_EID |\
+				 MCP_MASK_RXF4_EID |\
+				 MCP_MASK_RXF5_EID),
+	._RXB0_BUKT = MCP_VAL_BUKT_ROLLOVER_EN,
+	._MCP_VAL_RX0_CTRL = MCP_VAL_RXM_STD_EXT,
+	._MCP_VAL_RX1_CTRL = MCP_VAL_RXM_STD_EXT
+	};
+	
+struct RX_config rx_config_test_01 = {
+	._RXM0 = 0x7FF,
+	._RXF0 = 0x7FF,
+	._RXF1 = 0x0A5,
+	._RX0_EID = 0x00,
+	._RXM1 = 0x1FFFFFFF,
+	._RXF2 = 0x1FFFFFFF,
+	._RXF3 = 0x1A5A5A5A,
+	._RXF4 = 0x00000000,
+	._RXF5 = 0x00000000,
+	._RX1_EID = (MCP_MASK_RXM1_EID |\
+	MCP_MASK_RXF2_EID |\
+	MCP_MASK_RXF3_EID |\
+	MCP_MASK_RXF4_EID |\
+	MCP_MASK_RXF5_EID),
+	//._RXB0_BUKT = MCP_VAL_BUKT_ROLLOVER_EN,
+	._MCP_VAL_RX0_CTRL = MCP_VAL_RXM_STD_ONLY,
+	._MCP_VAL_RX1_CTRL = MCP_VAL_RXM_EXT_ONLY
+};
+
 /* Utility wrapper for deleting an Atmel CAN message object
- */
+*/
 static inline void wipe_mob(volatile can_mob_t **mob)
 {
 	memset((void *)(*mob), 0, sizeof(can_mob_t));
 }
 
 /* Process function to be deprecated. Shows handling of messages based on
- * evaluation function included in filter
- */
+* evaluation function included in filter
+*/
 static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, rule_t* ruleset, volatile can_mob_t *que)
 {
 	//check for each proc ptr to not equal the location we will copy to
@@ -133,7 +175,7 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 			//check for transform and rule conditions
 			// switch on xform (once for each half byte)
 			//apply rule to message, que for transmit
-			// 
+			//
 			
 			//operate on id, mask and shift to isolate upper half byte
 			xform = (rule_match->xform & 0xF0) >> 4;
@@ -151,7 +193,7 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 			{
 				wipe_mob(&(*proc));
 				break;
-			}			
+			}
 			break;
 			
 			case DISCARD:
@@ -176,8 +218,8 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 }
 
 /* Transmit function to be deprecated. Shows simple queue output logic.
- * 
- */
+*
+*/
 static inline void transmit(volatile can_mob_t **proc, volatile can_mob_t **tx, volatile can_mob_t *que, int tx_direction)
 {
 	if (*tx == *proc)
@@ -202,16 +244,16 @@ static inline void transmit(volatile can_mob_t **proc, volatile can_mob_t **tx, 
 			{
 				//can_prepare_data_to_send_south();
 			}
-		}		
+		}
 	}
 	
 	//increment
 	//advance ptr
 	if(*tx >= &que[CAN_MSG_QUE_SIZE - 1])
 	{
-	    *tx = &que[0];
-	    } else {
-	    *tx = *tx + 1;
+		*tx = &que[0];
+		} else {
+		*tx = *tx + 1;
 	}
 	
 }
@@ -239,16 +281,19 @@ static void init(void) {
 	print_dbg("\n\rPBA Freq\n\r");
 	print_dbg_ulong(sysclk_get_pba_hz());
 	#endif
+
+	init_led_gpio_ports();
 }
 
 /* Old CAN Initialization. Uses CANIF peripheral and internal generic clock,
- * deprecated in favor MCP25625. 
- * 
- * TODO: Rewrite to init MCP25625
- */
+* deprecated in favor MCP25625.
+*
+* TODO: Rewrite to init MCP25625
+*/
 static void init_can(void) {
 	/* Setup generic clock for CAN */
 	/* Remember to calibrate this correctly to our external osc*/
+	#if 0
 	int setup_gclk;
 	
 	setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
@@ -262,7 +307,7 @@ static void init_can(void) {
 		print_dbg("\n\rGeneric clock setup\n\r");
 		}else {
 		print_dbg("\n\rGeneric clock NOT SETUP\n\r");
-	}	
+	}
 	#endif
 
 	/* Enable generic clock */
@@ -298,6 +343,8 @@ static void init_can(void) {
 	
 	/* Enable all interrupts. */
 	Enable_global_interrupt();
+	
+	#endif
 }
 
 static void init_rules(void)
@@ -329,15 +376,125 @@ int main (void)
 	init_can();
 	init_rules();
 
-	while (0)
+	// 	init_led_gpio_ports();
+	set_led(LED_01, LED_ON);
+	set_led(LED_02, LED_ON);
+	set_led(LED_01, LED_OFF);
+	set_led(LED_02, LED_OFF);
+	
+	init_mcp_module();
+
+#if 1	
+// 	test_mcp_spi_after_reset(MCP_NORTH);
+// 	test_mcp_spi_after_reset(MCP_SOUTH);
+	
+	uint8_t init_success = 0xFF;
+
+	init_success = mcp_init_can(MCP_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
+	if (init_success != MCP_RETURN_SUCCESS)
 	{
-		run_firewall();
+		print_dbg("\n\rInit FAIL NORTH");
+	}
+	init_success = mcp_init_can(MCP_SOUTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
+	if (init_success != MCP_RETURN_SUCCESS)
+	{
+		print_dbg("\n\rInit FAIL SOUTH");
+	}
+	
+	test_setup_transmit_mcp_can(MCP_NORTH);
+	test_setup_transmit_mcp_can(MCP_SOUTH);
+	
+	uint8_t rx_test[MCP_CAN_MSG_SIZE] = {0};
+	
+	mcp_print_status(MCP_NORTH);
+		mcp_print_status(MCP_SOUTH);
+		
+	mcp_print_txbnctrl(MCP_NORTH);
+		
+	mcp_print_error_registers(MCP_NORTH);		
+
+	mcp_print_txbnctrl(MCP_SOUTH);
+	
+	mcp_print_error_registers(MCP_SOUTH);
+		
+	while (1)
+{
+
+// }
+// 	
+// 	
+// 	//read all rx buffers
+// 	while (0)
+// 	{
+// 	
+		#define set_rx_test_0() {\
+			for (int z = 0; z < MCP_CAN_MSG_SIZE; z++)\
+			{\
+				rx_test[z] = 0x00;\
+			}\
+		};\
+		//ask for msg received
+		mcp_read_rx_buffer(MCP_NORTH, MCP_INST_READ_RX_0, rx_test);
+		//mcp_read_registers_consecutive(MCP_NORTH, MCP_ADD_RXB0SIDH, rx_test, MCP_CAN_MSG_SIZE);
+		//mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, ~MCP_FLAG_RX0IF);
+		//print msg coarse
+		PRINT_NEWLINE()
+		for (int i = 0; i < MCP_CAN_MSG_SIZE; i++)
+		{
+			print_dbg_char_hex(rx_test[i]);			
+		}
+		set_rx_test_0()
+		
+		//ask for msg received
+		mcp_read_rx_buffer(MCP_NORTH, MCP_INST_READ_RX_1, rx_test);
+		//mcp_read_registers_consecutive(MCP_NORTH, MCP_ADD_RXB1SIDH, rx_test, MCP_CAN_MSG_SIZE);
+		//mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, ~MCP_FLAG_RX1IF);
+		//print msg coarse
+		PRINT_NEWLINE()
+		for (int j = 0; j < MCP_CAN_MSG_SIZE; j++)
+		{
+			print_dbg_char_hex(rx_test[j]);
+		}		
+		set_rx_test_0()
+		
+		mcp_read_rx_buffer(MCP_SOUTH, MCP_INST_READ_RX_0, rx_test);
+		//mcp_read_registers_consecutive(MCP_NORTH, MCP_ADD_RXB0SIDH, rx_test, MCP_CAN_MSG_SIZE);
+		//mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, ~MCP_FLAG_RX0IF);
+		//print msg coarse
+		PRINT_NEWLINE()
+		for (int k = 0; k < MCP_CAN_MSG_SIZE; k++)
+		{
+			print_dbg_char_hex(rx_test[k]);
+		}
+		set_rx_test_0()
+		
+		//ask for msg received
+		mcp_read_rx_buffer(MCP_SOUTH, MCP_INST_READ_RX_1, rx_test);
+		//mcp_read_registers_consecutive(MCP_NORTH, MCP_ADD_RXB1SIDH, rx_test, MCP_CAN_MSG_SIZE);
+		//mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, ~MCP_FLAG_RX1IF);
+		//print msg coarse
+		PRINT_NEWLINE()
+		for (int l = 0; l < MCP_CAN_MSG_SIZE; l++)
+		{
+			print_dbg_char_hex(rx_test[l]);
+		}
+		set_rx_test_0()
+		
+		mcp_print_status(MCP_NORTH);
+		mcp_print_status(MCP_SOUTH);
+	}
+#endif
+
+	while (1)
+	{
+		
+		//run_firewall();
+		//nop();
 	}
 	
 	delay_ms(1000);
 	
 	//wait for end while debugging
 	
-	sleep_mode_start();
-	
+	sleep_mode_start();	
 }

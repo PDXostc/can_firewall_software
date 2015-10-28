@@ -50,18 +50,18 @@
 /* Possibility to change low-level configurations here */
 
 //! Default Config Spi Master Delay BCS
-// #define CONFIG_SPI_MASTER_DELAY_BCS            0
+#define CONFIG_SPI_MASTER_DELAY_BCS            1
 
 //! Default Config Spi Master Bits per Transfer Definition
-// #define CONFIG_SPI_MASTER_BITS_PER_TRANSFER    8
+#define CONFIG_SPI_MASTER_BITS_PER_TRANSFER    8
 
 //! Default Config Spi Master Delay BCT
-// #define CONFIG_SPI_MASTER_DELAY_BCT            0
+#define CONFIG_SPI_MASTER_DELAY_BCT            0
 
 //! Default Config Spi Master Delay BS
-// #define CONFIG_SPI_MASTER_DELAY_BS             0
+#define CONFIG_SPI_MASTER_DELAY_BS             2
 
 //! Default Config Spi Master Dummy Field
-// #define CONFIG_SPI_MASTER_DUMMY                0xFF
+#define CONFIG_SPI_MASTER_DUMMY                0xFF
 
 #endif /* CONF_SPI_MASTER_H_INCLUDED */
