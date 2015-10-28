@@ -542,7 +542,6 @@
     <Folder Include="src\ASF\common\services\ioport\" />
     <Folder Include="src\ASF\common\services\ioport\uc3\" />
     <Folder Include="src\ASF\common\services\spi\" />
-    <Folder Include="src\ASF\common\services\spi\uc3_spi\" />
     <Folder Include="src\ASF\common\utils\" />
     <Folder Include="src\ASF\common\utils\interrupt\" />
     <Folder Include="src\ASF\common\utils\stdio\" />
@@ -553,6 +552,7 @@
     <Folder Include="src\ASF\thirdparty\polarssl\include\" />
     <Folder Include="src\ASF\thirdparty\polarssl\include\polarssl\" />
     <Folder Include="src\config\" />
+    <Folder Include="src\config\uc3_spi\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\ASF\avr32\drivers\canif\canif.c">
@@ -636,12 +636,6 @@
     <None Include="src\ASF\common\services\spi\spi_master.h">
       <SubType>compile</SubType>
     </None>
-    <Compile Include="src\ASF\common\services\spi\uc3_spi\spi_master.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <None Include="src\ASF\common\services\spi\uc3_spi\spi_master.h">
-      <SubType>compile</SubType>
-    </None>
     <Compile Include="src\config\conf_can_mcp.h">
       <SubType>compile</SubType>
     </Compile>
@@ -652,6 +646,12 @@
       <SubType>compile</SubType>
     </None>
     <Compile Include="src\config\mcp_definitions.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\config\uc3_spi\spi_master.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\config\uc3_spi\spi_master.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\filter.c">

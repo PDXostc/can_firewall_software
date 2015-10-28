@@ -11,8 +11,19 @@
 
 #include "mcp_definitions.h"
 
-//enumerations
+/* Bit timing settings
+ * When adding it is recommended to verify values manually using the formulae
+ * provided in manual for MCP25625.
+ * However an excellent resource exists for double checking register settings and
+ * quickly getting settings for desired bit rates:
+ * KVASER CAN RATE CALCULATOR:
+ * http://www.kvaser.com/support/calculators/bit-timing-calculator/
+ */
+
+//enumerations, when adding here, just use the next number in sequence
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz		1
+#define MCP_VAL_CAN_1mbps_CLOCK_16Mhz		2
+#define MCP_VAL_CAN_125kbps_CLOCK_16Mhz		3
 
 /************************************************************************/
 /* CNF1
@@ -26,12 +37,6 @@
  * TQ = 2 x (BRP + 1)/FOSC 
  * */
 /************************************************************************/
-
-
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_BRP		(0x00)
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_SJW		(MCP_VAL_SJW4)
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_CNF1	(MCP_VAL_CAN_500kbps_CLOCK_16Mhz_BRP |\
-												 MCP_VAL_CAN_500kbps_CLOCK_16Mhz_SJW)
 
 /************************************************************************/
 /* CNF2
@@ -50,14 +55,6 @@
 * (PRSEG + 1) x TQ
  * */
 /************************************************************************/
-
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_BTLMODE		(MCP_VAL_BTL_MODE_ENABLE)
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PRSEG		(0x04 - 1)
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG1		((0x04 - 1) << 3)
-#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_CNF2		(MCP_VAL_CAN_500kbps_CLOCK_16Mhz_BTLMODE |\
-													 MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PRSEG |\
-													 MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG1)
-
 
 /************************************************************************/
 /* CNF3
@@ -79,15 +76,54 @@
  * */
 /************************************************************************/
 
+/************************************************************************/
+/* 500kbps   16Mhz                                                      */
+/************************************************************************/
+
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_BRP		(0x00)
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_SJW		(MCP_VAL_SJW4)
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_CNF1	(MCP_VAL_CAN_500kbps_CLOCK_16Mhz_BRP |\
+												 MCP_VAL_CAN_500kbps_CLOCK_16Mhz_SJW)
+
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_BTLMODE		(MCP_VAL_BTL_MODE_ENABLE)
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PRSEG		(0x07 - 1)
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG1		((0x04 - 1) << 3)
+#define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_CNF2		(MCP_VAL_CAN_500kbps_CLOCK_16Mhz_BTLMODE |\
+													 MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PRSEG |\
+													 MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG1)
+
 //currently, default communication involves clock out start of frame disabled and wakeup filter disabled
 //wakeup filter should be set prior to going to sleep
-
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_SOF			(MCP_VAL_SOF_DISABLE)
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_WAKFIL		(MCP_VAL_WAKFIL_DISABLE)
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG2		(0x04 - 1)
 #define MCP_VAL_CAN_500kbps_CLOCK_16Mhz_CNF3		(MCP_VAL_CAN_500kbps_CLOCK_16Mhz_PHSEG2 |\
 													 MCP_VAL_CAN_500kbps_CLOCK_16Mhz_SOF |\
 													 MCP_VAL_CAN_500kbps_CLOCK_16Mhz_WAKFIL)
+
+// TODO: make settings resultant of used combinations. These hex values are hard for
+// another user without the manual to get right...
+
+/************************************************************************/
+/* 1mbps    16Mhz                                                       */
+/************************************************************************/
+#define MCP_VAL_CAN_1mbps_CLOCK_16Mhz_CNF1			(0xC0)
+#define MCP_VAL_CAN_1mbps_CLOCK_16Mhz_CNF2			(0X91)
+#define MCP_VAL_CAN_1mbps_CLOCK_16Mhz_CNF3			(0x01)
+
+/************************************************************************/
+/* 125kbps    16Mhz                                                     */
+/************************************************************************/
+#define MCP_VAL_CAN_125kbps_CLOCK_16Mhz_CNF1		(0xC3)
+#define MCP_VAL_CAN_125kbps_CLOCK_16Mhz_CNF2		(0xAC)
+#define MCP_VAL_CAN_125kbps_CLOCK_16Mhz_CNF3		(0x03)
+
+
+													 
+
+
+
+
 
 
 

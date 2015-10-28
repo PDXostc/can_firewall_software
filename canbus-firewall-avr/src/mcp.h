@@ -10,6 +10,11 @@
 #include "conf_debug.h"
 #include "mcp_definitions.h"
 #include "conf_can_mcp.h"
+#include "led.h"
+
+//including messages for testing, these should not be included in this file in the future
+#include "conf_messages.h"
+
 #ifndef MCP_H_
 #define MCP_H_
 
@@ -34,13 +39,13 @@
 //Atmel SPI modes
 //MCP requires mode 0,0 or mode 1,1.
 // TODO / NOTE: current testing shows beter using mode 3...need concrete answer for why
-//#define MCP_SPI_MODE_0_0		SPI_MODE_1
-//#define MCP_SPI_MODE_1_1		SPI_MODE_2
+#define MCP_SPI_MODE_0_0		SPI_MODE_1
+#define MCP_SPI_MODE_1_1		SPI_MODE_2
 #define MCP_SPI_MODE_1_0		SPI_MODE_3
 #define MCP_SPI_MODE			 MCP_SPI_MODE_1_0
 
 
-
+// spi devices north and south. using Atmel chip select structure
 struct spi_device spi_device_MCP_CAN_NORTH_IVI_conf;
 struct spi_device spi_device_MCP_CAN_SOUTH_CAR_conf;
 
@@ -51,6 +56,56 @@ struct spi_device spi_device_MCP_CAN_SOUTH_CAR_conf;
 #define MCP_NPCS_SOUTH 0
 
 #define MCP_INST_DUMMY 0x00
+
+//LED TESTING
+#define USE_LED 0
+
+//RX1 specific configuration format
+struct RX_config {
+	//rx buffer 0
+	uint32_t _RXM0;			// mask 0
+	uint32_t _RXF0;			// filter 0
+	uint32_t _RXF1;			// filter 1
+	
+	//rx buffer 1
+	uint32_t _RXM1;			// mask 1
+	uint32_t _RXF2;			// filter 2
+	uint32_t _RXF3;			// filter 3
+	uint32_t _RXF4;			// filter 4
+	uint32_t _RXF5;			// filter 5
+	uint8_t  _RX0_EID;		// extended id bits. shift or mask these out to obtain flags
+							// RXM0, 0x01; 
+							// RXF0, 0x02; 
+							// RXF2, 0x04
+	uint8_t  _RX1_EID;		// extended id bits. shift or mask these out to obtain flags
+							// RXM1, 0x01; 
+							// RXF2, 0x02; 
+							// RXF3, 0x04; 
+							// RXF4, 0x10;
+							// RXF5, 0x20
+	uint8_t  _RXB0_BUKT;	// Rollover enable
+							// 
+	//  filter acceptance setting, can be:
+	//		_OFF (accept all messages regardless of filters)
+	//		_STD_ONLY (accept only standard format messages)
+	//		_EXT_ONLY (accept only extended format messages)
+	//		_STD_EXT (accept both standard and extended format according to filters)
+	//	NOTE: be advised that using extended format filtering will apply the extended id portion
+	//	of the filter to the first two data bytes of a standard message, if set
+	uint8_t _MCP_VAL_RX0_CTRL;	
+	uint8_t _MCP_VAL_RX1_CTRL;
+	} RX_config;
+	
+//RX_config masks
+#define MCP_MASK_RXM0_EID	(0x01)
+#define MCP_MASK_RXF0_EID	(0x02)
+#define MCP_MASK_RXF1_EID	(0x04)
+
+#define MCP_MASK_RXM1_EID	(0x01)
+#define MCP_MASK_RXF2_EID	(0x02)
+#define MCP_MASK_RXF3_EID	(0x04)
+#define MCP_MASK_RXF4_EID	(0x10)
+#define MCP_MASK_RXF5_EID	(0x20)
 
 void init_mcp_pins(void);
 
@@ -64,6 +119,11 @@ void init_mcp_pins(void);
 static inline void mcp_select(struct spi_device *device)
 {
 	spi_select_device(MCP_SPI, device);
+
+	#if USE_LED
+	if(device->id > 0) {set_led(LED_01, LED_ON);} else {set_led(LED_02, LED_ON);}
+	
+	#endif
 }
 
 /**
@@ -76,6 +136,11 @@ static inline void mcp_select(struct spi_device *device)
 static inline void mcp_deselect(struct spi_device *device)
 {
 	spi_deselect_device(MCP_SPI, device);
+	
+	#if USE_LED
+	if(device->id > 0) {set_led(LED_01, LED_OFF);} else {set_led(LED_02, LED_OFF);}
+	
+	#endif
 }
 
 /**
@@ -241,20 +306,112 @@ static inline void mcp_read_rx_buffer(struct spi_device *device, uint8_t read_in
 	//packet read will get the id + eid + dlc, should be 5 bytes
 	spi_read_packet(MCP_SPI, rx_buffer, MCP_CAN_MSG_HEADER_SIZE);
 	
-	//decide based on dlc how many data bytes to copy into buffer
-	spi_read_packet(MCP_SPI, rx_buffer, rx_buffer[MCP_CAN_MSG_HEADER_SIZE - 1]);
+	//decide based on dlc how many data bytes to copy into buffer, starting at data byte 
+	spi_read_packet(MCP_SPI, &rx_buffer[5], (rx_buffer[MCP_CAN_MSG_HEADER_SIZE - 1] & 0x0F));
 	
 	//instruction clears CANINTF.RXnIF when CS raised at end
 	mcp_deselect(device);
 }
 
-//TODO: mcp_load_tx_buffer()
+/**
+ * \brief Issue Request to Send instruction to MCP device. Instruction corresponds
+ * to MCP instruction format 10000nnn, where each of the lower n bits in logical 1
+ * state will signify a request to send on the corresponding TX buffer.
+ * 
+ * \param device Struct holding chip select id
+ * \param txb Special MCP formatted request for buffer(s) we wish to send on
+ * 
+ * \return void
+ */
+static inline void mcp_request_to_send(struct spi_device *device, uint8_t txb)
+{
+	mcp_select(device);
+	
+	mcp_write_single(txb);
+	
+	mcp_deselect(device);
+}
 
-//TODO: mcp_configure_can_timings()
+
+/**
+ * \brief Set MCP device to desired CAN rate, according to definitions. Bear in mind
+ * that the three bit timing registers produce a CAN baud rate = timings/clock.
+ * Please see MCP25625 manual Section 3.8 for details.
+ * 
+ * \param device Struct holding chip select id
+ * \param mcp_val_can_rate Enumeration indicating which set of configurations will 
+ * be used in CNF registers
+ * 
+ * \return extern uint8_t Success or fail
+ */
 extern uint8_t mcp_configure_bit_timings(struct spi_device *device, uint8_t mcp_val_can_rate);
 
-//TODO: mcp_init_can()
-extern uint8_t mcp_init_can(struct spi_device *device, uint8_t mcp_val_can_rate);
+/**
+ * \brief Set four registers xSIDH, xSIDL, xEID8, xEID0 on MCP to either a standard 
+ * or extended format id.
+ * 
+ * \param device Struct holding chip select id
+ * \param start_addr Starting location for bank of four registers to target with id bits.
+ * \param id 32bit id will be interpreted down to either 11 or 29 bit format
+ * \param exide Flag id to be interpreted as either standard or extended
+ * 
+ * \return void
+ */
+void mcp_configure_can_id(struct spi_device *device, uint8_t start_addr, uint32_t id, bool exide);
+
+/**
+ * \brief Set RXB0 mask, filters, and control registers according to supplied configuration structure.
+ * RXB0 and RXB1 differ in layout and are independently configurable.
+ * 
+ * \param device Struct holding chip select id
+ * \param rx_config Pointer to Configuration structure. Structure holds configuration for both buffers.
+ * 
+ * \return void
+ */
+void mcp_configure_rx_0(struct spi_device *device, struct RX_config *rx_config);
+
+/**
+ * \brief Set RXB1 mask, filters, and control registers according to supplied configuration structure.
+ * RXB0 and RXB1 differ in layout and are independently configurable.
+ * 
+ * \param device Struct holding chip select id
+ * \param rx_config Pointer to Configuration structure. Structure holds configuration for both buffers.
+ * 
+ * \return void
+ */
+void mcp_configure_rx_1(struct spi_device *device, struct RX_config *rx_config);
+/**
+ * \brief Special function for converting from proprietary Atmel format CAN message 
+ * and MOb storage format to MCP standard format, loading into tx buffer, and issuing a 
+ * request to send. After assembling a 13 byte message, uses mcp_load_tx_buffer to
+ * write the packets.
+ * 
+ * \param device Struct holding chip select id
+ * \param mob Pointer to Atmel MOb holding CAN message information
+ * \param txb_enum Enumerator indicating which tx buffer to load with message
+ * \param send_immediate Flag to immediately request to send loaded message
+ * 
+ * \return extern void
+ */
+extern void mcp_load_tx_buffer_atmel_to_mcp(struct spi_device *device, can_mob_t *mob, uint8_t txb_enum, bool send_immediate);
+
+
+/**
+ * \brief Initialize can configuration for MCP target device. Function will attempt
+ * to enter confguration mode, which is required for mask, filter, and rate 
+ * configuration. If unable to set configuration mode, function will abort with 
+ * an early fail. Receive buffers will be configured according to supplied structure.
+ * Transmit registers will be cleared. Function will attempt to enter supplied 
+ * control mode before exit.
+ * 
+ * \param device Struct holding chip select id
+ * \param mcp_val_can_rate Enumeration indicating desired can baud rate @ clock speed
+ * \param rx_config Pointer to structure holding RXB configuration information
+ * \param control_mode Desired control mode to set MCP device to at end of function
+ * 
+ * \return extern uint8_t Success or fail
+ */
+extern uint8_t mcp_init_can(struct spi_device *device, uint8_t mcp_val_can_rate, struct RX_config *rx_config, uint8_t control_mode);
 
 /**
  * \brief Special bit modify instruction for MCP to adjust single bit value in a register.
@@ -312,9 +469,12 @@ static inline uint8_t mcp_set_control_mode(struct spi_device *device, const uint
 }
 
 #if DBG_MCP
-//prints readable interpretation of MCP status request
-void mcp_print_status(uint8_t status, uint8_t device_id);
+// prints readable interpretation of MCP status request
+void mcp_print_status(struct spi_device *device);
+// print bit timing register information
 void mcp_print_bit_timings(uint8_t device_id, uint8_t cnf1, uint8_t cnf2, uint8_t cnf3);
+// prints any set of registers
+void mcp_print_registers(struct spi_device *device, uint8_t start_addr, int length);
 #endif
 
 /**
@@ -381,9 +541,43 @@ static inline void mcp_reset_pin(struct spi_device *device)
 	}
 }
 
+/**
+ * \brief Resets both MCP devices, and initializes the Atmel SPI peripheral
+ * in Master mode. Primes the SPI bus with a single byte for each MCP.
+ * 
+ * \param 
+ * 
+ * \return void
+ */
 void init_mcp_spi(void);
+
+/**
+ * \brief Loads 13 byte data array holding CAN message data into MCP transmit buffer.
+ * 
+ * \param device Struct holding chip select id
+ * \param tx_data Pointer to array holding CAN message bytes. Must be formatted to MCP register requirements.
+ * \param txb_enum Enumerator indicating which transmit buffer to load
+ * \param length Length of message supplied. Usually 13 bytes, can be shortened if DLC less than 8.
+ * \param send_immediate Flag to issue request to send instruction after loading
+ * 
+ * \return void
+ */
+void mcp_load_tx_buffer(struct spi_device *device, uint8_t *tx_data, uint8_t txb_enum, uint8_t length, bool send_immediate);
 
 extern void init_mcp_module(void);
 
-extern void test_mcp_spi_after_reset(void);
+extern void mcp_request_to_send(struct spi_device *device, uint8_t txb);
+#if DBG_MCP
+// temp test function to get status of MCP chipset, particularly after a reset
+extern void test_mcp_spi_after_reset(struct spi_device *device);
+// deprecated function for testing the initialization of the MCP CAN controller
+extern void test_setup_mcp_can(struct spi_device *device);
+// test the transmission of messages using the MCP
+extern void test_setup_transmit_mcp_can(struct spi_device *device);
+// print txb register information
+extern void mcp_print_txbnctrl(struct spi_device *device);
+// print error register information
+extern void mcp_print_error_registers(struct spi_device *device);
+#endif
+
 #endif /* MCP_H_ */
