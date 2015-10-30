@@ -90,6 +90,120 @@ volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 
+//interrupt definitions for external MCP interrupts
+#define EXT_INT_PIN_FUNCTION    1
+#define EXT_INT_NUM_LINES		2
+//#define EXT_INT_IVI_LINE		EXT_INT1
+#define EXT_INT_IVI_LINE		AVR32_EIC_EXTINT_1_3_PIN
+#define EXT_INT_CAR_LINE		EXT_INT0
+#define EXT_INT_IVI_IRQ			AVR32_EIC_IRQ_3
+#define EXT_INT_CAR_IRQ			AVR32_EIC_IRQ_1
+//interrupt shorthand
+
+//structure holding external interrupt controller settings
+eic_options_t eic_options[EXT_INT_NUM_LINES];
+
+//NOTE: trying different settings here, because interrupt pin seems to be going low without mcp having any interrupts listed
+void init_eic_options(void)
+{
+	// Enable level-triggered interrupt.
+	eic_options[0].eic_mode   = EIC_MODE_LEVEL_TRIGGERED;
+	// Interrupt will trigger on low-level.
+	eic_options[0].eic_level  = EIC_LEVEL_LOW_LEVEL;
+	//Edge trigger
+	eic_options[0].eic_edge	  = EIC_EDGE_FALLING_EDGE;
+	// Enable filter.
+	eic_options[0].eic_filter = EIC_FILTER_ENABLED;
+	// For Wake Up mode, initialize in asynchronous mode
+	eic_options[0].eic_async  = EIC_ASYNCH_MODE;
+	// Choose External Interrupt Controller Line
+	eic_options[0].eic_line   = EXT_INT_IVI_LINE;
+	
+	
+	eic_options[1].eic_mode   = EIC_MODE_EDGE_TRIGGERED;
+	// Interrupt will trigger on low-level.
+	//eic_options[1].eic_level  = EIC_LEVEL_HIGH_LEVEL;
+	// Set edge trigger
+	eic_options[1].eic_edge = EIC_EDGE_FALLING_EDGE;
+	// Enable filter.
+	//eic_options[1].eic_filter = EIC_FILTER_ENABLED;
+	// For Wake Up mode, initialize in asynchronous mode
+	eic_options[1].eic_async  = EIC_ASYNCH_MODE;
+	// Choose External Interrupt Controller Line
+	eic_options[1].eic_line   = EXT_INT_CAR_LINE;
+}
+
+#if defined (__GNUC__)
+__attribute__((__interrupt__))
+#elif defined (__ICCAVR32__)
+__interrupt
+#endif
+ static void mcp_interrupt_handler_north(void)
+{
+	 volatile bool line = false;
+	 
+	 line = gpio_pin_is_low(IVI_INT_PIN);
+	//test clear mcp int flags for now
+	
+	// ask for mcp int status
+	
+	// test: display status:
+	mcp_print_status(MCP_NORTH);
+	
+	mcp_print_status(MCP_NORTH);
+	print_dbg("\n\rCanSTAT REgister");
+	mcp_print_registers(MCP_NORTH, MCP_ADD_CANSTAT, 1);
+	print_dbg("\n\rCANINTE Register");
+	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTE, 1);
+	print_dbg("\n\rCANINTF Register");
+	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTF, 1);
+	
+	mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, 0x00);
+	// clear external interrupt line
+	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_IVI_LINE);
+	
+	// analyze interrupt status byte and set flags...
+	
+	// if we choose to deal with mcp interrupts here, download/upload and
+	// reset (bit modify) mcp interrupt flag registers
+}
+
+#if defined (__GNUC__)
+__attribute__((__interrupt__))
+#elif defined (__ICCAVR32__)
+__interrupt
+#endif
+ static void mcp_interrupt_handler_south(void)
+ {
+	 volatile bool line = false;
+	 
+	 line = gpio_get_pin_value(CAR_INT_PIN);
+	 
+	 //test clear mcp int flags for now
+	 mcp_set_register(MCP_SOUTH, MCP_ADD_CANINTF, 0x00);
+	 
+	 // clear external interrupt line
+	 eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_CAR_LINE);
+	 // ask for mcp int status
+	 
+	 // test: display status:
+	 mcp_print_status(MCP_SOUTH);
+	 
+	mcp_print_status(MCP_SOUTH);
+	print_dbg("\n\rCanSTAT REgister");
+	mcp_print_registers(MCP_SOUTH, MCP_ADD_CANSTAT, 1);
+	print_dbg("\n\rCANINTE Register");
+	mcp_print_registers(MCP_SOUTH, MCP_ADD_CANINTE, 1);
+	print_dbg("\n\rCANINTF Register");
+	mcp_print_registers(MCP_SOUTH, MCP_ADD_CANINTF, 1);
+	 
+	 // analyze interrupt status byte and set flags...
+	 
+	 // if we choose to deal with mcp interrupts here, download/upload and
+	 // reset (bit modify) mcp interrupt flag registers
+ }
+
+
 //test of our rx_config struct
 struct RX_config rx_config_default = {
 	._RXM0 = 0x00000000,
@@ -283,6 +397,10 @@ static void init(void) {
 	#endif
 
 	init_led_gpio_ports();
+	
+	
+
+	
 }
 
 /* Old CAN Initialization. Uses CANIF peripheral and internal generic clock,
@@ -375,7 +493,10 @@ int main (void)
 	init();
 	init_can();
 	init_rules();
-
+	
+	bool test_north_int_pin = false;
+	test_north_int_pin = gpio_get_pin_value(IVI_INT_PIN);
+	
 	// 	init_led_gpio_ports();
 	set_led(LED_01, LED_ON);
 	set_led(LED_02, LED_ON);
@@ -383,6 +504,7 @@ int main (void)
 	set_led(LED_02, LED_OFF);
 	
 	init_mcp_module();
+		test_north_int_pin = gpio_get_pin_value(IVI_INT_PIN);
 
 #if 1	
 // 	test_mcp_spi_after_reset(MCP_NORTH);
@@ -400,6 +522,93 @@ int main (void)
 	{
 		print_dbg("\n\rInit FAIL SOUTH");
 	}
+		test_north_int_pin = gpio_get_pin_value(IVI_INT_PIN);
+		
+		// temp test if high and low before setting int
+		if(gpio_pin_is_low(IVI_INT_PIN))
+		{
+			print_dbg("\n\rIVI PIN LOW");
+		}
+		if(gpio_pin_is_low(CAR_INT_PIN))
+		{
+			print_dbg("\n\rCAR PIN LOW");
+		}
+				
+		if(gpio_pin_is_high(IVI_INT_PIN))
+		{
+			print_dbg("\n\rIVI PIN high");
+		}
+		if(gpio_pin_is_high(CAR_INT_PIN))
+		{
+			print_dbg("\n\rCAR PIN high");
+		}
+		nop();
+		/************************************************************************/
+		/* Setup Interrupts for MCP Using EIC                                   */
+		/************************************************************************/
+		mcp_set_register(MCP_NORTH, MCP_ADD_CANINTE, MCP_VAL_INT_RX_ENABLE);
+		mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, 0x00);
+		mcp_set_register(MCP_SOUTH, MCP_ADD_CANINTE, MCP_VAL_INT_RX_ENABLE);
+		mcp_set_register(MCP_SOUTH, MCP_ADD_CANINTF, 0x00);
+		
+// 		gpio_enable_module_pin(CAR_INT_PIN, EXT_INT_PIN_FUNCTION);
+// 		gpio_enable_module_pin(IVI_INT_PIN, EXT_INT_PIN_FUNCTION);
+		
+		init_eic_options();
+		
+		Disable_global_interrupt();
+		
+		INTC_init_interrupts();
+		
+		//gpio_enable_pin_interrupt(IVI_INT_PIN, GPIO_FALLING_EDGE);
+		
+		INTC_register_interrupt(&mcp_interrupt_handler_north, EXT_INT_IVI_IRQ, AVR32_INTC_INT0);
+		INTC_register_interrupt(&mcp_interrupt_handler_south, EXT_INT_CAR_IRQ, AVR32_INTC_INT0);
+		
+		eic_init(&AVR32_EIC, eic_options, EXT_INT_NUM_LINES);
+		eic_enable_line(&AVR32_EIC, eic_options[0].eic_line);
+		eic_enable_interrupt_line(&AVR32_EIC, eic_options[0].eic_line);
+// 		//
+		volatile bool eic_enabled = false;
+		volatile bool eic_pending = false;
+		eic_enabled = eic_is_interrupt_line_enabled(&AVR32_EIC, eic_options[0].eic_line);
+// 		nop();
+		eic_clear_interrupt_line(&AVR32_EIC, eic_options[0].eic_line);
+		eic_pending = eic_is_interrupt_line_pending(&AVR32_EIC, eic_options[0].eic_line);
+		
+// 	 	eic_enable_line(&AVR32_EIC, eic_options[1].eic_line);
+// 	 	eic_enable_interrupt_line(&AVR32_EIC, eic_options[1].eic_line);
+// 		test_north_int_pin = gpio_get_pin_value(IVI_INT_PIN);
+// 		eic_clear_interrupt_line(&AVR32_EIC, eic_options[1].eic_line);
+// 		
+		mcp_print_status(MCP_NORTH);
+		print_dbg("\n\rCanSTAT REgister");
+		mcp_print_registers(MCP_NORTH, MCP_ADD_CANSTAT, 1);
+		print_dbg("\n\rCANINTE Register");
+		mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTE, 1);
+		print_dbg("\n\rCANINTF Register");
+		mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTF, 1);
+		
+				// temp test if high and low before setting int
+		if(gpio_pin_is_low(IVI_INT_PIN))
+		{
+			print_dbg("\n\rIVI PIN LOW");
+		}
+		if(gpio_pin_is_low(CAR_INT_PIN))
+		{
+			print_dbg("\n\rCAR PIN LOW");
+		}
+				
+		if(gpio_pin_is_high(IVI_INT_PIN))
+		{
+			print_dbg("\n\rIVI PIN high");
+		}
+		if(gpio_pin_is_high(CAR_INT_PIN))
+		{
+			print_dbg("\n\rCAR PIN high");
+		}
+		
+		Enable_global_interrupt();
 	
 	test_setup_transmit_mcp_can(MCP_NORTH);
 	test_setup_transmit_mcp_can(MCP_SOUTH);
@@ -416,7 +625,30 @@ int main (void)
 	mcp_print_txbnctrl(MCP_SOUTH);
 	
 	mcp_print_error_registers(MCP_SOUTH);
+	
+	//little test to see if the int comes through
+	while(1)
+	{
+		if(gpio_pin_is_low(IVI_INT_PIN))
+		{
+			print_dbg("\n\rIVI PIN LOW");
+		}
+		if(gpio_pin_is_low(CAR_INT_PIN))
+		{
+			print_dbg("\n\rCAR PIN LOW");
+		}
 		
+		if(gpio_pin_is_high(IVI_INT_PIN))
+		{
+			print_dbg("\n\rIVI PIN high");
+		}
+		if(gpio_pin_is_high(CAR_INT_PIN))
+		{
+			print_dbg("\n\rCAR PIN high");
+		}
+		nop();
+	}
+	
 	while (1)
 {
 
