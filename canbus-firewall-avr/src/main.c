@@ -93,11 +93,10 @@ volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
 //interrupt definitions for external MCP interrupts
 #define EXT_INT_PIN_FUNCTION    1
 #define EXT_INT_NUM_LINES		2
-//#define EXT_INT_IVI_LINE		EXT_INT1
-#define EXT_INT_IVI_LINE		AVR32_EIC_EXTINT_1_3_PIN
-#define EXT_INT_CAR_LINE		EXT_INT0
-#define EXT_INT_IVI_IRQ			AVR32_EIC_IRQ_3
-#define EXT_INT_CAR_IRQ			AVR32_EIC_IRQ_1
+#define EXT_INT_IVI_LINE		AVR32_EIC_INT1
+#define EXT_INT_CAR_LINE		AVR32_EIC_INT6
+#define EXT_INT_IVI_IRQ			AVR32_EIC_IRQ_1
+#define EXT_INT_CAR_IRQ			AVR32_EIC_IRQ_6
 //interrupt shorthand
 
 //structure holding external interrupt controller settings
@@ -111,42 +110,45 @@ void init_eic_options(void)
 	// Interrupt will trigger on low-level.
 	eic_options[0].eic_level  = EIC_LEVEL_LOW_LEVEL;
 	//Edge trigger
-	eic_options[0].eic_edge	  = EIC_EDGE_FALLING_EDGE;
+	//eic_options[0].eic_edge	= EIC_EDGE_FALLING_EDGE;
 	// Enable filter.
-	eic_options[0].eic_filter = EIC_FILTER_ENABLED;
+	//eic_options[0].eic_filter = EIC_FILTER_ENABLED;
 	// For Wake Up mode, initialize in asynchronous mode
 	eic_options[0].eic_async  = EIC_ASYNCH_MODE;
 	// Choose External Interrupt Controller Line
 	eic_options[0].eic_line   = EXT_INT_IVI_LINE;
 	
 	
-	eic_options[1].eic_mode   = EIC_MODE_EDGE_TRIGGERED;
-	// Interrupt will trigger on low-level.
-	//eic_options[1].eic_level  = EIC_LEVEL_HIGH_LEVEL;
-	// Set edge trigger
-	eic_options[1].eic_edge = EIC_EDGE_FALLING_EDGE;
-	// Enable filter.
-	//eic_options[1].eic_filter = EIC_FILTER_ENABLED;
-	// For Wake Up mode, initialize in asynchronous mode
+	eic_options[1].eic_mode   = EIC_MODE_LEVEL_TRIGGERED;
+	// 	// Interrupt will trigger on low-level.
+	eic_options[1].eic_level  = EIC_LEVEL_LOW_LEVEL;
+	// 	// Set edge trigger
+	// 	//eic_options[1].eic_edge = EIC_EDGE_FALLING_EDGE;
+	// 	// Enable filter.
+	// 	//eic_options[1].eic_filter = EIC_FILTER_ENABLED;
+	// 	// For Wake Up mode, initialize in asynchronous mode
 	eic_options[1].eic_async  = EIC_ASYNCH_MODE;
-	// Choose External Interrupt Controller Line
+	// 	// Choose External Interrupt Controller Line
 	eic_options[1].eic_line   = EXT_INT_CAR_LINE;
 }
 
+// temp interrupt handler used for basic testing of mcp interrupt
 #if defined (__GNUC__)
 __attribute__((__interrupt__))
 #elif defined (__ICCAVR32__)
 __interrupt
 #endif
- static void mcp_interrupt_handler_north(void)
+static void mcp_interrupt_handler_north(void)
 {
-	 volatile bool line = false;
-	 
-	 line = gpio_pin_is_low(IVI_INT_PIN);
+	volatile bool line01 = false;
+	volatile bool line02 = false;
+	line01 = gpio_get_pin_value(IVI_INT_PIN);
+	line02 = gpio_get_pin_value(CAR_INT_PIN);
 	//test clear mcp int flags for now
 	
 	// ask for mcp int status
 	
+	#if DBG_MCP
 	// test: display status:
 	mcp_print_status(MCP_NORTH);
 	
@@ -157,38 +159,41 @@ __interrupt
 	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTE, 1);
 	print_dbg("\n\rCANINTF Register");
 	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTF, 1);
+	#endif
 	
 	mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, 0x00);
-	// clear external interrupt line
-	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_IVI_LINE);
 	
 	// analyze interrupt status byte and set flags...
 	
 	// if we choose to deal with mcp interrupts here, download/upload and
 	// reset (bit modify) mcp interrupt flag registers
+	//
+	// clear external interrupt line
+	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_IVI_LINE);
 }
 
+// temp interrupt handler used for basic testing of mcp interrupt
 #if defined (__GNUC__)
 __attribute__((__interrupt__))
 #elif defined (__ICCAVR32__)
 __interrupt
 #endif
- static void mcp_interrupt_handler_south(void)
- {
-	 volatile bool line = false;
-	 
-	 line = gpio_get_pin_value(CAR_INT_PIN);
-	 
-	 //test clear mcp int flags for now
-	 mcp_set_register(MCP_SOUTH, MCP_ADD_CANINTF, 0x00);
-	 
-	 // clear external interrupt line
-	 eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_CAR_LINE);
-	 // ask for mcp int status
-	 
-	 // test: display status:
-	 mcp_print_status(MCP_SOUTH);
-	 
+static void mcp_interrupt_handler_south(void)
+{
+	volatile bool line01 = false;
+	volatile bool line02 = false;
+	line01 = gpio_get_pin_value(IVI_INT_PIN);
+	line02 = gpio_get_pin_value(CAR_INT_PIN);
+	
+	//test clear mcp int flags for now
+	mcp_set_register(MCP_SOUTH, MCP_ADD_CANINTF, 0x00);
+	// clear external interrupt line
+	// ask for mcp int status
+	
+	mcp_print_status(MCP_SOUTH);
+	// test: display status:
+	#if DBG_MCP
+	
 	mcp_print_status(MCP_SOUTH);
 	print_dbg("\n\rCanSTAT REgister");
 	mcp_print_registers(MCP_SOUTH, MCP_ADD_CANSTAT, 1);
@@ -196,12 +201,15 @@ __interrupt
 	mcp_print_registers(MCP_SOUTH, MCP_ADD_CANINTE, 1);
 	print_dbg("\n\rCANINTF Register");
 	mcp_print_registers(MCP_SOUTH, MCP_ADD_CANINTF, 1);
-	 
-	 // analyze interrupt status byte and set flags...
-	 
-	 // if we choose to deal with mcp interrupts here, download/upload and
-	 // reset (bit modify) mcp interrupt flag registers
- }
+	#endif
+	
+	// analyze interrupt status byte and set flags...
+	// if we choose to deal with mcp interrupts here, download/upload and
+	// reset (bit modify) mcp interrupt flag registers
+	//
+	// clear external interrupt line
+	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_CAR_LINE);
+}
 
 
 //test of our rx_config struct
@@ -216,15 +224,15 @@ struct RX_config rx_config_default = {
 	._RXF4 = 0x00000000,
 	._RXF5 = 0x00000000,
 	._RX1_EID = (MCP_MASK_RXM1_EID |\
-				 MCP_MASK_RXF2_EID |\
-				 MCP_MASK_RXF3_EID |\
-				 MCP_MASK_RXF4_EID |\
-				 MCP_MASK_RXF5_EID),
+	MCP_MASK_RXF2_EID |\
+	MCP_MASK_RXF3_EID |\
+	MCP_MASK_RXF4_EID |\
+	MCP_MASK_RXF5_EID),
 	._RXB0_BUKT = MCP_VAL_BUKT_ROLLOVER_EN,
 	._MCP_VAL_RX0_CTRL = MCP_VAL_RXM_STD_EXT,
 	._MCP_VAL_RX1_CTRL = MCP_VAL_RXM_STD_EXT
-	};
-	
+};
+
 struct RX_config rx_config_test_01 = {
 	._RXM0 = 0x7FF,
 	._RXF0 = 0x7FF,
@@ -398,71 +406,6 @@ static void init(void) {
 
 	init_led_gpio_ports();
 	
-	
-
-	
-}
-
-/* Old CAN Initialization. Uses CANIF peripheral and internal generic clock,
-* deprecated in favor MCP25625.
-*
-* TODO: Rewrite to init MCP25625
-*/
-static void init_can(void) {
-	/* Setup generic clock for CAN */
-	/* Remember to calibrate this correctly to our external osc*/
-	#if 0
-	int setup_gclk;
-	
-	setup_gclk = scif_gc_setup(AVR32_SCIF_GCLK_CANIF,
-	SCIF_GCCTRL_PLL0,
-	AVR32_SCIF_GC_USES_PLL0,
-	4);
-
-	#if DBG_CLKS
-	if (setup_gclk ==0)
-	{
-		print_dbg("\n\rGeneric clock setup\n\r");
-		}else {
-		print_dbg("\n\rGeneric clock NOT SETUP\n\r");
-	}
-	#endif
-
-	/* Enable generic clock */
-	int enable_gclk = scif_gc_enable(AVR32_SCIF_GCLK_CANIF);
-	#if DBG_CLKS
-	if(enable_gclk == 0)
-	{
-		print_dbg("\n\rGeneric Clock Enabled");
-	}
-	#endif
-	
-	#if DBG_CLKS
-	//print_dbg("\n\rGeneric clock enabled\n\r");
-	print_dbg_ulong(sysclk_get_peripheral_bus_hz((const volatile void *)AVR32_CANIF_ADDRESS));
-	#endif
-	
-	/* Disable all interrupts. */
-	Disable_global_interrupt();
-
-	/* Initialize interrupt vectors. */
-	INTC_init_interrupts();
-	
-	/* Create GPIO Mappings for CAN */
-	static const gpio_map_t CAN_GPIO_MAP =
-	{
-		{            GPIO_PIN_CAN_RX_NORTH, GPIO_FUNCTION_CAN_RX_NORTH        },
-		{            GPIO_PIN_CAN_TX_NORTH, GPIO_FUNCTION_CAN_TX_NORTH        },
-		{            GPIO_PIN_CAN_RX_SOUTH, GPIO_FUNCTION_CAN_RX_SOUTH        },
-		{            GPIO_PIN_CAN_TX_SOUTH, GPIO_FUNCTION_CAN_TX_SOUTH        }
-	};
-	/* Assign GPIO to CAN */
-	gpio_enable_module(CAN_GPIO_MAP, sizeof(CAN_GPIO_MAP) / sizeof(CAN_GPIO_MAP[0]));
-	
-	/* Enable all interrupts. */
-	Enable_global_interrupt();
-	
-	#endif
 }
 
 static void init_rules(void)
@@ -491,11 +434,7 @@ int main (void)
 {
 	//setup
 	init();
-	init_can();
 	init_rules();
-	
-	bool test_north_int_pin = false;
-	test_north_int_pin = gpio_get_pin_value(IVI_INT_PIN);
 	
 	// 	init_led_gpio_ports();
 	set_led(LED_01, LED_ON);
@@ -503,12 +442,62 @@ int main (void)
 	set_led(LED_01, LED_OFF);
 	set_led(LED_02, LED_OFF);
 	
+	// INIT MCP MODULE
 	init_mcp_module();
-		test_north_int_pin = gpio_get_pin_value(IVI_INT_PIN);
+	
 
-#if 1	
-// 	test_mcp_spi_after_reset(MCP_NORTH);
-// 	test_mcp_spi_after_reset(MCP_SOUTH);
+	/************************************************************************/
+	/* Setup Interrupts for MCP Using EIC                                   */
+	/************************************************************************/
+	mcp_set_register(MCP_NORTH, MCP_ADD_CANINTE, MCP_VAL_INT_RX_ENABLE);
+	mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, 0x00);
+	mcp_set_register(MCP_SOUTH, MCP_ADD_CANINTE, MCP_VAL_INT_RX_ENABLE);
+	mcp_set_register(MCP_SOUTH, MCP_ADD_CANINTF, 0x00);
+	
+	#if DBG_MCP
+
+	mcp_print_status(MCP_NORTH);
+	print_dbg("\n\rCanSTAT REgister");
+	mcp_print_registers(MCP_NORTH, MCP_ADD_CANSTAT, 1);
+	print_dbg("\n\rCANINTE Register");
+	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTE, 1);
+	print_dbg("\n\rCANINTF Register");
+	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTF, 1);
+	
+	mcp_print_status(MCP_SOUTH);
+	print_dbg("\n\rCanSTAT REgister");
+	mcp_print_registers(MCP_SOUTH, MCP_ADD_CANSTAT, 1);
+	print_dbg("\n\rCANINTE Register");
+	mcp_print_registers(MCP_SOUTH, MCP_ADD_CANINTE, 1);
+	print_dbg("\n\rCANINTF Register");
+	mcp_print_registers(MCP_SOUTH, MCP_ADD_CANINTF, 1);
+	
+	#endif
+	
+	init_eic_options();
+	
+	Disable_global_interrupt();
+	
+	INTC_init_interrupts();
+	
+	INTC_register_interrupt(&mcp_interrupt_handler_north, EXT_INT_IVI_IRQ, AVR32_INTC_INT0);
+	INTC_register_interrupt(&mcp_interrupt_handler_south, EXT_INT_CAR_IRQ, AVR32_INTC_INT0);
+	
+	eic_init(&AVR32_EIC, eic_options, EXT_INT_NUM_LINES);
+	
+	eic_enable_line(&AVR32_EIC, EXT_INT_IVI_LINE);
+	eic_enable_interrupt_line(&AVR32_EIC, EXT_INT_IVI_LINE);
+	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_IVI_LINE);
+	
+	eic_enable_line(&AVR32_EIC, EXT_INT_CAR_LINE);
+	eic_enable_interrupt_line(&AVR32_EIC, EXT_INT_CAR_LINE);
+	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_CAR_LINE);
+
+	
+	
+	/************************************************************************/
+	/* MCP CAN INIT                                                         */
+	/************************************************************************/
 	
 	uint8_t init_success = 0xFF;
 
@@ -522,93 +511,12 @@ int main (void)
 	{
 		print_dbg("\n\rInit FAIL SOUTH");
 	}
-		test_north_int_pin = gpio_get_pin_value(IVI_INT_PIN);
 		
-		// temp test if high and low before setting int
-		if(gpio_pin_is_low(IVI_INT_PIN))
-		{
-			print_dbg("\n\rIVI PIN LOW");
-		}
-		if(gpio_pin_is_low(CAR_INT_PIN))
-		{
-			print_dbg("\n\rCAR PIN LOW");
-		}
-				
-		if(gpio_pin_is_high(IVI_INT_PIN))
-		{
-			print_dbg("\n\rIVI PIN high");
-		}
-		if(gpio_pin_is_high(CAR_INT_PIN))
-		{
-			print_dbg("\n\rCAR PIN high");
-		}
-		nop();
-		/************************************************************************/
-		/* Setup Interrupts for MCP Using EIC                                   */
-		/************************************************************************/
-		mcp_set_register(MCP_NORTH, MCP_ADD_CANINTE, MCP_VAL_INT_RX_ENABLE);
-		mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, 0x00);
-		mcp_set_register(MCP_SOUTH, MCP_ADD_CANINTE, MCP_VAL_INT_RX_ENABLE);
-		mcp_set_register(MCP_SOUTH, MCP_ADD_CANINTF, 0x00);
-		
-// 		gpio_enable_module_pin(CAR_INT_PIN, EXT_INT_PIN_FUNCTION);
-// 		gpio_enable_module_pin(IVI_INT_PIN, EXT_INT_PIN_FUNCTION);
-		
-		init_eic_options();
-		
-		Disable_global_interrupt();
-		
-		INTC_init_interrupts();
-		
-		//gpio_enable_pin_interrupt(IVI_INT_PIN, GPIO_FALLING_EDGE);
-		
-		INTC_register_interrupt(&mcp_interrupt_handler_north, EXT_INT_IVI_IRQ, AVR32_INTC_INT0);
-		INTC_register_interrupt(&mcp_interrupt_handler_south, EXT_INT_CAR_IRQ, AVR32_INTC_INT0);
-		
-		eic_init(&AVR32_EIC, eic_options, EXT_INT_NUM_LINES);
-		eic_enable_line(&AVR32_EIC, eic_options[0].eic_line);
-		eic_enable_interrupt_line(&AVR32_EIC, eic_options[0].eic_line);
-// 		//
-		volatile bool eic_enabled = false;
-		volatile bool eic_pending = false;
-		eic_enabled = eic_is_interrupt_line_enabled(&AVR32_EIC, eic_options[0].eic_line);
-// 		nop();
-		eic_clear_interrupt_line(&AVR32_EIC, eic_options[0].eic_line);
-		eic_pending = eic_is_interrupt_line_pending(&AVR32_EIC, eic_options[0].eic_line);
-		
-// 	 	eic_enable_line(&AVR32_EIC, eic_options[1].eic_line);
-// 	 	eic_enable_interrupt_line(&AVR32_EIC, eic_options[1].eic_line);
-// 		test_north_int_pin = gpio_get_pin_value(IVI_INT_PIN);
-// 		eic_clear_interrupt_line(&AVR32_EIC, eic_options[1].eic_line);
-// 		
-		mcp_print_status(MCP_NORTH);
-		print_dbg("\n\rCanSTAT REgister");
-		mcp_print_registers(MCP_NORTH, MCP_ADD_CANSTAT, 1);
-		print_dbg("\n\rCANINTE Register");
-		mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTE, 1);
-		print_dbg("\n\rCANINTF Register");
-		mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTF, 1);
-		
-				// temp test if high and low before setting int
-		if(gpio_pin_is_low(IVI_INT_PIN))
-		{
-			print_dbg("\n\rIVI PIN LOW");
-		}
-		if(gpio_pin_is_low(CAR_INT_PIN))
-		{
-			print_dbg("\n\rCAR PIN LOW");
-		}
-				
-		if(gpio_pin_is_high(IVI_INT_PIN))
-		{
-			print_dbg("\n\rIVI PIN high");
-		}
-		if(gpio_pin_is_high(CAR_INT_PIN))
-		{
-			print_dbg("\n\rCAR PIN high");
-		}
-		
-		Enable_global_interrupt();
+	/* INITS COMPLETE. ENABLE ALL INTERRUPTS */
+	Enable_global_interrupt();
+	nop();
+	
+	
 	
 	test_setup_transmit_mcp_can(MCP_NORTH);
 	test_setup_transmit_mcp_can(MCP_SOUTH);
@@ -616,117 +524,25 @@ int main (void)
 	uint8_t rx_test[MCP_CAN_MSG_SIZE] = {0};
 	
 	mcp_print_status(MCP_NORTH);
-		mcp_print_status(MCP_SOUTH);
-		
+	mcp_print_status(MCP_SOUTH);
+	
 	mcp_print_txbnctrl(MCP_NORTH);
-		
-	mcp_print_error_registers(MCP_NORTH);		
+	
+	mcp_print_error_registers(MCP_NORTH);
 
 	mcp_print_txbnctrl(MCP_SOUTH);
 	
 	mcp_print_error_registers(MCP_SOUTH);
-	
-	//little test to see if the int comes through
-	while(1)
-	{
-		if(gpio_pin_is_low(IVI_INT_PIN))
-		{
-			print_dbg("\n\rIVI PIN LOW");
-		}
-		if(gpio_pin_is_low(CAR_INT_PIN))
-		{
-			print_dbg("\n\rCAR PIN LOW");
-		}
-		
-		if(gpio_pin_is_high(IVI_INT_PIN))
-		{
-			print_dbg("\n\rIVI PIN high");
-		}
-		if(gpio_pin_is_high(CAR_INT_PIN))
-		{
-			print_dbg("\n\rCAR PIN high");
-		}
-		nop();
-	}
-	
-	while (1)
-{
-
-// }
-// 	
-// 	
-// 	//read all rx buffers
-// 	while (0)
-// 	{
-// 	
-		#define set_rx_test_0() {\
-			for (int z = 0; z < MCP_CAN_MSG_SIZE; z++)\
-			{\
-				rx_test[z] = 0x00;\
-			}\
-		};\
-		//ask for msg received
-		mcp_read_rx_buffer(MCP_NORTH, MCP_INST_READ_RX_0, rx_test);
-		//mcp_read_registers_consecutive(MCP_NORTH, MCP_ADD_RXB0SIDH, rx_test, MCP_CAN_MSG_SIZE);
-		//mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, ~MCP_FLAG_RX0IF);
-		//print msg coarse
-		PRINT_NEWLINE()
-		for (int i = 0; i < MCP_CAN_MSG_SIZE; i++)
-		{
-			print_dbg_char_hex(rx_test[i]);			
-		}
-		set_rx_test_0()
-		
-		//ask for msg received
-		mcp_read_rx_buffer(MCP_NORTH, MCP_INST_READ_RX_1, rx_test);
-		//mcp_read_registers_consecutive(MCP_NORTH, MCP_ADD_RXB1SIDH, rx_test, MCP_CAN_MSG_SIZE);
-		//mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, ~MCP_FLAG_RX1IF);
-		//print msg coarse
-		PRINT_NEWLINE()
-		for (int j = 0; j < MCP_CAN_MSG_SIZE; j++)
-		{
-			print_dbg_char_hex(rx_test[j]);
-		}		
-		set_rx_test_0()
-		
-		mcp_read_rx_buffer(MCP_SOUTH, MCP_INST_READ_RX_0, rx_test);
-		//mcp_read_registers_consecutive(MCP_NORTH, MCP_ADD_RXB0SIDH, rx_test, MCP_CAN_MSG_SIZE);
-		//mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, ~MCP_FLAG_RX0IF);
-		//print msg coarse
-		PRINT_NEWLINE()
-		for (int k = 0; k < MCP_CAN_MSG_SIZE; k++)
-		{
-			print_dbg_char_hex(rx_test[k]);
-		}
-		set_rx_test_0()
-		
-		//ask for msg received
-		mcp_read_rx_buffer(MCP_SOUTH, MCP_INST_READ_RX_1, rx_test);
-		//mcp_read_registers_consecutive(MCP_NORTH, MCP_ADD_RXB1SIDH, rx_test, MCP_CAN_MSG_SIZE);
-		//mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, ~MCP_FLAG_RX1IF);
-		//print msg coarse
-		PRINT_NEWLINE()
-		for (int l = 0; l < MCP_CAN_MSG_SIZE; l++)
-		{
-			print_dbg_char_hex(rx_test[l]);
-		}
-		set_rx_test_0()
-		
-		mcp_print_status(MCP_NORTH);
-		mcp_print_status(MCP_SOUTH);
-	}
-#endif
 
 	while (1)
-	{
-		
+	{		
 		//run_firewall();
-		//nop();
+		nop();
 	}
 	
 	delay_ms(1000);
 	
 	//wait for end while debugging
 	
-	sleep_mode_start();	
+	sleep_mode_start();
 }
