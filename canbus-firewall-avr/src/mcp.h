@@ -525,15 +525,15 @@ static inline void mcp_reset_pin(struct spi_device *device)
 	switch(device->id)
 	{
 		case MCP_NPCS_NORTH:
-		gpio_set_pin_low(IVI_RESET);
+		gpio_set_pin_low(IVI_RESET_PIN);
 		RESET_PIN_HOLD_DELAY();
-		gpio_set_pin_high(IVI_RESET);
+		gpio_set_pin_high(IVI_RESET_PIN);
 		break;
 		
 		case MCP_NPCS_SOUTH:
-		gpio_set_pin_low(CAR_RESET);
+		gpio_set_pin_low(CAR_RESET_PIN);
 		RESET_PIN_HOLD_DELAY();
-		gpio_set_pin_high(CAR_RESET);
+		gpio_set_pin_high(CAR_RESET_PIN);
 		break;
 		
 		default:

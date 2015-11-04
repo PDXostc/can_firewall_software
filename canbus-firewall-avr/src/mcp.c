@@ -21,14 +21,6 @@ uint8_t tx_zero[13] = {0};
 
 void init_mcp_pins(void)
 {
-	//set external pins
-	gpio_configure_pin(CAR_RESET, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
-	gpio_configure_pin(CAR_STBY, GPIO_DIR_OUTPUT | GPIO_INIT_LOW);
-	gpio_configure_pin(CAR_INT, GPIO_DIR_INPUT);
-	
-	gpio_configure_pin(IVI_RESET, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
-	gpio_configure_pin(IVI_STBY, GPIO_DIR_OUTPUT | GPIO_INIT_LOW);
-	gpio_configure_pin(IVI_INT, GPIO_DIR_INPUT);
 	
 	//setup gpio for mcp chips and spi connection
 	const gpio_map_t mcp_spi_gpio_map = {
@@ -46,6 +38,30 @@ void init_mcp_pins(void)
 	
 	//enable spi gpio
 	gpio_enable_module(mcp_spi_gpio_map, sizeof(mcp_spi_gpio_map) / sizeof(mcp_spi_gpio_map[0]));
+	
+	//setup gpio map for mcp interrupts
+	const gpio_map_t mcp_int_gpio_map = {
+ 		{	IVI_INT_PIN,  1 //PC03, FUNCTION B
+ 		},
+		{	CAR_INT_PIN, 1 //PD21, FUNCTION B
+		}
+	};
+	
+	//enable interrupt 
+	gpio_enable_module(mcp_int_gpio_map, sizeof(mcp_int_gpio_map) / sizeof(mcp_int_gpio_map[0]));
+	
+	//set external pins
+	gpio_configure_pin(CAR_RESET_PIN, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
+	gpio_configure_pin(CAR_STBY_PIN, GPIO_DIR_OUTPUT | GPIO_INIT_LOW);
+	//gpio_configure_pin(CAR_INT_PIN, GPIO_DIR_INPUT | GPIO_PULL_UP);
+	gpio_enable_pin_pull_up(CAR_INT_PIN);
+	
+	gpio_configure_pin(IVI_RESET_PIN, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
+	gpio_configure_pin(IVI_STBY_PIN, GPIO_DIR_OUTPUT | GPIO_INIT_LOW);
+// 	//gpio_configure_pin(IVI_INT_PIN, GPIO_DIR_INPUT | GPIO_PULL_UP);
+ 	gpio_enable_pin_pull_up(IVI_INT_PIN);
+	
+	
 }
 
 void init_mcp_spi(void)
@@ -73,6 +89,23 @@ void init_mcp_spi(void)
 	mcp_select(MCP_SOUTH);
 	mcp_write_single(MCP_INST_DUMMY);
 	mcp_deselect(MCP_SOUTH);	
+	
+	#if DBG_MCP
+	print_dbg("\n\r__MCP _STATUS_AFTER_RESET_AND_SPI_");
+	mcp_print_status(MCP_NORTH);
+	print_dbg("\n\rCanSTAT REgister");
+	mcp_print_registers(MCP_NORTH, MCP_ADD_CANSTAT, 1);
+	print_dbg("\n\rCANINTE Register");
+	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTE, 1);
+	print_dbg("\n\rCANINTF Register");
+	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTF, 1);
+	#endif
+}
+
+void init_mcp_module(void)
+{
+	init_mcp_pins();
+	init_mcp_spi();
 }
 
 uint8_t mcp_configure_bit_timings(struct spi_device *device, uint8_t mcp_val_can_rate)
@@ -358,6 +391,12 @@ uint8_t mcp_init_can(struct spi_device *device, uint8_t mcp_val_can_rate, struct
 		return MCP_RETURN_FAIL;
 	}
 	
+// 	/************************************************************************/
+// 	/* Temporary Configuration of Interrupts                                */
+// 	/************************************************************************/
+// 	mcp_set_register(device, MCP_ADD_CANINTE, MCP_VAL_INT_RX_ENABLE);
+// 	mcp_set_register(device, MCP_ADD_CANINTF, 0x00);
+	
 	// set CAN rate
 	success = mcp_configure_bit_timings(device, mcp_val_can_rate);
 	
@@ -411,12 +450,6 @@ uint8_t mcp_init_can(struct spi_device *device, uint8_t mcp_val_can_rate, struct
 #endif
 	
 	return success;
-}
-
-void init_mcp_module(void)
-{
-	init_mcp_pins();
-	init_mcp_spi();
 }
 
 #if DBG_MCP
@@ -691,7 +724,7 @@ void test_mcp_spi_after_reset(struct spi_device *device)
 void test_setup_transmit_mcp_can(struct spi_device *device)
 {
 	//disable interrupts for now -- !!
-	mcp_set_register(device, MCP_ADD_CANINTE, MCP_VAL_INT_RX_TX_DISABLE);
+	//mcp_set_register(device, MCP_ADD_CANINTE, MCP_VAL_INT_RX_TX_DISABLE);
 	
 	mcp_load_tx_buffer_atmel_to_mcp(device, &mob_test_7ff, MCP_ENUM_TXB_0, true);
 	
