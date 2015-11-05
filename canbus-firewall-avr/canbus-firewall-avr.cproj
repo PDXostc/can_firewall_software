@@ -215,6 +215,9 @@
     </com_atmel_avrdbg_tool_avrdragon>
     <avrtoolinterface>aWire</avrtoolinterface>
     <ExternalProgrammingToolCommand />
+    <avrtoolserialnumber>00A20006049C</avrtoolserialnumber>
+    <avrdeviceexpectedsignature>0x0</avrdeviceexpectedsignature>
+    <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>

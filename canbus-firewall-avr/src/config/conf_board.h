@@ -56,6 +56,7 @@
 #define IVI_STBY_PIN	AVR32_PIN_PC05		//PIN 38
 
 //Manual Interrupt Pins
-
+#define MCP_MACHINE_INT_PIN		AVR32_PIN_PA05
+#define PROC_INT_PIN			AVR32_PIN_PA21
 
 #endif // CONF_BOARD_H

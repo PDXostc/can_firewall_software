@@ -211,6 +211,44 @@ static void mcp_interrupt_handler_south(void)
 	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_CAR_LINE);
 }
 
+// Processing jobs interrupt handler
+#if defined (__GNUC__)
+__attribute__((__interrupt__))
+#elif defined (__ICCAVR32__)
+__interrupt
+#endif
+static void proc_int_handler(void)
+{
+#if DBG_INT
+	//test
+	set_led(LED_02, LED_ON);
+	print_dbg("\n\rProc_int_handler_called!");
+	set_led(LED_02, LED_OFF);
+#endif
+	// test sequence
+	gpio_set_pin_high(PROC_INT_PIN);
+	gpio_clear_pin_interrupt_flag(PROC_INT_PIN);
+	
+}
+
+// MCP state machine interrupt handler
+#if defined (__GNUC__)
+__attribute__((__interrupt__))
+#elif defined (__ICCAVR32__)
+__interrupt
+#endif
+static void mcp_machine_int_handler(void)
+{
+	#if DBG_INT
+	//test
+	set_led(LED_01, LED_ON);
+	print_dbg("\n\rMCP_machine_int_handler_called!");
+	set_led(LED_01, LED_OFF);
+	#endif
+	
+	gpio_set_pin_high(MCP_MACHINE_INT_PIN);
+	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
+}
 
 //test of our rx_config struct
 struct RX_config rx_config_default = {
@@ -445,10 +483,35 @@ int main (void)
 	// INIT MCP MODULE
 	init_mcp_module();
 	
-
+	/************************************************************************/
+	/* Interrupts                                                           */
+	/************************************************************************/
+	
+	Disable_global_interrupt();
+	
+	INTC_init_interrupts();
+	
+	// Setup Pin interrupts for MCP state machine and processing jobs
+	gpio_configure_pin(MCP_MACHINE_INT_PIN, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
+	gpio_configure_pin(PROC_INT_PIN, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
+	/* For GPIO IRQ, the formula should be:
+	 * (gpio_irq0 + gpio pin number/ eight )
+	 * so PA05 = 0 and PA21 = 2...
+	 */
+	
+	//MCP machine should run at two int levels above main
+	INTC_register_interrupt(&mcp_machine_int_handler, AVR32_GPIO_IRQ_0, AVR32_INTC_INT1);
+	//Proc should run at first int level
+	INTC_register_interrupt(&proc_int_handler, AVR32_GPIO_IRQ_2, AVR32_INTC_INT0);
+	
+	gpio_enable_pin_interrupt(MCP_MACHINE_INT_PIN, GPIO_FALLING_EDGE);
+	gpio_enable_pin_interrupt(PROC_INT_PIN, GPIO_FALLING_EDGE);
+	
 	/************************************************************************/
 	/* Setup Interrupts for MCP Using EIC                                   */
 	/************************************************************************/
+	
+	
 	mcp_set_register(MCP_NORTH, MCP_ADD_CANINTE, MCP_VAL_INT_RX_ENABLE);
 	mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, 0x00);
 	mcp_set_register(MCP_SOUTH, MCP_ADD_CANINTE, MCP_VAL_INT_RX_ENABLE);
@@ -476,9 +539,7 @@ int main (void)
 	
 	init_eic_options();
 	
-	Disable_global_interrupt();
 	
-	INTC_init_interrupts();
 	
 	INTC_register_interrupt(&mcp_interrupt_handler_north, EXT_INT_IVI_IRQ, AVR32_INTC_INT0);
 	INTC_register_interrupt(&mcp_interrupt_handler_south, EXT_INT_CAR_IRQ, AVR32_INTC_INT0);
@@ -514,6 +575,16 @@ int main (void)
 		
 	/* INITS COMPLETE. ENABLE ALL INTERRUPTS */
 	Enable_global_interrupt();
+	
+	
+	// test gpio pin interrupt call
+	//gpio_set_pin_low(PROC_INT_PIN);
+	//gpio_set_pin_low(PROC_INT_PIN);
+	//gpio_set_pin_low(MCP_MACHINE_INT_PIN);
+	//gpio_set_pin_low(MCP_MACHINE_INT_PIN);
+	
+	
+#if 0
 	nop();
 	
 	
@@ -533,7 +604,7 @@ int main (void)
 	mcp_print_txbnctrl(MCP_SOUTH);
 	
 	mcp_print_error_registers(MCP_SOUTH);
-
+#endif
 	while (1)
 	{		
 		//run_firewall();
