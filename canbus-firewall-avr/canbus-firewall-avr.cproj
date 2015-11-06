@@ -669,6 +669,12 @@
     <Compile Include="src\hmac.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\interrupt_machines.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\interrupt_machines.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\led.c">
       <SubType>compile</SubType>
     </Compile>
