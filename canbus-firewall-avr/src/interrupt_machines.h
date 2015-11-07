@@ -148,6 +148,25 @@ struct PROC_status {
 #define JOB_RX1_NORTH			JOB_13
 #define JOB_RX1_SOUTH			JOB_12
 
+/************************************************************************/
+/* PDCA                                                                 */
+/************************************************************************/
+#define PDCA_ID_SPI_RX				AVR32_PDCA_PID_SPI0_RX
+#define PDCA_ID_SPI_TX				AVR32_PDCA_PID_SPI0_TX
+#define PDCA_TRANSFER_SIZE_BYTE		AVR32_PDCA_BYTE
+#define PDCA_CHANNEL_SPI_TX			0
+#define PDCA_CHANNEL_SPI_RX			1
+
+
+// PDCA test
+// create rx / tx temp buffers
+uint8_t rx_instruction_test[14];
+
+
+uint8_t rx_msg_test[14];
+
+extern volatile bool pdca_test_transfer_complete;
+
 extern void init_eic_options(void);
 
 extern void configure_interrupt_machines(void);
@@ -179,4 +198,11 @@ __attribute__((__interrupt__))
 __interrupt
 #endif
 extern void mcp_machine_int_handler(void);
+
+#if defined (__GNUC__)
+__attribute__((__interrupt__))
+#elif defined (__ICCAVR32__)
+__interrupt
+#endif
+extern void pdca_transfer_complete_int_handler(void);
 #endif /* INTERRUPT_MACHINES_H_ */

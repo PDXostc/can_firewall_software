@@ -110,15 +110,16 @@ struct RX_config {
 // MCP CAN message struct. Use arrays of these to form que
 struct MCP_CAN_msg {
 	//direction, other descriptions to store...
+	// bit 0 clear = northbound, set = southbound
 	uint8_t attributes;
 	uint8_t msg[MCP_CAN_MSG_SIZE];
 	};
 
 //NORTHBOUND message, set when receiving from SOUTH controller
-#define MCP_MSG_DIR_NORTH 0x01 
+#define MCP_MSG_DIR_NORTH 0x00 
 
 //SOUTHBOUND message, set when receiving from NORTH controller
-#define MCP_MSG_DIR_SOUTH 0x02
+#define MCP_MSG_DIR_SOUTH 0x01
 
 void init_mcp_pins(void);
 

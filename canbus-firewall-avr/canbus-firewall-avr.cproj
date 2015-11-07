@@ -32,6 +32,7 @@
           <option id="avr32.drivers.canif" value="Add" config="" content-id="Atmel.ASF" />
           <option id="avr32.drivers.cpu" value="Add" config="" content-id="Atmel.ASF" />
           <option id="avr32.drivers.cpu.cycle_counter" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="avr32.drivers.eic" value="Add" config="" content-id="Atmel.ASF" />
           <option id="avr32.drivers.flashc" value="Add" config="" content-id="Atmel.ASF" />
           <option id="avr32.drivers.gpio" value="Add" config="" content-id="Atmel.ASF" />
           <option id="avr32.drivers.intc" value="Add" config="" content-id="Atmel.ASF" />
@@ -46,11 +47,11 @@
           <option id="common.boards" value="Add" config="" content-id="Atmel.ASF" />
           <option id="common.services.delay" value="Add" config="" content-id="Atmel.ASF" />
           <option id="common.services.ioport" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="common.utils.unit_test" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.services.crypto.polarssl" value="Add" config="" content-id="Atmel.ASF" />
-          <option id="avr32.drivers.eic" value="Add" config="" content-id="Atmel.ASF" />
           <option id="common.services.basic.spi_master" value="Add" config="standard_spi" content-id="Atmel.ASF" />
           <option id="common.utils.interrupt" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="common.utils.unit_test" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="avr32.services.crypto.polarssl" value="Add" config="" content-id="Atmel.ASF" />
+          <option id="avr32.drivers.pdca" value="Add" config="" content-id="Atmel.ASF" />
           <option id="common.boards.user_board.common" value="Add" config="" content-id="Atmel.ASF" />
         </options>
         <configurations>
@@ -191,6 +192,8 @@
           <file path="src/ASF/common/services/spi/spi_master.h" framework="" version="3.27.0" source="common\services\spi\spi_master.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/ASF/common/services/spi/uc3_spi/spi_master.h" framework="" version="3.27.0" source="common\services\spi\uc3_spi\spi_master.h" changed="False" content-id="Atmel.ASF" />
           <file path="src/Config/conf_spi_master.h" framework="" version="3.27.0" source="common\services\spi\uc3_spi\module_config\conf_spi_master.h" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/avr32/drivers/pdca/pdca.c" framework="" version="3.27.0" source="avr32\drivers\pdca\pdca.c" changed="False" content-id="Atmel.ASF" />
+          <file path="src/ASF/avr32/drivers/pdca/pdca.h" framework="" version="3.27.0" source="avr32\drivers\pdca\pdca.h" changed="False" content-id="Atmel.ASF" />
         </files>
         <documentation help="http://asf.atmel.com/docs/3.27.0/common.applications.user_application.user_board.uc3c/html/index.html" />
         <offline-documentation help="" />
@@ -210,12 +213,12 @@
         <InterfaceName>aWire</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.avrdragon</ToolType>
-      <ToolNumber>00A20006049C</ToolNumber>
+      <ToolNumber>00A200053369</ToolNumber>
       <ToolName>AVR Dragon</ToolName>
     </com_atmel_avrdbg_tool_avrdragon>
     <avrtoolinterface>aWire</avrtoolinterface>
     <ExternalProgrammingToolCommand />
-    <avrtoolserialnumber>00A20006049C</avrtoolserialnumber>
+    <avrtoolserialnumber>00A200053369</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x0</avrdeviceexpectedsignature>
     <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
   </PropertyGroup>
@@ -266,6 +269,7 @@
             <Value>../src/ASF/avr32/drivers/eic</Value>
             <Value>../src/ASF/common/services/spi/uc3_spi</Value>
             <Value>../src/ASF/common/services/spi</Value>
+            <Value>../src/ASF/avr32/drivers/pdca</Value>
           </ListValues>
         </avr32gcc.compiler.directories.IncludePaths>
         <avr32gcc.compiler.optimization.OtherFlags>-fdata-sections</avr32gcc.compiler.optimization.OtherFlags>
@@ -322,6 +326,7 @@
             <Value>../src/ASF/avr32/drivers/eic</Value>
             <Value>../src/ASF/common/services/spi/uc3_spi</Value>
             <Value>../src/ASF/common/services/spi</Value>
+            <Value>../src/ASF/avr32/drivers/pdca</Value>
           </ListValues>
         </avr32gcc.assembler.general.IncludePaths>
         <avr32gcc.assembler.debugging.DebugLevel>Default (-g)</avr32gcc.assembler.debugging.DebugLevel>
@@ -358,6 +363,7 @@
             <Value>../src/ASF/avr32/drivers/eic</Value>
             <Value>../src/ASF/common/services/spi/uc3_spi</Value>
             <Value>../src/ASF/common/services/spi</Value>
+            <Value>../src/ASF/avr32/drivers/pdca</Value>
           </ListValues>
         </avr32gcc.preprocessingassembler.general.IncludePaths>
         <avr32gcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</avr32gcc.preprocessingassembler.debugging.DebugLevel>
@@ -411,6 +417,7 @@
             <Value>../src/ASF/avr32/drivers/eic</Value>
             <Value>../src/ASF/common/services/spi/uc3_spi</Value>
             <Value>../src/ASF/common/services/spi</Value>
+            <Value>../src/ASF/avr32/drivers/pdca</Value>
           </ListValues>
         </avr32gcc.compiler.directories.IncludePaths>
         <avr32gcc.compiler.optimization.OtherFlags>-fdata-sections</avr32gcc.compiler.optimization.OtherFlags>
@@ -467,6 +474,7 @@
             <Value>../src/ASF/avr32/drivers/eic</Value>
             <Value>../src/ASF/common/services/spi/uc3_spi</Value>
             <Value>../src/ASF/common/services/spi</Value>
+            <Value>../src/ASF/avr32/drivers/pdca</Value>
           </ListValues>
         </avr32gcc.assembler.general.IncludePaths>
         <avr32gcc.assembler.debugging.DebugLevel>Default (-g)</avr32gcc.assembler.debugging.DebugLevel>
@@ -503,6 +511,7 @@
             <Value>../src/ASF/avr32/drivers/eic</Value>
             <Value>../src/ASF/common/services/spi/uc3_spi</Value>
             <Value>../src/ASF/common/services/spi</Value>
+            <Value>../src/ASF/avr32/drivers/pdca</Value>
           </ListValues>
         </avr32gcc.preprocessingassembler.general.IncludePaths>
         <avr32gcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</avr32gcc.preprocessingassembler.debugging.DebugLevel>
@@ -521,6 +530,7 @@
     <Folder Include="src\ASF\avr32\drivers\flashc\" />
     <Folder Include="src\ASF\avr32\drivers\gpio\" />
     <Folder Include="src\ASF\avr32\drivers\intc\" />
+    <Folder Include="src\ASF\avr32\drivers\pdca\" />
     <Folder Include="src\ASF\avr32\drivers\pm\" />
     <Folder Include="src\ASF\avr32\drivers\scif\" />
     <Folder Include="src\ASF\avr32\drivers\spi\" />
@@ -616,6 +626,12 @@
       <SubType>compile</SubType>
     </Compile>
     <None Include="src\ASF\avr32\drivers\intc\intc.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="src\ASF\avr32\drivers\pdca\pdca.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <None Include="src\ASF\avr32\drivers\pdca\pdca.h">
       <SubType>compile</SubType>
     </None>
     <Compile Include="src\ASF\avr32\utils\startup\startup_uc3.S">

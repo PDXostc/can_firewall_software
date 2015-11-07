@@ -139,6 +139,17 @@ static inline void wipe_mob(volatile can_mob_t **mob)
 	memset((void *)(*mob), 0, sizeof(can_mob_t));
 }
 
+static void print_array_uint8(uint8_t *arr, int length)
+{
+	PRINT_NEWLINE()
+	print_dbg("Array Values: ");
+	for (int i = 0; i < length; i++)
+	{
+		print_dbg_char_hex(arr[i]);
+		print_dbg(" | ");
+	}
+}
+
 /* Process function to be deprecated. Shows handling of messages based on
 * evaluation function included in filter
 */
@@ -348,6 +359,11 @@ int main (void)
 	gpio_enable_pin_interrupt(MCP_MACHINE_INT_PIN, GPIO_FALLING_EDGE);
 	gpio_enable_pin_interrupt(PROC_INT_PIN, GPIO_FALLING_EDGE);
 	
+	// PDCA interrupt registration
+	// SPI RX 1?
+	// SPI transfer complete?
+	//INTC_register_interrupt(&pdca_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, AVR32_INTC_INT1);
+	
 	/************************************************************************/
 	/* Setup Interrupts for MCP Using EIC                                   */
 	/************************************************************************/
@@ -382,8 +398,8 @@ int main (void)
 	
 	
 	
-	INTC_register_interrupt(&mcp_interrupt_handler_north, EXT_INT_IVI_IRQ, AVR32_INTC_INT0);
-	INTC_register_interrupt(&mcp_interrupt_handler_south, EXT_INT_CAR_IRQ, AVR32_INTC_INT0);
+	INTC_register_interrupt(&mcp_interrupt_handler_north, EXT_INT_IVI_IRQ, AVR32_INTC_INT2);
+	//INTC_register_interrupt(&mcp_interrupt_handler_south, EXT_INT_CAR_IRQ, AVR32_INTC_INT0);
 	
 	eic_init(&AVR32_EIC, eic_options, EXT_INT_NUM_LINES);
 	
@@ -418,6 +434,26 @@ int main (void)
 	Enable_global_interrupt();
 	
 	// GO!
+	// PDCA test
+
+	
+	pdca_test_transfer_complete = false;
+	
+
+	
+	int count = 0;
+	
+	//wait for the transfer to complete
+	while (1)
+	{
+		count++;
+		if (pdca_test_transfer_complete == true)
+		{
+			print_dbg("\n\rPDCA Transfer COMPLETE");
+			print_array_uint8(rx_msg_test, 14);
+			pdca_test_transfer_complete = false;
+		}
+	}
 	
 #if 0
 	nop();

@@ -6,6 +6,26 @@
  */ 
 #include "interrupt_machines.h"
 
+volatile bool pdca_test_transfer_complete = false;
+
+volatile pdca_channel_options_t PDCA_OPTIONS_rx_test = {
+	.pid = PDCA_ID_SPI_RX,
+	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
+	.addr = NULL,
+	.size = 0,
+	.r_addr = NULL,
+	.r_size = 0,
+};
+
+volatile pdca_channel_options_t PDCA_OPTIONS_tx_test = {
+	.pid = PDCA_ID_SPI_TX,
+	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
+	.addr = NULL,
+	.size = 0,
+	.r_addr = NULL,
+	.r_size = 0,
+};
+
 // External interrupts set for low level trigger. Asynch mode allows wake on interrupt
 void init_eic_options(void)
 {
@@ -42,22 +62,53 @@ void mcp_interrupt_handler_north(void)
 	line02 = gpio_get_pin_value(CAR_INT_PIN);
 	//test clear mcp int flags for now
 	
+	//cheat, clear mcp flags slow
+	mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, 0x00);
+	
+	//PDCA on interrupt test
+	
+		rx_instruction_test[0] = MCP_INST_READ_RX_0;
+		// update pdca_options
+		PDCA_OPTIONS_tx_test.addr = &rx_instruction_test;
+		PDCA_OPTIONS_tx_test.size = sizeof(rx_instruction_test);
+		
+		PDCA_OPTIONS_rx_test.addr = &rx_msg_test;
+		PDCA_OPTIONS_rx_test.size = sizeof(rx_msg_test);
+		
+		
+		pdca_init_channel(PDCA_CHANNEL_SPI_TX, &PDCA_OPTIONS_tx_test);
+		pdca_init_channel(PDCA_CHANNEL_SPI_RX, &PDCA_OPTIONS_rx_test);
+		
+		//register interrupt for rx complete...
+		/*INTC_register_interrupt(&pdca_transfer_complete_int_handler, AVR32_PDCA_IRQ_0, AVR32_INTC_INT1);*/
+		INTC_register_interrupt(&pdca_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, AVR32_INTC_INT1);;
+		
+		//pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
+		pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_RX);
+		//
+		
+		//chip select mcp
+		mcp_select(MCP_NORTH);
+		
+		pdca_enable(PDCA_CHANNEL_SPI_TX);
+		pdca_enable(PDCA_CHANNEL_SPI_RX);
+	
 	// ask for mcp int status
 	
-	#if DBG_MCP
-	// test: display status:
-	mcp_print_status(MCP_NORTH);
-	
-	mcp_print_status(MCP_NORTH);
-	print_dbg("\n\rCanSTAT REgister");
-	mcp_print_registers(MCP_NORTH, MCP_ADD_CANSTAT, 1);
-	print_dbg("\n\rCANINTE Register");
-	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTE, 1);
-	print_dbg("\n\rCANINTF Register");
-	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTF, 1);
-	#endif
-	
-	mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, 0x00);
+// 	#if DBG_MCP
+// 	// test: display status:
+// 	mcp_print_status(MCP_NORTH);
+// 	
+// 	mcp_print_status(MCP_NORTH);
+// 	print_dbg("\n\rCanSTAT REgister");
+// 	mcp_print_registers(MCP_NORTH, MCP_ADD_CANSTAT, 1);
+// 	print_dbg("\n\rCANINTE Register");
+// 	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTE, 1);
+// 	print_dbg("\n\rCANINTF Register");
+// 	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTF, 1);
+// 	#endif
+// 	
+// 	mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, 0x00);
 	
 	// analyze interrupt status byte and set flags...
 	
@@ -144,4 +195,22 @@ void mcp_machine_int_handler(void)
 	
 	gpio_set_pin_high(MCP_MACHINE_INT_PIN);
 	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
+}
+
+#if defined (__GNUC__)
+__attribute__((__interrupt__))
+#elif defined (__ICCAVR32__)
+__interrupt
+#endif
+extern void pdca_transfer_complete_int_handler(void)
+{
+	//handle transfer complete
+	pdca_test_transfer_complete = true;
+	//volatile avr32_pdca_channel_t *pdca = pdca_get_handler(PDCA_CHANNEL_SPI_TX);
+	volatile avr32_pdca_channel_t *pdca = pdca_get_handler(PDCA_CHANNEL_SPI_RX);
+	pdca->idr = 0x07;
+
+	pdca_disable(PDCA_CHANNEL_SPI_TX);
+	pdca_disable(PDCA_CHANNEL_SPI_RX);
+	mcp_deselect(MCP_NORTH);
 }
