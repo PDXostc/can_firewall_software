@@ -66,8 +66,8 @@ void init_mcp_pins(void)
 
 void init_mcp_spi(void)
 {
-	mcp_reset_pin(MCP_NORTH);
-	mcp_reset_pin(MCP_SOUTH);
+	mcp_reset_pin(MCP_DEV_NORTH);
+	mcp_reset_pin(MCP_DEV_SOUTH);
 	spi_master_init(MCP_SPI);
 
 	//spi_master service enables some settings by default.
@@ -83,22 +83,22 @@ void init_mcp_spi(void)
 	spi_enable(MCP_SPI);
 
 	//prime spi
-	mcp_select(MCP_NORTH);
+	mcp_select(MCP_DEV_NORTH);
 	mcp_write_single(MCP_INST_DUMMY);
-	mcp_deselect(MCP_NORTH);
-	mcp_select(MCP_SOUTH);
+	mcp_deselect(MCP_DEV_NORTH);
+	mcp_select(MCP_DEV_SOUTH);
 	mcp_write_single(MCP_INST_DUMMY);
-	mcp_deselect(MCP_SOUTH);	
+	mcp_deselect(MCP_DEV_SOUTH);	
 	
 	#if DBG_MCP
 	print_dbg("\n\r__MCP _STATUS_AFTER_RESET_AND_SPI_");
-	mcp_print_status(MCP_NORTH);
+	mcp_print_status(MCP_DEV_NORTH);
 	print_dbg("\n\rCanSTAT REgister");
-	mcp_print_registers(MCP_NORTH, MCP_ADD_CANSTAT, 1);
+	mcp_print_registers(MCP_DEV_NORTH, MCP_ADD_CANSTAT, 1);
 	print_dbg("\n\rCANINTE Register");
-	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTE, 1);
+	mcp_print_registers(MCP_DEV_NORTH, MCP_ADD_CANINTE, 1);
 	print_dbg("\n\rCANINTF Register");
-	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTF, 1);
+	mcp_print_registers(MCP_DEV_NORTH, MCP_ADD_CANINTF, 1);
 	#endif
 }
 

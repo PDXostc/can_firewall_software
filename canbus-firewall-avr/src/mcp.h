@@ -26,7 +26,7 @@
 #endif
 
 #define RESET_PIN_HOLD_DELAY_US		3
-#define RESET_PIN_HOLD_DELAY()	delay_us(RESET_PIN_HOLD_DELAY_US)
+#define RESET_PIN_HOLD_DELAY()		delay_us(RESET_PIN_HOLD_DELAY_US)
 
 #define MCP_CAN_MSG_SIZE		13 // bytes
 #define MCP_CAN_MSG_HEADER_SIZE 5
@@ -42,15 +42,15 @@
 #define MCP_SPI_MODE_0_0		SPI_MODE_1
 #define MCP_SPI_MODE_1_1		SPI_MODE_2
 #define MCP_SPI_MODE_1_0		SPI_MODE_3
-#define MCP_SPI_MODE			 MCP_SPI_MODE_1_0
+#define MCP_SPI_MODE			MCP_SPI_MODE_1_0
 
 
 // spi devices north and south. using Atmel chip select structure
 struct spi_device spi_device_MCP_CAN_NORTH_IVI_conf;
 struct spi_device spi_device_MCP_CAN_SOUTH_CAR_conf;
 
-#define MCP_NORTH &spi_device_MCP_CAN_NORTH_IVI_conf
-#define MCP_SOUTH &spi_device_MCP_CAN_SOUTH_CAR_conf
+#define MCP_DEV_NORTH &spi_device_MCP_CAN_NORTH_IVI_conf
+#define MCP_DEV_SOUTH &spi_device_MCP_CAN_SOUTH_CAR_conf
 
 #define MCP_NPCS_NORTH 2
 #define MCP_NPCS_SOUTH 0
