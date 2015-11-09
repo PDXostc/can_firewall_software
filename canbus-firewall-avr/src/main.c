@@ -305,6 +305,8 @@ static void init_rules(void)
 	//Southbound[SIZE_RULESET : (SIZERULESET*2)-1]
 	load_ruleset(&flash_can_ruleset[0], can_ruleset_south_rx_north_tx, SIZE_RULESET);
 	load_ruleset(&flash_can_ruleset[SIZE_RULESET], can_ruleset_north_rx_south_tx, SIZE_RULESET);
+	
+	// remember to parse ruleset boundaries for MCP filter programming...
 }
 
 /* Main filter loop; designed to be a linear pipeline that we will try to get done as quickly as possible */
@@ -334,83 +336,9 @@ int main (void)
 	
 	// INIT MCP MODULE
 	init_mcp_module();
-	
-	/************************************************************************/
-	/* Interrupts                                                           */
-	/************************************************************************/
-	
-	Disable_global_interrupt();
-	
-	INTC_init_interrupts();
-	
-	// Setup Pin interrupts for MCP state machine and processing jobs
-	gpio_configure_pin(MCP_MACHINE_INT_PIN, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
-	gpio_configure_pin(PROC_INT_PIN, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
-	/* For GPIO IRQ, the formula should be:
-	 * (gpio_irq0 + gpio pin number/ eight )
-	 * so PA05 = 0 and PA21 = 2...
-	 */
-	
-	//MCP machine should run at two int levels above main
-	INTC_register_interrupt(&mcp_machine_int_handler, AVR32_GPIO_IRQ_0, AVR32_INTC_INT1);
-	//Proc should run at first int level
-	INTC_register_interrupt(&proc_int_handler, AVR32_GPIO_IRQ_2, AVR32_INTC_INT0);
-	
-	gpio_enable_pin_interrupt(MCP_MACHINE_INT_PIN, GPIO_FALLING_EDGE);
-	gpio_enable_pin_interrupt(PROC_INT_PIN, GPIO_FALLING_EDGE);
-	
-	// PDCA interrupt registration
-	// SPI RX 1?
-	// SPI transfer complete?
-	//INTC_register_interrupt(&pdca_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, AVR32_INTC_INT1);
-	
-	/************************************************************************/
-	/* Setup Interrupts for MCP Using EIC                                   */
-	/************************************************************************/
-	
-	
-	mcp_set_register(MCP_NORTH, MCP_ADD_CANINTE, MCP_VAL_INT_RX_TX_ENABLE);
-	mcp_set_register(MCP_NORTH, MCP_ADD_CANINTF, 0x00);
-	mcp_set_register(MCP_SOUTH, MCP_ADD_CANINTE, MCP_VAL_INT_RX_TX_ENABLE);
-	mcp_set_register(MCP_SOUTH, MCP_ADD_CANINTF, 0x00);
-	
-	#if DBG_MCP
 
-	mcp_print_status(MCP_NORTH);
-	print_dbg("\n\rCanSTAT REgister");
-	mcp_print_registers(MCP_NORTH, MCP_ADD_CANSTAT, 1);
-	print_dbg("\n\rCANINTE Register");
-	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTE, 1);
-	print_dbg("\n\rCANINTF Register");
-	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTF, 1);
-	
-	mcp_print_status(MCP_SOUTH);
-	print_dbg("\n\rCanSTAT REgister");
-	mcp_print_registers(MCP_SOUTH, MCP_ADD_CANSTAT, 1);
-	print_dbg("\n\rCANINTE Register");
-	mcp_print_registers(MCP_SOUTH, MCP_ADD_CANINTE, 1);
-	print_dbg("\n\rCANINTF Register");
-	mcp_print_registers(MCP_SOUTH, MCP_ADD_CANINTF, 1);
-	
-	#endif
-	
-	init_eic_options();
-	
-	
-	
-	INTC_register_interrupt(&mcp_interrupt_handler_north, EXT_INT_IVI_IRQ, AVR32_INTC_INT2);
-	//INTC_register_interrupt(&mcp_interrupt_handler_south, EXT_INT_CAR_IRQ, AVR32_INTC_INT0);
-	
-	eic_init(&AVR32_EIC, eic_options, EXT_INT_NUM_LINES);
-	
-	eic_enable_line(&AVR32_EIC, EXT_INT_IVI_LINE);
-	eic_enable_interrupt_line(&AVR32_EIC, EXT_INT_IVI_LINE);
-	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_IVI_LINE);
-	
-	eic_enable_line(&AVR32_EIC, EXT_INT_CAR_LINE);
-	eic_enable_interrupt_line(&AVR32_EIC, EXT_INT_CAR_LINE);
-	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_CAR_LINE);
-
+	// INIT ALL INTERRUPTS AND INTERRUPT DRIVEN STATE MACHINES
+	init_interrupt_machines();
 	
 	// Prior
 	/************************************************************************/
@@ -419,42 +347,28 @@ int main (void)
 	
 	uint8_t init_success = 0xFF;
 
-	init_success = mcp_init_can(MCP_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
+	init_success = mcp_init_can(MCP_DEV_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
 	if (init_success != MCP_RETURN_SUCCESS)
 	{
 		print_dbg("\n\rInit FAIL NORTH");
 	}
-	init_success = mcp_init_can(MCP_SOUTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
+	init_success = mcp_init_can(MCP_DEV_SOUTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
 	if (init_success != MCP_RETURN_SUCCESS)
 	{
 		print_dbg("\n\rInit FAIL SOUTH");
 	}
 		
-	/* INITS COMPLETE. ENABLE ALL INTERRUPTS */
+	/* SETUP AND INITS COMPLETE. ENABLE ALL INTERRUPTS */
 	Enable_global_interrupt();
 	
 	// GO!
-	// PDCA test
-
 	
-	pdca_test_transfer_complete = false;
+	// Main loop should attempt to be idle when not running interrupt driven job
 	
-
 	
-	int count = 0;
-	
-	//wait for the transfer to complete
-	while (1)
-	{
-		count++;
-		if (pdca_test_transfer_complete == true)
-		{
-			print_dbg("\n\rPDCA Transfer COMPLETE");
-			print_array_uint8(rx_msg_test, 14);
-			pdca_test_transfer_complete = false;
-		}
-	}
-	
+	/************************************************************************/
+	/* old debugging section, delete when done                              */
+	/************************************************************************/
 #if 0
 	nop();
 	
@@ -476,6 +390,7 @@ int main (void)
 	
 	mcp_print_error_registers(MCP_SOUTH);
 #endif
+
 	while (1)
 	{		
 		//run_firewall();

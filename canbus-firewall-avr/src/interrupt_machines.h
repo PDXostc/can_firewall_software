@@ -23,8 +23,61 @@
 //structure holding external interrupt controller settings
 eic_options_t eic_options[EXT_INT_NUM_LINES];
 
+// Potential States of the MCP handler machine
+enum MCP_STATE {
+	DEFAULT,
+	JOB_START,
+	NO_JOBS,
+	RESET_NORTH,
+	RESET_SOUTH,
+	ENTER_CONFIG_MODE_NORTH,
+	ENTER_CONGIG_MODE_SOUTH,
+	CONFIGURE_BIT_TIMINGS_NORTH,
+	CONFIGURE_BIT_TIMINGS_SOUTH,
+	CONFIGURE_RX_0_NORTH,
+	CONFIGURE_RX_1_NORTH,
+	CONFIGURE_RX_0_SOUTH,
+	CONFIGURE_RX_1_SOUTH,
+	CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_NORTH,
+	CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_SOUTH,
+	ENTER_NORMAL_MODE_NORTH,
+	ENTER_NORMAL_MODE_SOUTH,
+	GET_STATUS_NORTH,
+	GET_STATUS_SOUTH,
+	GET_STATUS_NORTH_CALLBACK,
+	GET_STATUS_SOUTH_CALLBACK,
+	GET_ERROR_REG_NORTH,
+	GET_ERROR_REG_SOUTH,
+	GET_ERROR_REG_NORTH_CALLBACK,
+	GET_ERROR_REG_SOUTH_CALLBACK,
+	TX_PENDING,
+	EVALUATE_TX_POINTER,
+	LOAD_TXB_0_NORTH,
+	LOAD_TXB_1_NORTH,
+	LOAD_TXB_2_NORTH,
+	LOAD_TXB_0_NORTH_CALLBACK,
+	LOAD_TXB_1_NORTH_CALLBACK,
+	LOAD_TXB_2_NORTH_CALLBACK,
+	LOAD_TXB_0_SOUTH,
+	LOAD_TXB_1_SOUTH,
+	LOAD_TXB_2_SOUTH,
+	LOAD_TXB_0_SOUTH_CALLBACK,
+	LOAD_TXB_1_SOUTH_CALLBACK,
+	LOAD_TXB_2_SOUTH_CALLBACK,
+	READ_RX_0_NORTH,
+	READ_RX_1_NORTH,
+	READ_RX_0_NORTH_CALLBACK,
+	READ_RX_1_NORTH_CALLBACK,
+	READ_RX_0_SOUTH,
+	READ_RX_1_SOUTH,
+	READ_RX_0_SOUTH_CALLBACK,
+	READ_RX_1_SOUTH_CALLBACK,
+	};
+
 // MCP status and jobs pending
 struct MCP_status {
+	//state of machine
+	enum MCP_STATE mcp_state;
 	//store mcp status poll byte
 	uint8_t status_byte_north;
 	uint8_t status_byte_south;
@@ -38,11 +91,16 @@ struct MCP_status {
 	// Bit 1 = South action
 	uint8_t attention;
 	// might need dedicated BUSY switch
+	//BUSY flag
+	// set bit 0 = busy North
+	// set bit 1 = busy South
+	uint8_t PDCA_busy;
 	};
 
-//Attention required masks for MCP_status->attention
-#define MCP_ATTN_NORTH	0x01
-#define MCP_ATTN_SOUTH	0x02
+// Direction / Attention required masks for MCP_status->attention, 
+// also applies to determining current direction setting for the PDCA_busy
+#define MCP_DIR_NORTH	0x01
+#define MCP_DIR_SOUTH	0x02
 
 #define MCP_SET_ATTN(attn, set)		(attn |= set)
 #define MCP_UNSET_ATTN(attn, set)	(attn &= ~set)
@@ -148,6 +206,11 @@ struct PROC_status {
 #define JOB_RX1_NORTH			JOB_13
 #define JOB_RX1_SOUTH			JOB_12
 
+//set wait job
+
+//set no job
+#define JOB_NO_JOBS		(0x00000000)
+
 /************************************************************************/
 /* PDCA                                                                 */
 /************************************************************************/
@@ -157,9 +220,35 @@ struct PROC_status {
 #define PDCA_CHANNEL_SPI_TX			0
 #define PDCA_CHANNEL_SPI_RX			1
 
+// PDCA sizes for buffers. These inform the size of the PDCA transfer.
+// Sizes must account for desired size, plus size of padding resulting from dummy
+// bytes to prompt rx or tx of multiple bytes on the SPI bus. For instance, a
+// transaction to receive a CAN msg using the PDCA should be the size of the CAN
+// msg, plus the size of the Receive Instruction sent. In our case, the MCP
+// supports a single byte for the receive instruction, meaning that our received
+// CAN msg will have a single byte of dummy padding at the beginning of its array.
+// Please note that any array sized to hold this message should also account for
+// this dummy byte.
+// 
+// Expected size of instruction
+#define PDCA_SIZE_INST		1
+// Expected size of CAN msg
+#define PDCA_SIZE_MSG		13
+// Size of status byte
+#define PDCA_SIZE_STATUS	1
+// Size of error register byte
+#define PDCA_SIZE_ERROR		1
+
+// Combined sizes for full transaction
+#define PDCA_SIZE_TRANS_MSG			(PDCA_SIZE_INST	+ PDCA_SIZE_MSG)
+#define PDCA_SIZE_TRANS_SINGLE		(PDCA_SIZE_INST + 1)
+#define PDCA_SIZE_TRANS_STATUS		(PDCA_SIZE_INST + PDCA_SIZE_STATUS)
+#define PDCA_SIZE_TRANS_ERROR		(PDCA_SIZE_INST + PDCA_SIZE_ERROR)
+
+
 
 // PDCA test
-// create rx / tx temp buffers
+// create rx / tx temp buffers, delete when testing complete
 uint8_t rx_instruction_test[14];
 
 
@@ -169,7 +258,9 @@ extern volatile bool pdca_test_transfer_complete;
 
 extern void init_eic_options(void);
 
-extern void configure_interrupt_machines(void);
+extern void init_interrupt_machines(void);
+
+void run_mcp_state_machine(void);
 
 #if defined (__GNUC__)
 __attribute__((__interrupt__))
