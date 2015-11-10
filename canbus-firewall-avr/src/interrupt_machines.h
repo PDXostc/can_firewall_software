@@ -199,7 +199,15 @@ struct MCP_status {
 	// set bit 0 = busy North
 	// set bit 1 = busy South
 	uint8_t PDCA_busy;
+	// bit timing instruction and consecutive registers to be filled with timing information
+	uint8_t timings_north[5];
+	uint8_t timings_south[5];
+	// rx configuration pointers
+	struct RX_config *rx_config_north;
+	struct RX_config *rx_config_south;
 };
+
+volatile struct MCP_status mcp_status;
 
 // func wrappers for getting and setting the state of the MCP machine
 inline static void mcp_stm_set_state(struct MCP_status *status, enum MCP_STATE state)
@@ -212,7 +220,6 @@ inline static enum MCP_STATE mcp_stm_get_state(struct MCP_status *status)
 	return status->mcp_state;
 };
 
-volatile struct MCP_status mcp_status;
 
 // func wrappers for setting jobs
 inline static void mcp_stm_set_job(struct MCP_status *status, uint32_t jobs)
@@ -273,13 +280,27 @@ struct PROC_status {
 // Size of error register byte
 #define PDCA_SIZE_ERROR		1
 
+
+
 // Combined sizes for full transaction
-#define PDCA_SIZE_TRANS_MSG			(PDCA_SIZE_INST	+ PDCA_SIZE_MSG)
-#define PDCA_SIZE_TRANS_SINGLE		(PDCA_SIZE_INST + 1)
-#define PDCA_SIZE_TRANS_STATUS		(PDCA_SIZE_INST + PDCA_SIZE_STATUS)
-#define PDCA_SIZE_TRANS_ERROR		(PDCA_SIZE_INST + PDCA_SIZE_ERROR)
+#define PDCA_SIZE_TRANS_MSG				(PDCA_SIZE_INST	+ PDCA_SIZE_MSG)
+#define PDCA_SIZE_TRANS_SINGLE_INST		(PDCA_SIZE_INST + 1)
+#define PDCA_SIZE_TRANS_WRITE_SINGLE	(3) // write + addr+ value
+#define PDCA_SIZE_TRANS_STATUS			(PDCA_SIZE_INST + PDCA_SIZE_STATUS)
+#define PDCA_SIZE_TRANS_ERROR			(PDCA_SIZE_INST + PDCA_SIZE_ERROR)
+#define PDCA_SIZE_TRANS_BIT_MODIFY		(4) // inst + addr + mask + value
+#define PDCA_SIZE_TRANS_TIMING			(5) // write + addr + CNF3 + CNF2 +CNF1
 
+// temp storage for single instruction / response bytes. PDCA will place raw SPI
+// transfer results here, mcp state machine should immediately copy relevant byte(s)
+// to corresponding status byte when called back.
+// Storage is left large in rare case that many registers need to be downloaded
+#define PDCA_TEMP_TRANSFER_BUFFER_SIZE		16
 
+volatile uint8_t PDCA_temporary_receive[PDCA_TEMP_TRANSFER_BUFFER_SIZE];
+volatile uint8_t PDCA_temporary_instruction_tx[PDCA_SIZE_TRANS_SINGLE_INST];
+volatile uint8_t PDCA_temporary_bit_modify_tx[PDCA_SIZE_TRANS_BIT_MODIFY];
+volatile uint8_t PDCA_temporary_write_single[PDCA_SIZE_TRANS_WRITE_SINGLE];
 
 // PDCA test
 // create rx / tx temp buffers, delete when testing complete
@@ -289,7 +310,7 @@ extern volatile bool pdca_test_transfer_complete;
 
 
 
-extern void init_eic_options(void);
+uint8_t init_eic_options(void);
 
 extern void init_interrupt_machines(void);
 
@@ -329,4 +350,14 @@ __attribute__((__interrupt__))
 __interrupt
 #endif
 extern void pdca_rx_transfer_complete_int_handler(void);
+
+#if defined (__GNUC__)
+__attribute__((__interrupt__))
+#elif defined (__ICCAVR32__)
+__interrupt
+#endif
+extern void pdca_tx_transfer_complete_int_handler(void);
+
+void PDCA_set_job_rx(struct spi_device *device, pdca_channel_options_t *options_tx, pdca_channel_options_t *options_rx, uint8_t pdca_busy_flag);
+void PDCA_set_job_tx(struct spi_device *device, pdca_channel_options_t *options_tx, uint8_t pdca_busy_flag);
 #endif /* INTERRUPT_MACHINES_H_ */
