@@ -73,7 +73,7 @@ enum MCP_STATE {
 	READ_RX_0_SOUTH_CALLBACK,
 	READ_RX_1_SOUTH_CALLBACK,
 	};
-
+	
 // MCP status and jobs pending
 struct MCP_status {
 	//state of machine
@@ -96,6 +96,19 @@ struct MCP_status {
 	// set bit 1 = busy South
 	uint8_t PDCA_busy;
 	};
+
+// func wrappers for getting and setting the state of the MCP machine
+inline void mcp_stm_set_state(struct MCP_status *status, enum MCP_STATE state)
+{
+	status->mcp_state = state;
+}
+
+inline enum MCP_STATE mcp_stm_get_state(struct MCP_status *status)
+{
+	return status->mcp_state;	
+};
+
+volatile struct MCP_status mcp_status;
 
 // Direction / Attention required masks for MCP_status->attention, 
 // also applies to determining current direction setting for the PDCA_busy
@@ -260,7 +273,7 @@ extern void init_eic_options(void);
 
 extern void init_interrupt_machines(void);
 
-void run_mcp_state_machine(void);
+void run_mcp_state_machine(struct MCP_status *status);
 
 #if defined (__GNUC__)
 __attribute__((__interrupt__))
@@ -295,5 +308,5 @@ __attribute__((__interrupt__))
 #elif defined (__ICCAVR32__)
 __interrupt
 #endif
-extern void pdca_transfer_complete_int_handler(void);
+extern void pdca_rx_transfer_complete_int_handler(void);
 #endif /* INTERRUPT_MACHINES_H_ */

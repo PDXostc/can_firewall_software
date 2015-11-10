@@ -8,6 +8,17 @@
 
 volatile bool pdca_test_transfer_complete = false;
 
+volatile struct MCP_status mcp_status = {
+	.mcp_state = DEFAULT,
+	.status_byte_north = 0x00,
+	.status_byte_south = 0x00,
+	.error_byte_north = 0x00,
+	.error_byte_south = 0x00,
+	.jobs = 0x00000000,
+	.attention = 0x00,
+	.PDCA_busy = 0x00,
+	};
+
 // PDCA channel settings, uses Atmel convention struct
 volatile pdca_channel_options_t PDCA_options_mcp_spi_msg_rx = {
 	.pid = PDCA_ID_SPI_RX,
@@ -119,7 +130,7 @@ void mcp_interrupt_handler_north(void)
 		
 		//register interrupt for rx complete...
 		/*INTC_register_interrupt(&pdca_transfer_complete_int_handler, AVR32_PDCA_IRQ_0, AVR32_INTC_INT1);*/
-		INTC_register_interrupt(&pdca_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, AVR32_INTC_INT1);;
+		INTC_register_interrupt(&pdca_rx_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, AVR32_INTC_INT1);;
 		
 		//pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
 		pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_RX);
@@ -247,10 +258,10 @@ __attribute__((__interrupt__))
 #elif defined (__ICCAVR32__)
 __interrupt
 #endif
-extern void pdca_transfer_complete_int_handler(void)
+extern void pdca_rx_transfer_complete_int_handler(void)
 {
 	//handle transfer complete
-	pdca_test_transfer_complete = true;
+	//pdca_test_transfer_complete = true;
 	
 	
 	// Disable pdca interrupts now that transfer is complete
@@ -259,7 +270,20 @@ extern void pdca_transfer_complete_int_handler(void)
 
 	pdca_disable(PDCA_CHANNEL_SPI_TX);
 	pdca_disable(PDCA_CHANNEL_SPI_RX);
-	mcp_deselect(MCP_DEV_NORTH);
+	
+	// deselect mcp based on which we were busy with, assumes that the busy flag
+	// has been set by the mcp machine which also started this job
+	if (mcp_status.PDCA_busy == MCP_DIR_NORTH)
+	{
+		mcp_deselect(MCP_DEV_NORTH);		
+	} 
+	else
+	{
+		mcp_deselect(MCP_DEV_SOUTH);
+	}
+	
+	// set not busy
+	mcp_status.PDCA_busy = 0;
 }
 
 void init_interrupt_machines(void)
@@ -316,10 +340,91 @@ void init_interrupt_machines(void)
 	/* Configure State Machine and Structs for First Run                    */
 	/************************************************************************/
 	
+	// Set jobs to reset and program mcp chips
+	mcp_status.jobs = (JOB_RESET_NORTH | JOB_RESET_SOUTH | JOB_CONFIGURE_NORTH | JOB_CONFIGURE_SOUTH);
 	
 }
-
-void run_mcp_state_machine(void)
+/* MCP state machine
+ * The MCP state machine should be run inside an interrupt handler, triggering 
+ * a state execution sequence.
+ * The basic role of the MCP state machine is to fall through states leading to
+ * the execution of tasks necessary to complete jobs for evaluating and affecting
+ * the MCP CAN controllers. 
+ * Completion of these tasks depends on operating the PDCA, or peripheral direct
+ * memory access controller on the Atmel chip. The machine should set an SPI transaction
+ * in motion with the PDCA, then exit the loop and wait for a "callback" interrupt
+ * when the transfer is complete.
+ * It is expected that while the machine is triggered from a single interrupt,
+ * the source of such an interrupt can be from multiple reasons, commonly:
+ * -completion of a PDCA transfer
+ * -external interrupt from an MCP device, notifying received or transferred message, or even an error
+ * -processing job complete, triggering the need for evaluation of a message by the tx pointer in que
+ * 
+ * The machine cannot perform any meaningful operation without the SPI bus, so if the 
+ * PDCA is busy using the bus, the state machine should probably exit. The PDCA
+ * has the responsibility of clearing the busy flag and triggering the machine interrupt.
+ */
+void run_mcp_state_machine(struct MCP_status *status)
 {
+	// if the PDCA is free, run the machine
+	if (status->PDCA_busy == 0)
+	{
+		//run machine
+		switch (status->mcp_state)
+		{
+		case DEFAULT:
+			break;
+			
+		case JOB_START:
+		case NO_JOBS:
+		case RESET_NORTH:
+		case RESET_SOUTH:
+		case ENTER_CONFIG_MODE_NORTH:
+		case ENTER_CONGIG_MODE_SOUTH:
+		case CONFIGURE_BIT_TIMINGS_NORTH:
+		case CONFIGURE_BIT_TIMINGS_SOUTH:
+		case CONFIGURE_RX_0_NORTH:
+		case CONFIGURE_RX_1_NORTH:
+		case CONFIGURE_RX_0_SOUTH:
+		case CONFIGURE_RX_1_SOUTH:
+		case CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_NORTH:
+		case CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_SOUTH:
+		case ENTER_NORMAL_MODE_NORTH:
+		case ENTER_NORMAL_MODE_SOUTH:
+		case GET_STATUS_NORTH:
+		case GET_STATUS_SOUTH:
+		case GET_STATUS_NORTH_CALLBACK:
+		case GET_STATUS_SOUTH_CALLBACK:
+		case GET_ERROR_REG_NORTH:
+		case GET_ERROR_REG_SOUTH:
+		case GET_ERROR_REG_NORTH_CALLBACK:
+		case GET_ERROR_REG_SOUTH_CALLBACK:
+		case TX_PENDING:
+		case EVALUATE_TX_POINTER:
+		case LOAD_TXB_0_NORTH:
+		case LOAD_TXB_1_NORTH:
+		case LOAD_TXB_2_NORTH:
+		case LOAD_TXB_0_NORTH_CALLBACK:
+		case LOAD_TXB_1_NORTH_CALLBACK:
+		case LOAD_TXB_2_NORTH_CALLBACK:
+		case LOAD_TXB_0_SOUTH:
+		case LOAD_TXB_1_SOUTH:
+		case LOAD_TXB_2_SOUTH:
+		case LOAD_TXB_0_SOUTH_CALLBACK:
+		case LOAD_TXB_1_SOUTH_CALLBACK:
+		case LOAD_TXB_2_SOUTH_CALLBACK:
+		case READ_RX_0_NORTH:
+		case READ_RX_1_NORTH:
+		case READ_RX_0_NORTH_CALLBACK:
+		case READ_RX_1_NORTH_CALLBACK:
+		case READ_RX_0_SOUTH:
+		case READ_RX_1_SOUTH:
+		case READ_RX_0_SOUTH_CALLBACK:
+		case READ_RX_1_SOUTH_CALLBACK:
+		default:
+			break;
+		}
+	}
+	//else get out and wait
 	
 }
