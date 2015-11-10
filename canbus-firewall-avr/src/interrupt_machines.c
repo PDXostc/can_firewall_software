@@ -9,7 +9,7 @@
 volatile bool pdca_test_transfer_complete = false;
 
 volatile struct MCP_status mcp_status = {
-	.mcp_state = DEFAULT,
+	.mcp_state = START,
 	.status_byte_north = 0x00,
 	.status_byte_south = 0x00,
 	.error_byte_north = 0x00,
@@ -248,6 +248,8 @@ void mcp_machine_int_handler(void)
 	//		waiting for PDCA transfer complete, 
 	//		waiting for pending tx
 	//		waiting for mcp external interrupt attention flag
+	//		
+	run_mcp_state_machine(&mcp_status);
 	
 	gpio_set_pin_high(MCP_MACHINE_INT_PIN);
 	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
@@ -341,7 +343,8 @@ void init_interrupt_machines(void)
 	/************************************************************************/
 	
 	// Set jobs to reset and program mcp chips
-	mcp_status.jobs = (JOB_RESET_NORTH | JOB_RESET_SOUTH | JOB_CONFIGURE_NORTH | JOB_CONFIGURE_SOUTH);
+	//mcp_status.jobs = (JOB_RESET_NORTH | JOB_RESET_SOUTH | JOB_CONFIGURE_NORTH | JOB_CONFIGURE_SOUTH);
+	mcp_stm_set_job(&mcp_status, (JOB_RESET_NORTH | JOB_RESET_SOUTH | JOB_CONFIGURE_NORTH | JOB_CONFIGURE_SOUTH));
 	
 }
 /* MCP state machine
@@ -366,16 +369,94 @@ void init_interrupt_machines(void)
  */
 void run_mcp_state_machine(struct MCP_status *status)
 {
+	// run the machine when this is called, if any state needs to exit the state loop
+	// for a reason other than PDCA being busy, this gives the opportunity to break
+	// out. This should always reset to true when this function is called by interrupt.
+	volatile bool run_machine = true;
+	
 	// if the PDCA is free, run the machine
-	if (status->PDCA_busy == 0)
+	while (status->PDCA_busy == 0 && run_machine == true)
 	{
 		//run machine
 		switch (status->mcp_state)
 		{
-		case DEFAULT:
+		case START:
+		/* START case should be the default state. Other states should return here
+		 * when tasks complete. START should send the machine on to initiate required
+		 * jobs.
+		 */
+			// goto jobs if pending
+			if (status->jobs > 0)
+			{
+				mcp_stm_set_state(status, JOB_START);
+			} 
+			// no jobs pending, but interupt was thrown, check for attention required status
+			else if (status->attention > 0)
+			{
+				if ((status->attention & MCP_DIR_NORTH) == MCP_DIR_NORTH)
+				{
+					mcp_stm_set_job(status, JOB_GET_STATUS_NORTH);
+				}
+				
+				if ((status->attention & MCP_DIR_SOUTH) == MCP_DIR_SOUTH)
+				{
+					mcp_stm_set_job(status, JOB_GET_STATUS_SOUTH);
+				}
+				
+				mcp_stm_set_state(status, JOB_START);
+			}
 			break;
 			
 		case JOB_START:
+		/* JOB_START is the main brancing off point for executing pending tasks.
+		 * Pending jobs flags are checked and executed in order of priority. Jobs
+		 * are exclusive; the state machine can have multiple jobs pending, but 
+		 * will only execute one at a time and must finish execution before another
+		 * can be started.
+		 */			
+			if ((status->jobs & JOB_RESET_NORTH) == JOB_RESET_NORTH) {
+				mcp_stm_set_state(status, RESET_NORTH);
+			}		
+			else if ((status->jobs & JOB_RESET_SOUTH) == JOB_RESET_SOUTH) {
+				mcp_stm_set_state(status, RESET_SOUTH);
+			}
+			else if ((status->jobs & JOB_CONFIGURE_NORTH) == JOB_CONFIGURE_NORTH) {
+				mcp_stm_set_state(status, ENTER_CONFIG_MODE_NORTH);
+			}
+			else if ((status->jobs & JOB_CONFIGURE_SOUTH) == JOB_CONFIGURE_SOUTH) {
+				mcp_stm_set_state(status, ENTER_CONGIG_MODE_SOUTH);
+			}
+			else if ((status->jobs & JOB_GET_STATUS_NORTH) == JOB_GET_STATUS_NORTH) {
+				mcp_stm_set_state(status, GET_STATUS_NORTH);
+			}
+			else if ((status->jobs & JOB_GET_STATUS_SOUTH) == JOB_GET_STATUS_SOUTH) {
+				mcp_stm_set_state(status, GET_STATUS_SOUTH);
+			}
+			else if ((status->jobs & JOB_GET_ERROR_REG_NORTH) == JOB_GET_ERROR_REG_NORTH) {
+				mcp_stm_set_state(status, GET_ERROR_REG_NORTH);
+			}
+			else if ((status->jobs & JOB_GET_ERROR_REG_SOUTH) == JOB_GET_ERROR_REG_SOUTH) {
+				mcp_stm_set_state(status, GET_ERROR_REG_SOUTH);
+			}
+			else if ((status->jobs & JOB_TX_PENDING) == JOB_TX_PENDING) {
+				mcp_stm_set_state(status, TX_PENDING);
+			}
+			else if ((status->jobs & JOB_RX_0_NORTH) == JOB_RX_0_NORTH) {
+				mcp_stm_set_state(status, READ_RX_0_NORTH);
+			}
+			else if ((status->jobs & JOB_RX_0_SOUTH) == JOB_RX_0_SOUTH) {
+				mcp_stm_set_state(status, READ_RX_0_SOUTH);
+			}
+			else if ((status->jobs & JOB_RX_1_NORTH) == JOB_RX_1_NORTH) {
+				mcp_stm_set_state(status, READ_RX_1_NORTH);
+			}
+			else if ((status->jobs & JOB_RX_1_SOUTH) == JOB_RX_1_SOUTH) {
+				mcp_stm_set_state(status, READ_RX_1_SOUTH);
+			}
+			else if (status->jobs == JOB_NO_JOBS) {
+				mcp_stm_set_state(status, NO_JOBS);
+			}
+			break;
 		case NO_JOBS:
 		case RESET_NORTH:
 		case RESET_SOUTH:

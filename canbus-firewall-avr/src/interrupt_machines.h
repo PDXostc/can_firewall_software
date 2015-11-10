@@ -11,6 +11,7 @@
 
 #include <asf.h>
 #include "mcp.h"
+#include "pdca_interface.h"
 
 //interrupt definitions for external MCP interrupts
 #define EXT_INT_PIN_FUNCTION    1
@@ -23,112 +24,10 @@
 //structure holding external interrupt controller settings
 eic_options_t eic_options[EXT_INT_NUM_LINES];
 
-// Potential States of the MCP handler machine
-enum MCP_STATE {
-	DEFAULT,
-	JOB_START,
-	NO_JOBS,
-	RESET_NORTH,
-	RESET_SOUTH,
-	ENTER_CONFIG_MODE_NORTH,
-	ENTER_CONGIG_MODE_SOUTH,
-	CONFIGURE_BIT_TIMINGS_NORTH,
-	CONFIGURE_BIT_TIMINGS_SOUTH,
-	CONFIGURE_RX_0_NORTH,
-	CONFIGURE_RX_1_NORTH,
-	CONFIGURE_RX_0_SOUTH,
-	CONFIGURE_RX_1_SOUTH,
-	CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_NORTH,
-	CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_SOUTH,
-	ENTER_NORMAL_MODE_NORTH,
-	ENTER_NORMAL_MODE_SOUTH,
-	GET_STATUS_NORTH,
-	GET_STATUS_SOUTH,
-	GET_STATUS_NORTH_CALLBACK,
-	GET_STATUS_SOUTH_CALLBACK,
-	GET_ERROR_REG_NORTH,
-	GET_ERROR_REG_SOUTH,
-	GET_ERROR_REG_NORTH_CALLBACK,
-	GET_ERROR_REG_SOUTH_CALLBACK,
-	TX_PENDING,
-	EVALUATE_TX_POINTER,
-	LOAD_TXB_0_NORTH,
-	LOAD_TXB_1_NORTH,
-	LOAD_TXB_2_NORTH,
-	LOAD_TXB_0_NORTH_CALLBACK,
-	LOAD_TXB_1_NORTH_CALLBACK,
-	LOAD_TXB_2_NORTH_CALLBACK,
-	LOAD_TXB_0_SOUTH,
-	LOAD_TXB_1_SOUTH,
-	LOAD_TXB_2_SOUTH,
-	LOAD_TXB_0_SOUTH_CALLBACK,
-	LOAD_TXB_1_SOUTH_CALLBACK,
-	LOAD_TXB_2_SOUTH_CALLBACK,
-	READ_RX_0_NORTH,
-	READ_RX_1_NORTH,
-	READ_RX_0_NORTH_CALLBACK,
-	READ_RX_1_NORTH_CALLBACK,
-	READ_RX_0_SOUTH,
-	READ_RX_1_SOUTH,
-	READ_RX_0_SOUTH_CALLBACK,
-	READ_RX_1_SOUTH_CALLBACK,
-	};
-	
-// MCP status and jobs pending
-struct MCP_status {
-	//state of machine
-	enum MCP_STATE mcp_state;
-	//store mcp status poll byte
-	uint8_t status_byte_north;
-	uint8_t status_byte_south;
-	//store mcp error flag registers
-	uint8_t error_byte_north;
-	uint8_t error_byte_south;
-	// pending jobs to handle for mcp device, status byte will set the lower 8 bits
-	uint32_t jobs;
-	// Attention required
-	// Bit 0 = North action
-	// Bit 1 = South action
-	uint8_t attention;
-	// might need dedicated BUSY switch
-	//BUSY flag
-	// set bit 0 = busy North
-	// set bit 1 = busy South
-	uint8_t PDCA_busy;
-	};
+/************************************************************************/
+/* JOBS                                                                 */
+/************************************************************************/
 
-// func wrappers for getting and setting the state of the MCP machine
-inline void mcp_stm_set_state(struct MCP_status *status, enum MCP_STATE state)
-{
-	status->mcp_state = state;
-}
-
-inline enum MCP_STATE mcp_stm_get_state(struct MCP_status *status)
-{
-	return status->mcp_state;	
-};
-
-volatile struct MCP_status mcp_status;
-
-// Direction / Attention required masks for MCP_status->attention, 
-// also applies to determining current direction setting for the PDCA_busy
-#define MCP_DIR_NORTH	0x01
-#define MCP_DIR_SOUTH	0x02
-
-#define MCP_SET_ATTN(attn, set)		(attn |= set)
-#define MCP_UNSET_ATTN(attn, set)	(attn &= ~set)
-
-// Transmit pointer status
-struct TX_status {
-	// trasmit pointer evaluation counter
-	uint32_t tx_pending_count;
-	};
-	
-// Process pointer status
-struct PROC_status {
-	uint32_t proc_pending_count;
-	};
-	
 // usage
 // SET_JOB(MCP_status.jobs, JOB_n)
 #define SET_JOB(jobs, set)		(jobs |= set)
@@ -214,15 +113,137 @@ struct PROC_status {
 
 #define JOB_TX_PENDING			JOB_20
 
-#define JOB_RX0_NORTH			JOB_15
-#define JOB_RX0_SOUTH			JOB_14
-#define JOB_RX1_NORTH			JOB_13
-#define JOB_RX1_SOUTH			JOB_12
+#define JOB_RX_0_NORTH			JOB_15
+#define JOB_RX_0_SOUTH			JOB_14
+#define JOB_RX_1_NORTH			JOB_13
+#define JOB_RX_1_SOUTH			JOB_12
 
 //set wait job
 
 //set no job
 #define JOB_NO_JOBS		(0x00000000)
+
+/************************************************************************/
+/* MCP STATE MACHINE                                                    */
+/************************************************************************/
+
+// Potential States of the MCP handler machine
+enum MCP_STATE {
+	START,
+	JOB_START,
+	NO_JOBS,
+	RESET_NORTH,
+	RESET_SOUTH,
+	ENTER_CONFIG_MODE_NORTH,
+	ENTER_CONGIG_MODE_SOUTH,
+	CONFIGURE_BIT_TIMINGS_NORTH,
+	CONFIGURE_BIT_TIMINGS_SOUTH,
+	CONFIGURE_RX_0_NORTH,
+	CONFIGURE_RX_1_NORTH,
+	CONFIGURE_RX_0_SOUTH,
+	CONFIGURE_RX_1_SOUTH,
+	CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_NORTH,
+	CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_SOUTH,
+	ENTER_NORMAL_MODE_NORTH,
+	ENTER_NORMAL_MODE_SOUTH,
+	GET_STATUS_NORTH,
+	GET_STATUS_SOUTH,
+	GET_STATUS_NORTH_CALLBACK,
+	GET_STATUS_SOUTH_CALLBACK,
+	GET_ERROR_REG_NORTH,
+	GET_ERROR_REG_SOUTH,
+	GET_ERROR_REG_NORTH_CALLBACK,
+	GET_ERROR_REG_SOUTH_CALLBACK,
+	TX_PENDING,
+	EVALUATE_TX_POINTER,
+	LOAD_TXB_0_NORTH,
+	LOAD_TXB_1_NORTH,
+	LOAD_TXB_2_NORTH,
+	LOAD_TXB_0_NORTH_CALLBACK,
+	LOAD_TXB_1_NORTH_CALLBACK,
+	LOAD_TXB_2_NORTH_CALLBACK,
+	LOAD_TXB_0_SOUTH,
+	LOAD_TXB_1_SOUTH,
+	LOAD_TXB_2_SOUTH,
+	LOAD_TXB_0_SOUTH_CALLBACK,
+	LOAD_TXB_1_SOUTH_CALLBACK,
+	LOAD_TXB_2_SOUTH_CALLBACK,
+	READ_RX_0_NORTH,
+	READ_RX_1_NORTH,
+	READ_RX_0_NORTH_CALLBACK,
+	READ_RX_1_NORTH_CALLBACK,
+	READ_RX_0_SOUTH,
+	READ_RX_1_SOUTH,
+	READ_RX_0_SOUTH_CALLBACK,
+	READ_RX_1_SOUTH_CALLBACK,
+};
+
+// MCP status and jobs pending
+struct MCP_status {
+	//state of machine
+	enum MCP_STATE mcp_state;
+	//store mcp status poll byte
+	uint8_t status_byte_north;
+	uint8_t status_byte_south;
+	//store mcp error flag registers
+	uint8_t error_byte_north;
+	uint8_t error_byte_south;
+	// pending jobs to handle for mcp device, status byte will set the lower 8 bits
+	uint32_t jobs;
+	// Attention required
+	// Bit 0 = North action
+	// Bit 1 = South action
+	uint8_t attention;
+	// might need dedicated BUSY switch
+	//BUSY flag
+	// set bit 0 = busy North
+	// set bit 1 = busy South
+	uint8_t PDCA_busy;
+};
+
+// func wrappers for getting and setting the state of the MCP machine
+inline static void mcp_stm_set_state(struct MCP_status *status, enum MCP_STATE state)
+{
+	status->mcp_state = state;
+}
+
+inline static enum MCP_STATE mcp_stm_get_state(struct MCP_status *status)
+{
+	return status->mcp_state;
+};
+
+volatile struct MCP_status mcp_status;
+
+// func wrappers for setting jobs
+inline static void mcp_stm_set_job(struct MCP_status *status, uint32_t jobs)
+{
+	SET_JOB(status->jobs, jobs);
+}
+
+inline static void mcp_stm_unset_job(struct MCP_status *status, uint32_t jobs)
+{
+	UNSET_JOB(status->jobs, jobs);
+}
+
+// Direction / Attention required masks for MCP_status->attention,
+// also applies to determining current direction setting for the PDCA_busy
+#define MCP_DIR_NORTH	0x01
+#define MCP_DIR_SOUTH	0x02
+
+#define MCP_SET_ATTN(attn, set)		(attn |= set)
+#define MCP_UNSET_ATTN(attn, set)	(attn &= ~set)
+
+// Transmit pointer status
+struct TX_status {
+	// trasmit pointer evaluation counter
+	uint32_t tx_pending_count;
+};
+
+// Process pointer status
+struct PROC_status {
+	uint32_t proc_pending_count;
+};
+
 
 /************************************************************************/
 /* PDCA                                                                 */
@@ -263,11 +284,10 @@ struct PROC_status {
 // PDCA test
 // create rx / tx temp buffers, delete when testing complete
 uint8_t rx_instruction_test[14];
-
-
 uint8_t rx_msg_test[14];
-
 extern volatile bool pdca_test_transfer_complete;
+
+
 
 extern void init_eic_options(void);
 
