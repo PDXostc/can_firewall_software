@@ -20,7 +20,7 @@
 #define DBG_HMAC        DBG_ON  && 1 //hmac
 #define DBG_RULES       DBG_ON  && 1 //rules
 #define DBG_MCP			DBG_ON  && 1 //mcp chipsets
-#define DBG_MCP_CAN_RX  DBG_MCP && 1
+#define DBG_MCP_CAN_RX  DBG_MCP && 0
 #define DBG_MCP_CAN_TX  DBG_MCP && 0
 #define DBG_INT			DBG_ON	&& 1
 #define DBG_MCP_STATE	DBG_ON	&& 1

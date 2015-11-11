@@ -13,6 +13,12 @@
 #include "mcp.h"
 #include "pdca_interface.h"
 
+//interrupt levels
+#define INT_LEVEL_PROC			AVR32_INTC_INT0
+#define INT_LEVEL_MCP_MACHINE	AVR32_INTC_INT1
+#define INT_LEVEL_PDCA			AVR32_INTC_INT1
+#define INT_LEVEL_MCP_EIC		AVR32_INTC_INT2
+
 //interrupt definitions for external MCP interrupts
 #define EXT_INT_PIN_FUNCTION    1
 #define EXT_INT_NUM_LINES		2
@@ -135,7 +141,7 @@ enum MCP_STATE {
 	RESET_NORTH,
 	RESET_SOUTH,
 	ENTER_CONFIG_MODE_NORTH,
-	ENTER_CONGIG_MODE_SOUTH,
+	ENTER_CONFIG_MODE_SOUTH,
 	CONFIGURE_BIT_TIMINGS_NORTH,
 	CONFIGURE_BIT_TIMINGS_SOUTH,
 	CONFIGURE_RX_0_NORTH,
@@ -146,6 +152,8 @@ enum MCP_STATE {
 	CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_SOUTH,
 	ENTER_NORMAL_MODE_NORTH,
 	ENTER_NORMAL_MODE_SOUTH,
+	ENTER_NORMAL_MODE_NORTH_CALLBACK,
+	ENTER_NORMAL_MODE_SOUTH_CALLBACK,
 	GET_STATUS_NORTH,
 	GET_STATUS_SOUTH,
 	GET_STATUS_NORTH_CALLBACK,
@@ -179,7 +187,7 @@ enum MCP_STATE {
 };
 
 // MCP status and jobs pending
-struct MCP_status {
+struct MCP_status_t {
 	//state of machine
 	enum MCP_STATE mcp_state;
 	//store mcp status poll byte
@@ -207,27 +215,27 @@ struct MCP_status {
 	struct RX_config *rx_config_south;
 };
 
-volatile struct MCP_status mcp_status;
+volatile struct MCP_status_t mcp_status;
 
 // func wrappers for getting and setting the state of the MCP machine
-inline static void mcp_stm_set_state(struct MCP_status *status, enum MCP_STATE state)
+inline static void mcp_stm_set_state(volatile struct MCP_status_t *status, enum MCP_STATE state)
 {
 	status->mcp_state = state;
 }
 
-inline static enum MCP_STATE mcp_stm_get_state(struct MCP_status *status)
+inline static enum MCP_STATE mcp_stm_get_state(volatile struct MCP_status_t *status)
 {
 	return status->mcp_state;
 };
 
 
 // func wrappers for setting jobs
-inline static void mcp_stm_set_job(struct MCP_status *status, uint32_t jobs)
+inline static void mcp_stm_set_job(volatile struct MCP_status_t *status, uint32_t jobs)
 {
 	SET_JOB(status->jobs, jobs);
 }
 
-inline static void mcp_stm_unset_job(struct MCP_status *status, uint32_t jobs)
+inline static void mcp_stm_unset_job(volatile struct MCP_status_t *status, uint32_t jobs)
 {
 	UNSET_JOB(status->jobs, jobs);
 }
@@ -312,9 +320,10 @@ extern volatile bool pdca_test_transfer_complete;
 
 uint8_t init_eic_options(void);
 
+uint8_t init_mcp_status(void);
 extern void init_interrupt_machines(void);
 
-void run_mcp_state_machine(struct MCP_status *status);
+void run_mcp_state_machine(volatile struct MCP_status_t *status);
 
 #if defined (__GNUC__)
 __attribute__((__interrupt__))
@@ -343,6 +352,17 @@ __attribute__((__interrupt__))
 __interrupt
 #endif
 extern void mcp_machine_int_handler(void);
+
+static inline void mcp_machine_int_set(void)
+{
+	gpio_set_pin_low(MCP_MACHINE_INT_PIN);
+}
+
+static inline void mcp_machine_int_clear(void)
+{
+	gpio_set_pin_high(MCP_MACHINE_INT_PIN);
+	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
+}
 
 #if defined (__GNUC__)
 __attribute__((__interrupt__))

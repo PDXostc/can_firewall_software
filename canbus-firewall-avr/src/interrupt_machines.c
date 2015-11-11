@@ -8,7 +8,7 @@
 
 volatile bool pdca_test_transfer_complete = false;
 
-volatile struct MCP_status mcp_status = {
+volatile struct MCP_status_t mcp_status = {
 	.mcp_state = START,
 	.status_byte_north = 0x00,
 	.status_byte_south = 0x00,
@@ -20,7 +20,7 @@ volatile struct MCP_status mcp_status = {
 	};
 
 // PDCA channel settings, uses Atmel convention struct
-volatile pdca_channel_options_t PDCA_options_mcp_spi_msg_rx = {
+pdca_channel_options_t PDCA_options_mcp_spi_msg_rx = {
 	.pid = PDCA_ID_SPI_RX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = NULL,
@@ -29,7 +29,7 @@ volatile pdca_channel_options_t PDCA_options_mcp_spi_msg_rx = {
 	.r_size = 0,
 	};
 	
-volatile pdca_channel_options_t PDCA_options_mcp_spi_msg_tx = {
+pdca_channel_options_t PDCA_options_mcp_spi_msg_tx = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = NULL,
@@ -38,7 +38,7 @@ volatile pdca_channel_options_t PDCA_options_mcp_spi_msg_tx = {
 	.r_size = 0,
 };
 
-volatile pdca_channel_options_t PDCA_options_mcp_spi_rx_single = {
+pdca_channel_options_t PDCA_options_mcp_spi_rx_single = {
 	.pid = PDCA_ID_SPI_RX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = NULL,
@@ -47,7 +47,7 @@ volatile pdca_channel_options_t PDCA_options_mcp_spi_rx_single = {
 	.r_size = 0,
 };
 
-volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_single = {
+pdca_channel_options_t PDCA_options_mcp_spi_tx_single = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = NULL,
@@ -56,7 +56,7 @@ volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_single = {
 	.r_size = 0,
 };
 
-volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single = {
+pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = &PDCA_temporary_write_single,
@@ -65,7 +65,7 @@ volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single = {
 	.r_size = 0,
 };
 
-volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_bit_modify = {
+pdca_channel_options_t PDCA_options_mcp_spi_tx_bit_modify = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = &PDCA_temporary_bit_modify_tx,
@@ -74,7 +74,7 @@ volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_bit_modify = {
 	.r_size = 0,
 };
 
-volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_configure_timings = {
+pdca_channel_options_t PDCA_options_mcp_spi_tx_configure_timings = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = NULL,
@@ -83,7 +83,7 @@ volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_configure_timings = {
 	.r_size = 0,
 };
 
-volatile pdca_channel_options_t PDCA_OPTIONS_rx_test = {
+pdca_channel_options_t PDCA_OPTIONS_rx_test = {
 	.pid = PDCA_ID_SPI_RX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = NULL,
@@ -92,7 +92,7 @@ volatile pdca_channel_options_t PDCA_OPTIONS_rx_test = {
 	.r_size = 0,
 };
 
-volatile pdca_channel_options_t PDCA_OPTIONS_tx_test = {
+pdca_channel_options_t PDCA_OPTIONS_tx_test = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = NULL,
@@ -125,10 +125,13 @@ uint8_t init_eic_options(void)
 	eic_options[1].eic_async  = EIC_ASYNCH_MODE;
 	// 	// Choose External Interrupt Controller Line
 	eic_options[1].eic_line   = EXT_INT_CAR_LINE;
+	
+	//for now,
+	return 0x00;
 }
 
 // Initialize the MCP status structure
-void init_mcp_status(void)
+uint8_t init_mcp_status(void)
 {
 	mcp_status.mcp_state = START;
 	
@@ -336,7 +339,7 @@ void mcp_machine_int_handler(void)
 	print_dbg("\n\rMCP_machine_int_handler_called!");
 	set_led(LED_01, LED_OFF);
 	#endif
-	
+	Disable_global_interrupt();
 	// run state machine
 	// if logic permits, loop will exit and set the pin high to wait for next interruption
 	// example cases:
@@ -346,8 +349,12 @@ void mcp_machine_int_handler(void)
 	//		
 	run_mcp_state_machine(&mcp_status);
 	
-	gpio_set_pin_high(MCP_MACHINE_INT_PIN);
-	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
+// 	gpio_set_pin_high(MCP_MACHINE_INT_PIN);
+// 	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
+// 	
+	nop();
+	mcp_machine_int_clear();
+	Enable_global_interrupt();
 }
 
 #if defined (__GNUC__)
@@ -362,8 +369,11 @@ void pdca_rx_transfer_complete_int_handler(void)
 	
 	
 	// Disable pdca interrupts now that transfer is complete
-	volatile avr32_pdca_channel_t *pdca = pdca_get_handler(PDCA_CHANNEL_SPI_RX);
-	pdca->idr = 0x07;
+// 	volatile avr32_pdca_channel_t *pdca = pdca_get_handler(PDCA_CHANNEL_SPI_RX);
+// 	pdca->idr = 0x07;
+
+	pdca_disable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
+	pdca_disable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_RX);
 
 	pdca_disable(PDCA_CHANNEL_SPI_TX);
 	pdca_disable(PDCA_CHANNEL_SPI_RX);
@@ -374,13 +384,16 @@ void pdca_rx_transfer_complete_int_handler(void)
 	{
 		mcp_deselect(MCP_DEV_NORTH);		
 	} 
-	else
+	else if (mcp_status.PDCA_busy == MCP_DIR_SOUTH)
 	{
 		mcp_deselect(MCP_DEV_SOUTH);
 	}
 	
 	// set not busy
 	mcp_status.PDCA_busy = 0;
+	
+	//set the mcp interrupt
+	mcp_machine_int_set();
 }
 
 #if defined (__GNUC__)
@@ -395,8 +408,10 @@ void pdca_tx_transfer_complete_int_handler(void)
 	
 	
 	// Disable pdca interrupts now that transfer is complete
-	volatile avr32_pdca_channel_t *pdca = pdca_get_handler(PDCA_CHANNEL_SPI_TX);
-	pdca->idr = 0x07;
+// 	volatile avr32_pdca_channel_t *pdca = pdca_get_handler(PDCA_CHANNEL_SPI_TX);
+// 	pdca->idr = 0x07;
+
+	pdca_disable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
 
 	pdca_disable(PDCA_CHANNEL_SPI_TX);
 	
@@ -406,13 +421,16 @@ void pdca_tx_transfer_complete_int_handler(void)
 	{
 		mcp_deselect(MCP_DEV_NORTH);
 	}
-	else
+	else if (mcp_status.PDCA_busy == MCP_DIR_SOUTH)
 	{
 		mcp_deselect(MCP_DEV_SOUTH);
 	}
 	
 	// set not busy
 	mcp_status.PDCA_busy = 0;
+	
+	//set the mcp interrupt
+	mcp_machine_int_set();
 }
 
 // Set up a job for receiving response data over SPI
@@ -437,7 +455,7 @@ void PDCA_set_job_rx(struct spi_device *device,
 		// register the interrupt for receive transfer complete. IRQ 1 corresponds to the SPI_RX channel,
 		// INT level 1 is used so that interrupt resides on same level as the MCP state machine, able 
 		// to interrupt the Main loop or Processing handler
-		INTC_register_interrupt(&pdca_rx_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, AVR32_INTC_INT1);
+		INTC_register_interrupt(&pdca_rx_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, INT_LEVEL_PDCA);
 		
 		// enable the interrupt for receive transfer complete
 		pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_RX);
@@ -468,7 +486,10 @@ void PDCA_set_job_tx(struct spi_device *device,
 		pdca_init_channel(PDCA_CHANNEL_SPI_TX, options_tx);
 		
 		// register the interrupt for transmit complete
-		INTC_register_interrupt(&pdca_tx_transfer_complete_int_handler, AVR32_PDCA_IRQ_0, AVR32_INTC_INT1);
+		INTC_register_interrupt(&pdca_tx_transfer_complete_int_handler, AVR32_PDCA_IRQ_0, INT_LEVEL_PDCA);
+		
+		// enable interrupt for transmission complete
+		pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
 		
 		// select the device associated with this job
 		mcp_select(device);
@@ -479,6 +500,9 @@ void PDCA_set_job_tx(struct spi_device *device,
 
 void init_interrupt_machines(void)
 {
+	//init the mcp status
+	uint8_t success  = init_mcp_status();
+	
 	/************************************************************************/
 	/* Interrupts                                                           */
 	/************************************************************************/
@@ -496,9 +520,9 @@ void init_interrupt_machines(void)
 	 */
 	
 	//MCP machine should run at two int levels above main
-	INTC_register_interrupt(&mcp_machine_int_handler, AVR32_GPIO_IRQ_0, AVR32_INTC_INT1);
+	INTC_register_interrupt(&mcp_machine_int_handler, AVR32_GPIO_IRQ_0, INT_LEVEL_MCP_MACHINE);
 	//Proc should run at first int level
-	INTC_register_interrupt(&proc_int_handler, AVR32_GPIO_IRQ_2, AVR32_INTC_INT0);
+	INTC_register_interrupt(&proc_int_handler, AVR32_GPIO_IRQ_2, INT_LEVEL_PROC);
 	
 	gpio_enable_pin_interrupt(MCP_MACHINE_INT_PIN, GPIO_FALLING_EDGE);
 	gpio_enable_pin_interrupt(PROC_INT_PIN, GPIO_FALLING_EDGE);	
@@ -514,8 +538,8 @@ void init_interrupt_machines(void)
 	
 	init_eic_options();	
 	
-	INTC_register_interrupt(&mcp_interrupt_handler_north, EXT_INT_IVI_IRQ, AVR32_INTC_INT2);
-	INTC_register_interrupt(&mcp_interrupt_handler_south, EXT_INT_CAR_IRQ, AVR32_INTC_INT2);
+	INTC_register_interrupt(&mcp_interrupt_handler_north, EXT_INT_IVI_IRQ, INT_LEVEL_MCP_EIC);
+	INTC_register_interrupt(&mcp_interrupt_handler_south, EXT_INT_CAR_IRQ, INT_LEVEL_MCP_EIC);
 	
 	eic_init(&AVR32_EIC, eic_options, EXT_INT_NUM_LINES);
 	
@@ -534,6 +558,10 @@ void init_interrupt_machines(void)
 	// Set jobs to reset and program mcp chips
 	//mcp_status.jobs = (JOB_RESET_NORTH | JOB_RESET_SOUTH | JOB_CONFIGURE_NORTH | JOB_CONFIGURE_SOUTH);
 	mcp_stm_set_job(&mcp_status, (JOB_RESET_NORTH | JOB_RESET_SOUTH | JOB_CONFIGURE_NORTH | JOB_CONFIGURE_SOUTH));
+	
+	//trigger mcp state machine for first run
+	//set the mcp interrupt
+	mcp_machine_int_set();
 	
 }
 /* MCP state machine
@@ -556,16 +584,22 @@ void init_interrupt_machines(void)
  * PDCA is busy using the bus, the state machine should probably exit. The PDCA
  * has the responsibility of clearing the busy flag and triggering the machine interrupt.
  */
-void run_mcp_state_machine(struct MCP_status *status)
+void run_mcp_state_machine(volatile struct MCP_status_t *status)
 {
 	// run the machine when this is called, if any state needs to exit the state loop
 	// for a reason other than PDCA being busy, this gives the opportunity to break
 	// out. This should always reset to true when this function is called by interrupt.
 	volatile bool run_machine = true;
+	#if DBG_MCP_STATE
+	print_dbg("\n\r...Run state machine called...");
+	#endif
 	
 	// if the PDCA is free, run the machine
-	while (status->PDCA_busy == 0 && run_machine == true)
+	while ((status->PDCA_busy == 0) && (run_machine == true))
 	{
+		#if DBG_MCP_STATE
+		print_dbg("\n\r...Entered while loop of machine...");
+		#endif
 		//run machine
 		switch (status->mcp_state)
 		{
@@ -594,8 +628,11 @@ void run_mcp_state_machine(struct MCP_status *status)
 				
 				mcp_stm_set_state(status, JOB_START);
 			}
-			// no jobs or attention required, cease the machine
-			run_machine = false;
+			else {
+				// no jobs or attention required, cease the machine
+				run_machine = false;
+			}
+
 			
 			break;
 			
@@ -616,7 +653,7 @@ void run_mcp_state_machine(struct MCP_status *status)
 				mcp_stm_set_state(status, ENTER_CONFIG_MODE_NORTH);
 			}
 			else if ((status->jobs & JOB_CONFIGURE_SOUTH) == JOB_CONFIGURE_SOUTH) {
-				mcp_stm_set_state(status, ENTER_CONGIG_MODE_SOUTH);
+				mcp_stm_set_state(status, ENTER_CONFIG_MODE_SOUTH);
 			}
 			else if ((status->jobs & JOB_GET_STATUS_NORTH) == JOB_GET_STATUS_NORTH) {
 				mcp_stm_set_state(status, GET_STATUS_NORTH);
@@ -707,9 +744,13 @@ void run_mcp_state_machine(struct MCP_status *status)
 			// next state when called back will be to configure the mcp can timing
 			mcp_stm_set_state(status, CONFIGURE_BIT_TIMINGS_NORTH);
 			
+			#if DBG_MCP_STATE
+			print_dbg("\n\rEnter Config Mode North Job, Next is Configure Bit Timings North");
+			#endif
+			
 			break;
 			
-		case ENTER_CONGIG_MODE_SOUTH:
+		case ENTER_CONFIG_MODE_SOUTH:
 			// set up for configuration mode instruction:
 			// uses MCP bit modify instruction
 			// this could be prepared in advance instead
@@ -723,6 +764,10 @@ void run_mcp_state_machine(struct MCP_status *status)
 			
 			// next state when called back will be to configure the mcp can timing
 			mcp_stm_set_state(status, CONFIGURE_BIT_TIMINGS_SOUTH);
+			
+			#if DBG_MCP_STATE
+			print_dbg("\n\rEnter Config Mode South Job, Next is Configure Bit Timings South");
+			#endif
 			
 			break;
 			
@@ -741,6 +786,10 @@ void run_mcp_state_machine(struct MCP_status *status)
 			
 			// next state will be to configure the first receive buffer
 			mcp_stm_set_state(status, CONFIGURE_RX_0_NORTH);
+			
+			#if DBG_MCP_STATE
+			print_dbg("\n\rConfigure Bit Timings North Job, Next is Configure RX0 North");
+			#endif
 			
 			break;
 			
@@ -774,6 +823,10 @@ void run_mcp_state_machine(struct MCP_status *status)
 			// next state configures the second receive buffer
 			mcp_stm_set_state(status, CONFIGURE_RX_1_NORTH);
 			
+			#if DBG_MCP_STATE
+			print_dbg("\n\rConfigure_RX0 North Job, Next is Configure RX1 North");
+			#endif
+			
 			break;
 			
 		case CONFIGURE_RX_1_NORTH:
@@ -781,6 +834,10 @@ void run_mcp_state_machine(struct MCP_status *status)
 			
 			// next state is to configure the ready to send pins on MCP
 			mcp_stm_set_state(status, CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_NORTH);
+			
+			#if DBG_MCP_STATE
+			print_dbg("\n\rConfigure_RX1 North Job, Next is Configure Ready To Send Pins");
+			#endif
 			
 			break;
 			
@@ -822,6 +879,10 @@ void run_mcp_state_machine(struct MCP_status *status)
 			// next state should be configuration complete, set mcp to normal operation mode
 			mcp_stm_set_state(status, ENTER_NORMAL_MODE_NORTH);
 			
+			#if DBG_MCP_STATE
+			print_dbg("\n\rConfigure Ready To Send Pins North Job, Next is Enter Normal Mode North");
+			#endif
+			
 			break;
 			
 		case CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_SOUTH:
@@ -849,9 +910,13 @@ void run_mcp_state_machine(struct MCP_status *status)
 			
 			// set PDCA job
 			PDCA_set_job_tx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_tx_bit_modify, MCP_DIR_NORTH);
-			
+						
 			// go to start state after normal mode has been entered
-			mcp_stm_set_state(status, START);
+			mcp_stm_set_state(status, ENTER_NORMAL_MODE_NORTH_CALLBACK);
+			
+			#if DBG_MCP_STATE
+			print_dbg("\n\rEnter Normal Mode North Job, Next is Enter Normal Mode North CALLBACK");
+			#endif
 			
 			break;
 			
@@ -865,6 +930,28 @@ void run_mcp_state_machine(struct MCP_status *status)
 			PDCA_set_job_tx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_tx_bit_modify, MCP_DIR_SOUTH);
 			
 			// go to start state after normal mode has been entered
+			mcp_stm_set_state(status, ENTER_NORMAL_MODE_SOUTH_CALLBACK);
+			
+			break;
+		
+		case ENTER_NORMAL_MODE_NORTH_CALLBACK:
+		/* ENTER_NORMAL_MODE_x_CALLBACK indicates the configuration job is complete
+		 */
+			UNSET_JOB(status->jobs, JOB_CONFIGURE_NORTH);
+			
+			mcp_stm_set_state(status, START);
+			
+			#if DBG_MCP_STATE
+			print_dbg("\n\rEnter Normal Mode North CALLBACK Job, Next is Back to START");
+			#endif
+			
+			break;
+			
+		case ENTER_NORMAL_MODE_SOUTH_CALLBACK:
+		/* ENTER_NORMAL_MODE_x_CALLBACK indicates the configuration job is complete
+		 */
+			UNSET_JOB(status->jobs, JOB_CONFIGURE_SOUTH);
+			
 			mcp_stm_set_state(status, START);
 			
 			break;
@@ -904,5 +991,8 @@ void run_mcp_state_machine(struct MCP_status *status)
 		}
 	}
 	//else get out and wait
-	
+	#if DBG_MCP_STATE
+	print_dbg("\n\rLast State on State Loop Exit: ");
+	print_dbg_ulong((unsigned long)mcp_status.mcp_state);
+	#endif
 }

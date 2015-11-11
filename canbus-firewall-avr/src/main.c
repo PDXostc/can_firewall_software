@@ -345,18 +345,18 @@ int main (void)
 	/* MCP CAN INIT                                                         */
 	/************************************************************************/
 	
-	uint8_t init_success = 0xFF;
-
-	init_success = mcp_init_can(MCP_DEV_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
-	if (init_success != MCP_RETURN_SUCCESS)
-	{
-		print_dbg("\n\rInit FAIL NORTH");
-	}
-	init_success = mcp_init_can(MCP_DEV_SOUTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
-	if (init_success != MCP_RETURN_SUCCESS)
-	{
-		print_dbg("\n\rInit FAIL SOUTH");
-	}
+// 	uint8_t init_success = 0xFF;
+// 
+// 	init_success = mcp_init_can(MCP_DEV_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
+// 	if (init_success != MCP_RETURN_SUCCESS)
+// 	{
+// 		print_dbg("\n\rInit FAIL NORTH");
+// 	}
+// 	init_success = mcp_init_can(MCP_DEV_SOUTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
+// 	if (init_success != MCP_RETURN_SUCCESS)
+// 	{
+// 		print_dbg("\n\rInit FAIL SOUTH");
+// 	}
 		
 	/* SETUP AND INITS COMPLETE. ENABLE ALL INTERRUPTS */
 	Enable_global_interrupt();
@@ -392,7 +392,8 @@ int main (void)
 #endif
 
 	while (1)
-	{		
+	{	
+		//mcp_machine_int_set();	
 		//run_firewall();
 		nop();
 	}
