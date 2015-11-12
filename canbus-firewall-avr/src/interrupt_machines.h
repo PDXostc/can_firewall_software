@@ -116,6 +116,7 @@ eic_options_t eic_options[EXT_INT_NUM_LINES];
 #define JOB_GET_STATUS_SOUTH	JOB_26
 #define JOB_GET_ERROR_REG_NORTH	JOB_25
 #define JOB_GET_ERROR_REG_SOUTH	JOB_24
+// insert sleep job here
 
 #define JOB_TX_PENDING			JOB_20
 
@@ -208,7 +209,7 @@ struct MCP_status_t {
 	//BUSY flag
 	// set bit 0 = busy North
 	// set bit 1 = busy South
-	uint8_t PDCA_busy;
+	//uint8_t PDCA_busy;
 	// bit timing instruction and consecutive registers to be filled with timing information
 	uint8_t timings_north[5];
 	uint8_t timings_south[5];
@@ -261,69 +262,10 @@ struct PROC_status {
 	uint32_t proc_pending_count;
 };
 
-
-/************************************************************************/
-/* PDCA                                                                 */
-/************************************************************************/
-#define PDCA_ID_SPI_RX				AVR32_PDCA_PID_SPI0_RX
-#define PDCA_ID_SPI_TX				AVR32_PDCA_PID_SPI0_TX
-#define PDCA_TRANSFER_SIZE_BYTE		AVR32_PDCA_BYTE
-#define PDCA_CHANNEL_SPI_TX			0
-#define PDCA_CHANNEL_SPI_RX			1
-
-// PDCA sizes for buffers. These inform the size of the PDCA transfer.
-// Sizes must account for desired size, plus size of padding resulting from dummy
-// bytes to prompt rx or tx of multiple bytes on the SPI bus. For instance, a
-// transaction to receive a CAN msg using the PDCA should be the size of the CAN
-// msg, plus the size of the Receive Instruction sent. In our case, the MCP
-// supports a single byte for the receive instruction, meaning that our received
-// CAN msg will have a single byte of dummy padding at the beginning of its array.
-// Please note that any array sized to hold this message should also account for
-// this dummy byte.
-// 
-// Expected size of instruction
-#define PDCA_SIZE_INST		1
-// Expected size of CAN msg
-#define PDCA_SIZE_MSG		13
-// Size of status byte
-#define PDCA_SIZE_STATUS	1
-// Size of error register byte
-#define PDCA_SIZE_ERROR		1
-
-
-
-// Combined sizes for full transaction
-#define PDCA_SIZE_TRANS_MSG					(PDCA_SIZE_INST	+ PDCA_SIZE_MSG)
-#define PDCA_SIZE_TRANS_SINGLE_INST			(PDCA_SIZE_INST + 1)
-#define PDCA_SIZE_TRANS_WRITE_SINGLE_REG	(3) // write + addr + value
-#define PDCA_SIZE_TRANS_STATUS				(PDCA_SIZE_INST + PDCA_SIZE_STATUS)
-#define PDCA_SIZE_TRANS_ERROR				(PDCA_SIZE_INST + PDCA_SIZE_ERROR)
-#define PDCA_SIZE_TRANS_BIT_MODIFY			(4) // inst + addr + mask + value
-#define PDCA_SIZE_TRANS_TIMING				(5) // write + addr + CNF3 + CNF2 +CNF1
-
-// temp storage for single instruction / response bytes. PDCA will place raw SPI
-// transfer results here, mcp state machine should immediately copy relevant byte(s)
-// to corresponding status byte when called back.
-// Storage is left large in rare case that many registers need to be downloaded
-#define PDCA_TEMP_TRANSFER_BUFFER_SIZE		16
-
-volatile uint8_t PDCA_temporary_receive[PDCA_TEMP_TRANSFER_BUFFER_SIZE];
-volatile uint8_t PDCA_temporary_instruction_tx[PDCA_SIZE_TRANS_SINGLE_INST];
-volatile uint8_t PDCA_temporary_instruction_rx[PDCA_SIZE_TRANS_SINGLE_INST];
-volatile uint8_t PDCA_temporary_bit_modify_tx[PDCA_SIZE_TRANS_BIT_MODIFY];
-volatile uint8_t PDCA_temporary_write_single[PDCA_SIZE_TRANS_WRITE_SINGLE_REG];
-
-// PDCA test
-// create rx / tx temp buffers, delete when testing complete
-uint8_t rx_instruction_test[14];
-uint8_t rx_msg_test[14];
-extern volatile bool pdca_test_transfer_complete;
-
-
-
 uint8_t init_eic_options(void);
 
 uint8_t init_mcp_status(void);
+
 extern void init_interrupt_machines(void);
 
 void run_mcp_state_machine(volatile struct MCP_status_t *status);
@@ -381,6 +323,7 @@ __interrupt
 #endif
 extern void pdca_tx_transfer_complete_int_handler(void);
 
-void PDCA_set_job_rx(struct spi_device *device, pdca_channel_options_t *options_tx, pdca_channel_options_t *options_rx, uint8_t pdca_busy_flag);
-void PDCA_set_job_tx(struct spi_device *device, pdca_channel_options_t *options_tx, uint8_t pdca_busy_flag);
+extern void PDCA_set_job_rx(struct spi_device *device, pdca_channel_options_t *options_tx, pdca_channel_options_t *options_rx, uint8_t pdca_busy_flag);
+extern void PDCA_set_job_tx(struct spi_device *device, pdca_channel_options_t *options_tx, uint8_t pdca_busy_flag);
+
 #endif /* INTERRUPT_MACHINES_H_ */

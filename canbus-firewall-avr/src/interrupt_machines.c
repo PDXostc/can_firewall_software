@@ -16,117 +16,8 @@ volatile struct MCP_status_t mcp_status = {
 	.error_byte_south = 0x00,
 	.jobs = 0x00000000,
 	.attention = 0x00,
-	.PDCA_busy = 0x00,
+	//.PDCA_busy = 0x00,
 	};
-
-// PDCA channel settings, uses Atmel convention struct
-pdca_channel_options_t PDCA_options_mcp_spi_msg_rx = {
-	.pid = PDCA_ID_SPI_RX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = NULL,
-	.size = PDCA_SIZE_TRANS_MSG,
-	.r_addr = NULL,
-	.r_size = 0,
-	};
-	
-pdca_channel_options_t PDCA_options_mcp_spi_msg_tx = {
-	.pid = PDCA_ID_SPI_TX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = NULL,
-	.size = PDCA_SIZE_TRANS_MSG,
-	.r_addr = NULL,
-	.r_size = 0,
-};
-
-pdca_channel_options_t PDCA_options_mcp_spi_rx_single = {
-	.pid = PDCA_ID_SPI_RX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = NULL,
-	.size = PDCA_SIZE_TRANS_SINGLE_INST,
-	.r_addr = NULL,
-	.r_size = 0,
-};
-
-pdca_channel_options_t PDCA_options_mcp_spi_tx_single = {
-	.pid = PDCA_ID_SPI_TX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = NULL,
-	.size = PDCA_SIZE_TRANS_SINGLE_INST,
-	.r_addr = NULL,
-	.r_size = 0,
-};
-
-pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_register = {
-	.pid = PDCA_ID_SPI_TX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = &PDCA_temporary_write_single,
-	.size = PDCA_SIZE_TRANS_WRITE_SINGLE_REG,
-	.r_addr = NULL,
-	.r_size = 0,
-};
-
-pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_instruction = {
-	.pid = PDCA_ID_SPI_TX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = &PDCA_temporary_instruction_tx,
-	.size = PDCA_SIZE_TRANS_SINGLE_INST,
-	.r_addr = NULL,
-	.r_size = 0,
-};
-
-pdca_channel_options_t PDCA_options_mcp_spi_tx_bit_modify = {
-	.pid = PDCA_ID_SPI_TX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = &PDCA_temporary_bit_modify_tx,
-	.size = PDCA_SIZE_TRANS_BIT_MODIFY,
-	.r_addr = NULL,
-	.r_size = 0,
-};
-
-pdca_channel_options_t PDCA_options_mcp_spi_tx_configure_timings = {
-	.pid = PDCA_ID_SPI_TX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = NULL,
-	.size = PDCA_SIZE_TRANS_TIMING,
-	.r_addr = NULL,
-	.r_size = 0,
-};
-
-pdca_channel_options_t PDCA_options_mcp_spi_rx_get_status_north = {
-	.pid = PDCA_ID_SPI_RX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = &PDCA_temporary_instruction_rx,
-	.size = PDCA_SIZE_TRANS_SINGLE_INST,
-	.r_addr = NULL,
-	.r_size = 0,	
-};
-
-pdca_channel_options_t PDCA_options_mcp_spi_rx_get_status_south = {
-	.pid = PDCA_ID_SPI_RX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = &PDCA_temporary_instruction_rx,
-	.size = PDCA_SIZE_TRANS_SINGLE_INST,
-	.r_addr = NULL,
-	.r_size = 0,
-};
-
-pdca_channel_options_t PDCA_OPTIONS_rx_test = {
-	.pid = PDCA_ID_SPI_RX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = NULL,
-	.size = 0,
-	.r_addr = NULL,
-	.r_size = 0,
-};
-
-pdca_channel_options_t PDCA_OPTIONS_tx_test = {
-	.pid = PDCA_ID_SPI_TX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = NULL,
-	.size = 0,
-	.r_addr = NULL,
-	.r_size = 0,
-};
 
 // External interrupts set for low level trigger. Asynch mode allows wake on interrupt
 uint8_t init_eic_options(void)
@@ -452,17 +343,17 @@ void pdca_rx_transfer_complete_int_handler(void)
 	
 	// deselect mcp based on which we were busy with, assumes that the busy flag
 	// has been set by the mcp machine which also started this job
-	if (mcp_status.PDCA_busy == MCP_DIR_NORTH)
+	if (pdca_status.PDCA_busy == MCP_DIR_NORTH)
 	{
 		mcp_deselect(MCP_DEV_NORTH);		
 	} 
-	else if (mcp_status.PDCA_busy == MCP_DIR_SOUTH)
+	else if (pdca_status.PDCA_busy == MCP_DIR_SOUTH)
 	{
 		mcp_deselect(MCP_DEV_SOUTH);
 	}
 	
 	// set not busy
-	mcp_status.PDCA_busy = 0;
+	pdca_status.PDCA_busy = 0;
 	
 	//set the mcp interrupt
 	mcp_machine_int_set();
@@ -494,17 +385,17 @@ void pdca_tx_transfer_complete_int_handler(void)
 	
 	// deselect mcp based on which we were busy with, assumes that the busy flag
 	// has been set by the mcp machine which also started this job
-	if (mcp_status.PDCA_busy == MCP_DIR_NORTH)
+	if (pdca_status.PDCA_busy == MCP_DIR_NORTH)
 	{
 		mcp_deselect(MCP_DEV_NORTH);
 	}
-	else if (mcp_status.PDCA_busy == MCP_DIR_SOUTH)
+	else if (pdca_status.PDCA_busy == MCP_DIR_SOUTH)
 	{
 		mcp_deselect(MCP_DEV_SOUTH);
 	}
 	
 	// set not busy
-	mcp_status.PDCA_busy = 0;
+	pdca_status.PDCA_busy = 0;
 	
 	//set the mcp interrupt
 	mcp_machine_int_set();
@@ -515,68 +406,68 @@ void pdca_tx_transfer_complete_int_handler(void)
 
 // Set up a job for receiving response data over SPI
 // Address must be set in options before calling, and buffer to send must be primed
-// with instruction. Sending buffer must include dummy information to facilitate 
+// with instruction. Sending buffer must include dummy information to facilitate
 // response byte(s) sent by MCP over SPI
-// 
-void PDCA_set_job_rx(struct spi_device *device, 
-						 pdca_channel_options_t *options_tx,
-						 pdca_channel_options_t *options_rx,
-						 uint8_t pdca_busy_flag
-						 )
-	{
-		
-		// set pdca busy
-		mcp_status.PDCA_busy = pdca_busy_flag;
-		
-		//initialize channels with provided options
-		pdca_init_channel(PDCA_CHANNEL_SPI_TX, options_tx);
-		pdca_init_channel(PDCA_CHANNEL_SPI_RX, options_rx);
-		
-		// register the interrupt for receive transfer complete. IRQ 1 corresponds to the SPI_RX channel,
-		// INT level 1 is used so that interrupt resides on same level as the MCP state machine, able 
-		// to interrupt the Main loop or Processing handler
-		INTC_register_interrupt(&pdca_rx_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, INT_LEVEL_PDCA);
-		
-		// enable the interrupt for receive transfer complete
-		pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_RX);
-		
-		// select the device associated with this job
-		mcp_select(device);
-		
-		//enable both channels for transfer
-		pdca_enable(PDCA_CHANNEL_SPI_TX);
-		pdca_enable(PDCA_CHANNEL_SPI_RX);
-	}
+//
+void PDCA_set_job_rx(struct spi_device *device,
+pdca_channel_options_t *options_tx,
+pdca_channel_options_t *options_rx,
+uint8_t pdca_busy_flag
+)
+{
+	
+	// set pdca busy
+	pdca_status.PDCA_busy = pdca_busy_flag;
+	
+	//initialize channels with provided options
+	pdca_init_channel(PDCA_CHANNEL_SPI_TX, options_tx);
+	pdca_init_channel(PDCA_CHANNEL_SPI_RX, options_rx);
+	
+	// register the interrupt for receive transfer complete. IRQ 1 corresponds to the SPI_RX channel,
+	// INT level 1 is used so that interrupt resides on same level as the MCP state machine, able
+	// to interrupt the Main loop or Processing handler
+	INTC_register_interrupt(&pdca_rx_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, INT_LEVEL_PDCA);
+	
+	// enable the interrupt for receive transfer complete
+	pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_RX);
+	
+	// select the device associated with this job
+	mcp_select(device);
+	
+	//enable both channels for transfer
+	pdca_enable(PDCA_CHANNEL_SPI_TX);
+	pdca_enable(PDCA_CHANNEL_SPI_RX);
+}
 
 
 // Set up a job for transmitting data over SPI
 // Address must be set in options before calling, sending buffer must contain a valid
-// instruction. This function does not care about the received data; therefore it 
+// instruction. This function does not care about the received data; therefore it
 // calls back on transmit complete and does not init the PDCA_SPI_RX channel
-// 
+//
 void PDCA_set_job_tx(struct spi_device *device,
-					 pdca_channel_options_t *options_tx,
-					 uint8_t pdca_busy_flag
-					 )
-	{
-		// set pdca busy
-		mcp_status.PDCA_busy = pdca_busy_flag;
-		
-		// initialize tx channel with options
-		pdca_init_channel(PDCA_CHANNEL_SPI_TX, options_tx);
-		
-		// register the interrupt for transmit complete
-		INTC_register_interrupt(&pdca_tx_transfer_complete_int_handler, AVR32_PDCA_IRQ_0, INT_LEVEL_PDCA);
-		
-		// enable interrupt for transmission complete
-		pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
-		
-		// select the device associated with this job
-		mcp_select(device);
-		
-		//enable the transmit channel
-		pdca_enable(PDCA_CHANNEL_SPI_TX);
-	}
+pdca_channel_options_t *options_tx,
+uint8_t pdca_busy_flag
+)
+{
+	// set pdca busy
+	pdca_status.PDCA_busy = pdca_busy_flag;
+	
+	// initialize tx channel with options
+	pdca_init_channel(PDCA_CHANNEL_SPI_TX, options_tx);
+	
+	// register the interrupt for transmit complete
+	INTC_register_interrupt(&pdca_tx_transfer_complete_int_handler, AVR32_PDCA_IRQ_0, INT_LEVEL_PDCA);
+	
+	// enable interrupt for transmission complete
+	pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
+	
+	// select the device associated with this job
+	mcp_select(device);
+	
+	//enable the transmit channel
+	pdca_enable(PDCA_CHANNEL_SPI_TX);
+}
 
 void init_interrupt_machines(void)
 {
@@ -675,7 +566,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 	#endif
 	
 	// if the PDCA is free, run the machine
-	while ((status->PDCA_busy == 0) && (run_machine == true))
+	while ((pdca_status.PDCA_busy == 0) && (run_machine == true))
 	{
 		#if DBG_MCP_STATE
 		print_dbg("\n\r...Entered while loop of machine...");
@@ -1105,6 +996,9 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			// loaded with the correct instruction byte
 			PDCA_temporary_instruction_tx[0] = MCP_INST_READ_STATUS;
 			
+			//testing reload counter usage to eliminate extra byte
+			PDCA_options_mcp_spi_rx_get_status_north.r_addr = &mcp_status.status_byte_north;
+			
 			// set job to receive a status byte from the mcp. options for single 
 			// instruction sizes should correspond to a single byte in this case
 			PDCA_set_job_rx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_tx_write_single_instruction, &PDCA_options_mcp_spi_rx_get_status_north, MCP_DIR_NORTH);
@@ -1147,7 +1041,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 // 			}
 			
 			//copy info in temp instruction response buffer to status byte
-			status->status_byte_north = PDCA_temporary_instruction_rx[1];
+			//status->status_byte_north = PDCA_temporary_instruction_rx[1];
 			
 			//use status byte from north to set specific receive jobs for north
 			// set job will or the existing jobs list, so if the job is zeros, 
