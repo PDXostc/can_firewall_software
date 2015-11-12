@@ -24,6 +24,7 @@
 #define DBG_MCP_CAN_TX  DBG_MCP && 0
 #define DBG_INT			DBG_ON	&& 1
 #define DBG_MCP_STATE	DBG_ON	&& 1
+#define DBG_MCP_STATUS	DBG_ON  && 1
 
 #define PRINT_NEWLINE()       { if(DBG_ON) {print_dbg("\n\r");} }
 

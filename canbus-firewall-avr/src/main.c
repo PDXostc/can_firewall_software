@@ -395,6 +395,7 @@ int main (void)
 	{	
 		//mcp_machine_int_set();	
 		//run_firewall();
+		//print_dbg("\n\r N  O  P  ");
 		nop();
 	}
 	

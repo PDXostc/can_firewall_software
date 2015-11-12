@@ -144,6 +144,8 @@ enum MCP_STATE {
 	ENTER_CONFIG_MODE_SOUTH,
 	CONFIGURE_BIT_TIMINGS_NORTH,
 	CONFIGURE_BIT_TIMINGS_SOUTH,
+	SET_MCP_INTERRUPT_ENABLE_NORTH,
+	SET_MCP_INTERRUPT_ENABLE_SOUTH,
 	CONFIGURE_RX_0_NORTH,
 	CONFIGURE_RX_1_NORTH,
 	CONFIGURE_RX_0_SOUTH,
@@ -291,13 +293,13 @@ struct PROC_status {
 
 
 // Combined sizes for full transaction
-#define PDCA_SIZE_TRANS_MSG				(PDCA_SIZE_INST	+ PDCA_SIZE_MSG)
-#define PDCA_SIZE_TRANS_SINGLE_INST		(PDCA_SIZE_INST + 1)
-#define PDCA_SIZE_TRANS_WRITE_SINGLE	(3) // write + addr+ value
-#define PDCA_SIZE_TRANS_STATUS			(PDCA_SIZE_INST + PDCA_SIZE_STATUS)
-#define PDCA_SIZE_TRANS_ERROR			(PDCA_SIZE_INST + PDCA_SIZE_ERROR)
-#define PDCA_SIZE_TRANS_BIT_MODIFY		(4) // inst + addr + mask + value
-#define PDCA_SIZE_TRANS_TIMING			(5) // write + addr + CNF3 + CNF2 +CNF1
+#define PDCA_SIZE_TRANS_MSG					(PDCA_SIZE_INST	+ PDCA_SIZE_MSG)
+#define PDCA_SIZE_TRANS_SINGLE_INST			(PDCA_SIZE_INST + 1)
+#define PDCA_SIZE_TRANS_WRITE_SINGLE_REG	(3) // write + addr + value
+#define PDCA_SIZE_TRANS_STATUS				(PDCA_SIZE_INST + PDCA_SIZE_STATUS)
+#define PDCA_SIZE_TRANS_ERROR				(PDCA_SIZE_INST + PDCA_SIZE_ERROR)
+#define PDCA_SIZE_TRANS_BIT_MODIFY			(4) // inst + addr + mask + value
+#define PDCA_SIZE_TRANS_TIMING				(5) // write + addr + CNF3 + CNF2 +CNF1
 
 // temp storage for single instruction / response bytes. PDCA will place raw SPI
 // transfer results here, mcp state machine should immediately copy relevant byte(s)
@@ -307,8 +309,9 @@ struct PROC_status {
 
 volatile uint8_t PDCA_temporary_receive[PDCA_TEMP_TRANSFER_BUFFER_SIZE];
 volatile uint8_t PDCA_temporary_instruction_tx[PDCA_SIZE_TRANS_SINGLE_INST];
+volatile uint8_t PDCA_temporary_instruction_rx[PDCA_SIZE_TRANS_SINGLE_INST];
 volatile uint8_t PDCA_temporary_bit_modify_tx[PDCA_SIZE_TRANS_BIT_MODIFY];
-volatile uint8_t PDCA_temporary_write_single[PDCA_SIZE_TRANS_WRITE_SINGLE];
+volatile uint8_t PDCA_temporary_write_single[PDCA_SIZE_TRANS_WRITE_SINGLE_REG];
 
 // PDCA test
 // create rx / tx temp buffers, delete when testing complete
