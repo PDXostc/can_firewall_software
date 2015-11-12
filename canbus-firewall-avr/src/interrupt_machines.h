@@ -12,6 +12,7 @@
 #include <asf.h>
 #include "mcp.h"
 #include "pdca_interface.h"
+#include "mcp_message_que.h"
 
 //interrupt levels
 #define INT_LEVEL_PROC			AVR32_INTC_INT0
@@ -189,10 +190,14 @@ enum MCP_STATE {
 	READ_RX_1_SOUTH_CALLBACK,
 };
 
+struct MCP_state_machine_t {
+	enum MCP_STATE mcp_state;
+	};
+
+volatile struct MCP_state_machine_t mcp_stm;
+
 // MCP status and jobs pending
 struct MCP_status_t {
-	//state of machine
-	enum MCP_STATE mcp_state;
 	//store mcp status poll byte
 	uint8_t status_byte_north;
 	uint8_t status_byte_south;
@@ -221,14 +226,14 @@ struct MCP_status_t {
 volatile struct MCP_status_t mcp_status;
 
 // func wrappers for getting and setting the state of the MCP machine
-inline static void mcp_stm_set_state(volatile struct MCP_status_t *status, enum MCP_STATE state)
+inline static void mcp_stm_set_state(volatile struct MCP_state_machine_t *stm, enum MCP_STATE state)
 {
-	status->mcp_state = state;
+	stm->mcp_state = state;
 }
 
-inline static enum MCP_STATE mcp_stm_get_state(volatile struct MCP_status_t *status)
+inline static enum MCP_STATE mcp_stm_get_state(volatile struct MCP_state_machine_t *stm)
 {
-	return status->mcp_state;
+	return stm->mcp_state;
 };
 
 
@@ -243,24 +248,8 @@ inline static void mcp_stm_unset_job(volatile struct MCP_status_t *status, uint3
 	UNSET_JOB(status->jobs, jobs);
 }
 
-// Direction / Attention required masks for MCP_status->attention,
-// also applies to determining current direction setting for the PDCA_busy
-#define MCP_DIR_NORTH	0x01
-#define MCP_DIR_SOUTH	0x02
-
 #define MCP_SET_ATTN(attn, set)		(attn |= set)
 #define MCP_UNSET_ATTN(attn, set)	(attn &= ~set)
-
-// Transmit pointer status
-struct TX_status {
-	// trasmit pointer evaluation counter
-	uint32_t tx_pending_count;
-};
-
-// Process pointer status
-struct PROC_status {
-	uint32_t proc_pending_count;
-};
 
 uint8_t init_eic_options(void);
 

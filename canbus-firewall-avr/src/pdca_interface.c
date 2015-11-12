@@ -6,31 +6,14 @@
  *  Author: smiller6
  */ 
 
-#include "pdca_interface.h"
+//#include "pdca_interface.h"
+#include "interrupt_machines.h"
 
 volatile struct PDCA_status_t pdca_status = {
 	.PDCA_busy = 0x00,
 	};
 
 // PDCA channel settings, uses Atmel convention struct
-pdca_channel_options_t PDCA_options_mcp_spi_msg_rx = {
-	.pid = PDCA_ID_SPI_RX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = NULL,
-	.size = PDCA_SIZE_TRANS_MSG,
-	.r_addr = NULL,
-	.r_size = 0,
-};
-
-pdca_channel_options_t PDCA_options_mcp_spi_msg_tx = {
-	.pid = PDCA_ID_SPI_TX,
-	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
-	.addr = NULL,
-	.size = PDCA_SIZE_TRANS_MSG,
-	.r_addr = NULL,
-	.r_size = 0,
-};
-
 pdca_channel_options_t PDCA_options_mcp_spi_rx_single = {
 	.pid = PDCA_ID_SPI_RX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
@@ -89,10 +72,8 @@ pdca_channel_options_t PDCA_options_mcp_spi_rx_get_status_north = {
 	.pid = PDCA_ID_SPI_RX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = &PDCA_temporary_instruction_rx,
-	//.size = PDCA_SIZE_TRANS_SINGLE_INST,
-	//testing reload compensating for extra byte
 	.size = 1,
-	.r_addr = NULL,
+	.r_addr = &mcp_status.status_byte_north,
 	.r_size = 1,
 };
 
@@ -100,9 +81,9 @@ pdca_channel_options_t PDCA_options_mcp_spi_rx_get_status_south = {
 	.pid = PDCA_ID_SPI_RX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = &PDCA_temporary_instruction_rx,
-	.size = PDCA_SIZE_TRANS_SINGLE_INST,
-	.r_addr = NULL,
-	.r_size = 0,
+	.size = 1,
+	.r_addr = &mcp_status.status_byte_south,
+	.r_size = 1,
 };
 
 pdca_channel_options_t PDCA_OPTIONS_rx_test = {

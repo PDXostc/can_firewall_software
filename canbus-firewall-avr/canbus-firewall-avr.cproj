@@ -658,6 +658,9 @@
     <Compile Include="src\config\conf_can_mcp.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\config\conf_debug.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\config\conf_messages.c">
       <SubType>compile</SubType>
     </Compile>
@@ -707,6 +710,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\mcp.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\mcp_message_que.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\mcp_message_que.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\pdca_interface.c">

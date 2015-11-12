@@ -12,6 +12,8 @@
 #ifndef CONF_DEBUG_H_
 #define CONF_DEBUG_H_
 
+#include <asf.h>
+
 #define DBG_ON          1			//master enable debug
 #define DBG_TEST        1			//temp, misc
 #define DBG_CLKS        DBG_ON  && 1 //clocks
@@ -27,5 +29,7 @@
 #define DBG_MCP_STATUS	DBG_ON  && 1
 
 #define PRINT_NEWLINE()       { if(DBG_ON) {print_dbg("\n\r");} }
+
+extern void print_array_uint8(uint8_t *arr, int length);
 
 #endif /* CONF_DEBUG_H_ */
