@@ -76,4 +76,6 @@ extern pdca_channel_options_t PDCA_options_mcp_spi_msg_tx;
 // init ptrs func
 // TODO
 
+extern void init_message_que(void);
+
 #endif /* MESSAGE_QUE_H_ */

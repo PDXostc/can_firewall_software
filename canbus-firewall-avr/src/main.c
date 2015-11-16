@@ -326,6 +326,9 @@ int main (void)
 	
 	// INIT MCP MODULE
 	init_mcp_module();
+	
+	// INIT MESSAGING QUE
+	init_message_que();
 
 	// INIT ALL INTERRUPTS AND INTERRUPT DRIVEN STATE MACHINES
 	init_interrupt_machines();
@@ -385,7 +388,7 @@ int main (void)
 	{	
 		//mcp_machine_int_set();	
 		//run_firewall();
-		//print_dbg("\n\r N  O  P  ");
+		// print_dbg("\n\r N  O  P  ");
 		nop();
 	}
 	

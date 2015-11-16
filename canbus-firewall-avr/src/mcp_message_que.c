@@ -49,3 +49,10 @@ void que_advance_ptr(volatile struct MCP_message_t **ptr)
 		*ptr = *ptr + 1;
 	}
 }
+
+extern void init_message_que(void)
+{
+	que_ptr_rx = &mcp_message_que[0];
+	que_ptr_proc = &mcp_message_que[0];
+	que_ptr_tx = &mcp_message_que[0];
+}
