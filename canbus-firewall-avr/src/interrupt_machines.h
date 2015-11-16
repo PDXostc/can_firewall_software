@@ -37,8 +37,8 @@ eic_options_t eic_options[EXT_INT_NUM_LINES];
 
 // usage
 // SET_JOB(MCP_status.jobs, JOB_n)
-#define SET_JOB(jobs, set)		(jobs |= set)
-#define UNSET_JOB(jobs, unset)	(jobs &= ~unset)
+#define SET_MCP_JOB(jobs, set)		(jobs |= set)
+#define UNSET_MCP_JOB(jobs, unset)	(jobs &= ~unset)
 
 #define SET_JOB_0		(1 << 0)
 #define SET_JOB_1		(1 << 1)
@@ -240,12 +240,12 @@ inline static enum MCP_STATE mcp_stm_get_state(volatile struct MCP_state_machine
 // func wrappers for setting jobs
 inline static void mcp_stm_set_job(volatile struct MCP_status_t *status, uint32_t jobs)
 {
-	SET_JOB(status->jobs, jobs);
+	SET_MCP_JOB(status->jobs, jobs);
 }
 
 inline static void mcp_stm_unset_job(volatile struct MCP_status_t *status, uint32_t jobs)
 {
-	UNSET_JOB(status->jobs, jobs);
+	UNSET_MCP_JOB(status->jobs, jobs);
 }
 
 #define MCP_SET_ATTN(attn, set)		(attn |= set)
@@ -312,7 +312,7 @@ __interrupt
 #endif
 extern void pdca_tx_transfer_complete_int_handler(void);
 
-extern void PDCA_set_job_rx(struct spi_device *device, pdca_channel_options_t *options_tx, pdca_channel_options_t *options_rx, uint8_t pdca_busy_flag);
-extern void PDCA_set_job_tx(struct spi_device *device, pdca_channel_options_t *options_tx, uint8_t pdca_busy_flag);
+extern void PDCA_set_job_rx(const struct spi_device *device, pdca_channel_options_t *options_tx, pdca_channel_options_t *options_rx, uint8_t pdca_busy_flag);
+extern void PDCA_set_job_tx(const struct spi_device *device, pdca_channel_options_t *options_tx, uint8_t pdca_busy_flag);
 
 #endif /* INTERRUPT_MACHINES_H_ */

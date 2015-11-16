@@ -43,9 +43,9 @@
 
 // Combined sizes for full transaction
 #define PDCA_SIZE_TRANS_MSG_RX_INST			(PDCA_SIZE_INST	+ PDCA_SIZE_MSG)
-#define PDCA_SIZE_TRANS_SINGLE_INST			(PDCA_SIZE_INST + 1)
+#define PDCA_SIZE_TRANS_SINGLE_INST			(PDCA_SIZE_INST + 1) // instruction and response
 #define PDCA_SIZE_TRANS_WRITE_SINGLE_REG	(3) // write + addr + value
-#define PDCA_SIZE_TRANS_STATUS				(PDCA_SIZE_INST + PDCA_SIZE_STATUS)
+#define PDCA_SIZE_TRANS_STATUS				(PDCA_SIZE_INST + PDCA_SIZE_STATUS) // instruction and response
 #define PDCA_SIZE_TRANS_ERROR				(PDCA_SIZE_INST + PDCA_SIZE_ERROR)
 #define PDCA_SIZE_TRANS_BIT_MODIFY			(4) // inst + addr + mask + value
 #define PDCA_SIZE_TRANS_TIMING				(5) // write + addr + CNF3 + CNF2 +CNF1

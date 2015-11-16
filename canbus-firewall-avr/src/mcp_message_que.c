@@ -37,6 +37,8 @@ pdca_channel_options_t PDCA_options_mcp_spi_msg_tx = {
 	.r_size = MCP_CAN_MSG_SIZE,
 };
 
+uint32_t rx_ptr_count = 0;
+
 //advance pointer, given pointer address. checks for bounds of que and resets position if necessary
 void que_advance_ptr(volatile struct MCP_message_t **ptr)
 {
@@ -48,6 +50,12 @@ void que_advance_ptr(volatile struct MCP_message_t **ptr)
 	{
 		*ptr = *ptr + 1;
 	}
+	//test pointer counting
+	rx_ptr_count++;
+	#if DBG_RX_PTR
+	PRINT_NEWLINE()
+	print_dbg_hex(rx_ptr_count);
+	#endif
 }
 
 extern void init_message_que(void)
