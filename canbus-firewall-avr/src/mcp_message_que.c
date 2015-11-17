@@ -17,7 +17,11 @@
 #include "pdca_interface.h"
 #include "mcp_message_que.h"
 
-volatile struct MCP_message_t mcp_message_que[MCP_QUE_SIZE] = {0};
+volatile struct MCP_message_t mcp_message_que[MCP_QUE_SIZE] = {
+		{
+		0
+		}
+	};
 
 pdca_channel_options_t PDCA_options_mcp_spi_msg_rx = {
 	.pid = PDCA_ID_SPI_RX,
@@ -38,6 +42,8 @@ pdca_channel_options_t PDCA_options_mcp_spi_msg_tx = {
 };
 
 uint32_t rx_ptr_count = 0;
+uint32_t proc_ptr_count = 0;
+uint32_t tx_ptr_count = 0;
 
 //advance pointer, given pointer address. checks for bounds of que and resets position if necessary
 void que_advance_ptr(volatile struct MCP_message_t **ptr)
@@ -51,16 +57,22 @@ void que_advance_ptr(volatile struct MCP_message_t **ptr)
 		*ptr = *ptr + 1;
 	}
 	//test pointer counting
-	rx_ptr_count++;
 	#if DBG_RX_PTR
+	rx_ptr_count++;
 	PRINT_NEWLINE()
 	print_dbg_hex(rx_ptr_count);
 	#endif
 }
+
+
 
 extern void init_message_que(void)
 {
 	que_ptr_rx = &mcp_message_que[0];
 	que_ptr_proc = &mcp_message_que[0];
 	que_ptr_tx = &mcp_message_que[0];
+	
+	PROC_status.proc_pending_count = 0;
+	
+	TX_status.tx_pending_count = 0;
 }

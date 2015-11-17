@@ -53,6 +53,7 @@
 #include "loopback.h"
 #include "mcp.h"
 #include "interrupt_machines.h"
+#include "mcp_message_que.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
@@ -331,7 +332,49 @@ int main (void)
 	init_message_que();
 
 	// INIT ALL INTERRUPTS AND INTERRUPT DRIVEN STATE MACHINES
+	// This will also initiate the jobs for the MCP start and program
 	init_interrupt_machines();
+	
+	// testing messages in que...
+	#if DBG_MSG_QUE
+	//arrays to send
+	volatile uint8_t test_arr_dec_01[13] = {0xff, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
+	volatile uint8_t test_arr_dec_02[13] = {0xf0, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
+	volatile uint8_t test_arr_dec_03[13] = {0xfa, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
+	volatile uint8_t test_arr_inc[13] = {0xff, 0xaa, 0xa5, 0x5a, 8, 1, 2, 3, 4, 5, 6, 7, 8};
+	
+	//create some test junk in que
+	mcp_message_que[0].direction = MCP_DIR_NORTH;
+	mcp_message_que[1].direction = MCP_DIR_NORTH;
+	mcp_message_que[2].direction = MCP_DIR_NORTH;
+	mcp_message_que[3].direction = MCP_DIR_NORTH;
+	for (int i = 0; i < 13; i++)
+	{
+		mcp_message_que[0].msg[i] = test_arr_dec_01[i];
+		mcp_message_que[1].msg[i] = test_arr_dec_02[i];
+		mcp_message_que[2].msg[i] = test_arr_dec_03[i];		
+		// memcpy(mcp_message_que[0].msg, test_arr_dec, sizeof(mcp_message_que[0].msg));
+		// memcpy(mcp_message_que[1].msg, test_arr_dec, sizeof(mcp_message_que[0].msg));
+		// memcpy(mcp_message_que[2].msg, test_arr_dec, sizeof(mcp_message_que[0].msg));
+	}
+	for (int i = 0; i < 13; i++)
+	{
+		mcp_message_que[3].msg[i] = test_arr_inc[i];
+		// memcpy(mcp_message_que[3].msg, test_arr_inc, sizeof(mcp_message_que[0].msg));
+	}
+	
+	//make sure rx pointer starts out well ahead
+	que_ptr_rx = &mcp_message_que[4];
+	
+	//proc pointer to 3. should not transmit because proc pointer is here
+	que_ptr_proc = &mcp_message_que[3];
+	
+	// set tx increment to num jobs we should try to do, also
+	TX_status.tx_pending_count = 3;
+	
+	// set tx pending job
+	SET_MCP_JOB(mcp_status.jobs, JOB_TX_PENDING);
+	#endif
 	
 	// Prior
 	/************************************************************************/

@@ -21,12 +21,13 @@
 #define DBG_FLASH       DBG_ON  && 0 //flash
 #define DBG_HMAC        DBG_ON  && 0 //hmac
 #define DBG_RULES       DBG_ON  && 0 //rules
-#define DBG_MCP			DBG_ON  && 0 //mcp chipsets
-#define DBG_MCP_CAN_RX  DBG_MCP && 0
-#define DBG_MCP_CAN_TX  DBG_MCP && 0
-#define DBG_INT			DBG_ON	&& 0
-#define DBG_MCP_STATE	DBG_ON	&& 1
-#define DBG_MCP_STATUS	DBG_ON  && 1
+#define DBG_MCP			DBG_ON  && 1 //mcp chipsets
+#define DBG_MCP_CAN_RX  DBG_MCP && 0 //messages received
+#define DBG_MCP_CAN_TX  DBG_MCP && 1 //messages sent
+#define DBG_INT			DBG_ON	&& 0 //interrupts
+#define DBG_MCP_STATE	DBG_ON	&& 0 //state machine 
+#define DBG_MCP_STATUS	DBG_ON  && 0 //mcp chipset status printing
+#define DBG_MSG_QUE		DBG_ON  && 1 //message que
 
 #define DBG_RX_PTR		DBG_ON  && 1
 

@@ -45,6 +45,15 @@ pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_instruction = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = &PDCA_temporary_instruction_tx,
+	.size = PDCA_SIZE_INST,
+	.r_addr = NULL,
+	.r_size = 0,
+};
+
+pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_instruction_single_response = {
+	.pid = PDCA_ID_SPI_TX,
+	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
+	.addr = &PDCA_temporary_instruction_tx,
 	.size = PDCA_SIZE_TRANS_SINGLE_INST,
 	.r_addr = NULL,
 	.r_size = 0,

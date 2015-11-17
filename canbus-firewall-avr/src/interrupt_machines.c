@@ -368,12 +368,12 @@ void pdca_rx_transfer_complete_int_handler(void)
 // 	pdca->idr = 0x07;
 
 	// if error:
-	if ((AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].isr & AVR32_PDCA_TERR_MASK) == AVR32_PDCA_TERR_MASK)
-	{
-		// get the error address...
-		volatile uint32_t err_add = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].mar;
-		err_add;
-	}
+// 	if ((AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].isr & AVR32_PDCA_TERR_MASK) == AVR32_PDCA_TERR_MASK)
+// 	{
+// 		// get the error address...
+// 		volatile uint32_t err_add = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].mar;
+// 		err_add;
+// 	}
 	
 	pdca_disable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
 	pdca_disable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_RX);
@@ -416,12 +416,12 @@ void pdca_tx_transfer_complete_int_handler(void)
 	volatile uint32_t int_ack = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].isr;
 	
 	// if error:
-	if ((AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].isr & AVR32_PDCA_TERR_MASK) == AVR32_PDCA_TERR_MASK)
-	{
-		// get the error address...
-		volatile uint32_t err_add = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].mar;
-		err_add;
-	}
+// 	if ((AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].isr & AVR32_PDCA_TERR_MASK) == AVR32_PDCA_TERR_MASK)
+// 	{
+// 		// get the error address...
+// 		volatile uint32_t err_add = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].mar;
+// 		err_add;
+// 	}
 	
 	// Disable pdca interrupts now that transfer is complete
 // 	volatile avr32_pdca_channel_t *pdca = pdca_get_handler(PDCA_CHANNEL_SPI_TX);
@@ -644,22 +644,8 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			{
 				mcp_stm_set_state(&mcp_stm, JOB_START);
 			} 
-			// no jobs pending, but interupt was thrown, check for attention required status
-// 			else if (status->attention > 0)
-// 			{
-// 				if ((status->attention & MCP_DIR_NORTH) == MCP_DIR_NORTH)
-// 				{
-// 					mcp_stm_set_job(status, JOB_GET_STATUS_NORTH);
-// 				}
-// 				
-// 				if ((status->attention & MCP_DIR_SOUTH) == MCP_DIR_SOUTH)
-// 				{
-// 					mcp_stm_set_job(status, JOB_GET_STATUS_SOUTH);
-// 				}
-// 				
-// 				mcp_stm_set_state(&mcp_stm, JOB_START);
-// 			}
-			else {
+			else 
+			{
 				// check for pin still held low, meaning attention is needed
 				if (!gpio_get_pin_value(IVI_INT_PIN))
 				{
@@ -1077,7 +1063,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			
 			// set job to receive a status byte from the mcp. options for single 
 			// instruction sizes should correspond to a single byte in this case
-			PDCA_set_job_rx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_tx_write_single_instruction, &PDCA_options_mcp_spi_rx_get_status_north, MCP_DIR_NORTH);
+			PDCA_set_job_rx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_tx_write_single_instruction_single_response, &PDCA_options_mcp_spi_rx_get_status_north, MCP_DIR_NORTH);
 			
 			// go to status callback when byte transferred
 			mcp_stm_set_state(&mcp_stm, GET_STATUS_NORTH_CALLBACK);
@@ -1095,7 +1081,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			
 			// set job to receive a status byte from the mcp. options for single
 			// instruction sizes should correspond to a single byte in this case
-			PDCA_set_job_rx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_tx_write_single_instruction, &PDCA_options_mcp_spi_rx_get_status_south, MCP_DIR_SOUTH);
+			PDCA_set_job_rx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_tx_write_single_instruction_single_response, &PDCA_options_mcp_spi_rx_get_status_south, MCP_DIR_SOUTH);
 			
 			// go to status callback when byte transferred
 			mcp_stm_set_state(&mcp_stm, GET_STATUS_SOUTH_CALLBACK);
@@ -1198,19 +1184,356 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			break;
 			
 		case TX_PENDING:
+		/* TX_PENDING is the initial step for the transmission job. Any additional
+		 * prep should go here. Transmission jobs have priority over receive jobs.
+		 * The transmission job is set when the Processing
+		 * job completes and increments a count of the messages in the que that
+		 * it has evaluated and filtered. When the transmission job has finished
+		 * uploading a message to an MCP device, the transmission count will be 
+		 * decremented; if cound evaluates to zero, the job is considered to be
+		 * finished.
+		 * Proceed to evaluating the contents of the transmission
+		 * pointer.
+		 */
+			// check that the TX is not equal to the proc or rx before eval stage
+			if((que_ptr_tx != que_ptr_proc) && (que_ptr_tx != que_ptr_rx))
+			{
+				mcp_stm_set_state(&mcp_stm, EVALUATE_TX_POINTER);
+			}
+			else if(que_ptr_tx == que_ptr_proc)// job was not cleared correctly, or tx was advanced too far...
+												// for now we should clear the job to allow others to proceed
+			{
+				UNSET_MCP_JOB(status->jobs, JOB_TX_PENDING);
+				TX_status.tx_pending_count = 0;
+				mcp_stm_set_state(&mcp_stm, START);
+			}
+			
+			break;
+			
 		case EVALUATE_TX_POINTER:
+		/* EVALUATE_TX_POINTER
+		 * There is a single TX pointer moving through the message que, following
+		 * after the Processing pointer. After Processing, a message is scheduled
+		 * to be evaluated for transmission. This stage looks at the contents of
+		 * the message the TX pointer indicates. If zeros are found for the ID, 
+		 * the message is considered to have been wiped/discarded, and the TX pointer
+		 * will be advanced without transmission.
+		 * If the message ID is nonzero, it is considered to have passed the filter
+		 * process and will be retransmitted.
+		 * This evaluation stage must check for a last known free TX buffer on the 
+		 * respective MCP device. If one is found, the next stage will be the Load
+		 * state for that buffer. If one is not found, a Get Status job will be set,
+		 * so that any TX buffers that have become free since the last status update
+		 * will be known.
+		 * NOTE: The message format is assumed to be the MCP 13 byte array format,
+		 * so checking the id should involve bytes [0:1] in the msg (SIDH and SIDL)
+		 * NOTE: The check for a free buffer is done by looking at the status byte.
+		 * The relevant bits are 2, 4, 6, corresponding to the TXREQ bit in the TXBnCTRL
+		 * register, signifying that a transmission is pending. If these bits are set,
+		 * a transmission is pending and we cannot write to the TX buffer. If clear,
+		 * the buffer is empty.
+		 */
+			// check nonzero msg id, else move on
+			if ((que_ptr_tx->msg[0] > 0x00) || (que_ptr_tx->msg[1] > 0x00))
+			{
+				// the message has a direction. please remember that this setting
+				// indicates the direction the message is bound for, ie if received
+				// from the north, the message is headed south, and vice versa.
+				// check for free TX buffers in status byte for the MCP device in this direction
+				if (que_ptr_tx->direction == MCP_DIR_NORTH)
+				{
+					// set to upload for whichever is free. if none found we need
+					// a refreshed status
+					if( ((status->status_byte_north >> 2) & 0x01) == 0x00 )
+					{
+						// first buffer not pending, choose for upload
+						mcp_stm_set_state(&mcp_stm, LOAD_TXB_0_NORTH);
+					} 
+					else if (((status->status_byte_north >> 4) & 0x01) == 0x00 )
+					{
+						// second buffer not pending, choose for upload
+						mcp_stm_set_state(&mcp_stm, LOAD_TXB_1_NORTH);
+					}  
+					else if (((status->status_byte_north >> 6) & 0x01) == 0x00 )
+					{
+						// second buffer not pending, choose for upload
+						mcp_stm_set_state(&mcp_stm, LOAD_TXB_2_NORTH);
+					} 
+					else 
+					{
+						// no open buffers found, set a get status job and return to start
+						SET_MCP_JOB(status->jobs, JOB_GET_STATUS_NORTH);
+						mcp_stm_set_state(&mcp_stm, START);
+					}
+				} // else check south direction
+				else if (que_ptr_tx->direction == MCP_DIR_SOUTH)
+				{
+					// set to upload for whichever is free. if none found we need
+					// a refreshed status
+					if( ((status->status_byte_north >> 2) & 0x01) == 0x00 )
+					{
+						// first buffer not pending, choose for upload
+						mcp_stm_set_state(&mcp_stm, LOAD_TXB_0_SOUTH);
+					}
+					else if (((status->status_byte_north >> 4) & 0x01) == 0x00 )
+					{
+						// second buffer not pending, choose for upload
+						mcp_stm_set_state(&mcp_stm, LOAD_TXB_1_SOUTH);
+					}
+					else if (((status->status_byte_north >> 6) & 0x01) == 0x00 )
+					{
+						// second buffer not pending, choose for upload
+						mcp_stm_set_state(&mcp_stm, LOAD_TXB_2_SOUTH);
+					}					
+					else 
+					{
+						// no open buffers found, set a get status job and return to start
+						SET_MCP_JOB(status->jobs, JOB_GET_STATUS_SOUTH);
+						mcp_stm_set_state(&mcp_stm, START);
+					}
+				}
+			} // id zero, move pointer and decrement 
+			else
+			{
+				mcp_stm_set_state(&mcp_stm, ADVANCE_TX);
+			}
+			
+			break;
+			
 		case LOAD_TXB_0_NORTH:
+		/* LOADTXB_n_x
+		 * This stage in the transmission job is simply to set the correct parameters
+		 * in the options to be handed to the PDCA, and set the job to upload the
+		 * CAN message to the repsective TX buffer using PDCA over SPI.
+		 */
+			// set instruction to load TXB0, in the temp instruction array
+			PDCA_temporary_instruction_tx[0] = MCP_INST_LOAD_TX_0;
+			// set address of tx pointer message for sending
+			PDCA_options_mcp_spi_msg_tx.r_addr = &que_ptr_tx->msg;
+			
+			// set job to upload message to MCP device
+			PDCA_set_job_tx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_msg_tx, MCP_DIR_NORTH);
+			
+			// next state is callback when upload is complete
+			mcp_stm_set_state(&mcp_stm, LOAD_TXB_0_NORTH_CALLBACK);
+			
+			break;
+			
 		case LOAD_TXB_1_NORTH:
+			// set instruction to load TXB0, in the temp instruction array
+			PDCA_temporary_instruction_tx[0] = MCP_INST_LOAD_TX_1;
+			// set address of tx pointer message for sending
+			PDCA_options_mcp_spi_msg_tx.r_addr = &que_ptr_tx->msg;
+		
+			// set job to upload message to MCP device
+			PDCA_set_job_tx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_msg_tx, MCP_DIR_NORTH);
+		
+			// next state is callback when upload is complete
+			mcp_stm_set_state(&mcp_stm, LOAD_TXB_1_NORTH_CALLBACK);
+		
+			break;
+			
 		case LOAD_TXB_2_NORTH:
+			// set instruction to load TXB0, in the temp instruction array
+			PDCA_temporary_instruction_tx[0] = MCP_INST_LOAD_TX_2;
+			// set address of tx pointer message for sending
+			PDCA_options_mcp_spi_msg_tx.r_addr = &que_ptr_tx->msg;
+			
+			// set job to upload message to MCP device
+			PDCA_set_job_tx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_msg_tx, MCP_DIR_NORTH);
+			
+			// next state is callback when upload is complete
+			mcp_stm_set_state(&mcp_stm, LOAD_TXB_2_NORTH_CALLBACK);
+			
+			break;
 		case LOAD_TXB_0_NORTH_CALLBACK:
+		/* LOAD_TXB_n_x_CALLBACK
+		 * The CAN message has been uploaded to an MCP device. This stage should
+		 * update the status byte that this buffer will be pending transmission,
+		 * and set a job to issue a request to send instruction for the pending TX
+		 * buffer. The next state will be TX pointer advancement and job decrement.
+		 */
+			// update north status bit showing request for tx should be pending
+			status->status_byte_north |= (1 << 2);
+			//status->status_byte_north = 0xFF;
+			
+			#if	DBG_MCP_CAN_TX
+			// show status byte updated after alteration
+			PRINT_NEWLINE()
+			print_dbg("MCP status byte North Updated");
+			print_dbg_char_hex(status->status_byte_north);
+			#endif
+			
+			// set request to send instruction in temporary array
+			PDCA_temporary_instruction_tx[0] = MCP_INST_RTS_TXB0;
+			
+			// set job to send instruction
+			PDCA_set_job_tx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_tx_write_single_instruction, MCP_DIR_NORTH);
+			
+			// next state is Advance TX pointer
+			mcp_stm_set_state(&mcp_stm, ADVANCE_TX);
+			
+			break;
+			
 		case LOAD_TXB_1_NORTH_CALLBACK:
+			// update north status bit showing request for tx should be pending
+			status->status_byte_north |= (1 << 4);
+			
+			#if	DBG_MCP_CAN_TX
+			// show status byte updated after alteration
+			PRINT_NEWLINE()
+			print_dbg("MCP status byte North Updated");
+			print_dbg_char_hex(status->status_byte_north);
+			#endif
+			
+			// set request to send instruction in temporary array
+			PDCA_temporary_instruction_tx[0] = MCP_INST_RTS_TXB1;
+			
+			// set job to send instruction
+			PDCA_set_job_tx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_tx_write_single_instruction, MCP_DIR_NORTH);
+			
+			// next state is Advance TX pointer
+			mcp_stm_set_state(&mcp_stm, ADVANCE_TX);
+			
+			break;
+			
 		case LOAD_TXB_2_NORTH_CALLBACK:
+			// update north status bit showing request for tx should be pending
+			status->status_byte_north |= (1 << 6);
+			
+			#if	DBG_MCP_CAN_TX
+			// show status byte updated after alteration
+			PRINT_NEWLINE()
+			print_dbg("MCP status byte North Updated");
+			print_dbg_char_hex(status->status_byte_north);
+			#endif
+			
+			// set request to send instruction in temporary array
+			PDCA_temporary_instruction_tx[0] = MCP_INST_RTS_TXB2;
+			
+			// set job to send instruction
+			PDCA_set_job_tx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_tx_write_single_instruction, MCP_DIR_NORTH);
+			
+			// next state is Advance TX pointer
+			mcp_stm_set_state(&mcp_stm, ADVANCE_TX);
+			
+			break;
+			
 		case LOAD_TXB_0_SOUTH:
+			// set instruction to load TXB0, in the temp instruction array
+			PDCA_temporary_instruction_tx[0] = MCP_INST_LOAD_TX_0;
+			// set address of tx pointer message for sending
+			PDCA_options_mcp_spi_msg_tx.r_addr = &que_ptr_tx->msg;
+			
+			// set job to upload message to MCP device
+			PDCA_set_job_tx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_msg_tx, MCP_DIR_SOUTH);
+			
+			// next state is callback when upload is complete
+			mcp_stm_set_state(&mcp_stm, LOAD_TXB_0_SOUTH_CALLBACK);
+			
+			break;
+			
 		case LOAD_TXB_1_SOUTH:
+			// set instruction to load TXB0, in the temp instruction array
+			PDCA_temporary_instruction_tx[0] = MCP_INST_LOAD_TX_1;
+			// set address of tx pointer message for sending
+			PDCA_options_mcp_spi_msg_tx.r_addr = &que_ptr_tx->msg;
+			
+			// set job to upload message to MCP device
+			PDCA_set_job_tx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_msg_tx, MCP_DIR_SOUTH);
+			
+			// next state is callback when upload is complete
+			mcp_stm_set_state(&mcp_stm, LOAD_TXB_1_SOUTH_CALLBACK);
+			
+			break;
+			
 		case LOAD_TXB_2_SOUTH:
+			// set instruction to load TXB0, in the temp instruction array
+			PDCA_temporary_instruction_tx[0] = MCP_INST_LOAD_TX_2;
+			// set address of tx pointer message for sending
+			PDCA_options_mcp_spi_msg_tx.r_addr = &que_ptr_tx->msg;
+			
+			// set job to upload message to MCP device
+			PDCA_set_job_tx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_msg_tx, MCP_DIR_SOUTH);
+			
+			// next state is callback when upload is complete
+			mcp_stm_set_state(&mcp_stm, LOAD_TXB_2_SOUTH_CALLBACK);
+			
+			break;
+			
 		case LOAD_TXB_0_SOUTH_CALLBACK:
+			// update north status bit showing request for tx should be pending
+			status->status_byte_south |= (1 << 2);
+			
+			// set request to send instruction in temporary array
+			PDCA_temporary_instruction_tx[0] = MCP_INST_RTS_TXB0;
+			
+			// set job to send instruction
+			PDCA_set_job_tx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_tx_write_single_instruction, MCP_DIR_SOUTH);
+			
+			// next state is Advance TX pointer
+			mcp_stm_set_state(&mcp_stm, ADVANCE_TX);
+			
+			break;
+			
 		case LOAD_TXB_1_SOUTH_CALLBACK:
+			// update north status bit showing request for tx should be pending
+			status->status_byte_south |= (1 << 4);
+			
+			// set request to send instruction in temporary array
+			PDCA_temporary_instruction_tx[0] = MCP_INST_RTS_TXB1;
+			
+			// set job to send instruction
+			PDCA_set_job_tx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_tx_write_single_instruction, MCP_DIR_SOUTH);
+			
+			// next state is Advance TX pointer
+			mcp_stm_set_state(&mcp_stm, ADVANCE_TX);
+			
+			break;
 		case LOAD_TXB_2_SOUTH_CALLBACK:
+			// update north status bit showing request for tx should be pending
+			status->status_byte_south |= (1 << 6);
+			
+			// set request to send instruction in temporary array
+			PDCA_temporary_instruction_tx[0] = MCP_INST_RTS_TXB2;
+			
+			// set job to send instruction
+			PDCA_set_job_tx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_tx_write_single_instruction, MCP_DIR_SOUTH);
+			
+			// next state is Advance TX pointer
+			mcp_stm_set_state(&mcp_stm, ADVANCE_TX);
+			
+			break;
+			
+		case ADVANCE_TX:
+		/* ADVANCE_TX
+		 * At this stage, the TX pointer has been evaluated, and should be 
+		 * advanced, if able. Also decrement and resolve pending tx job(s)
+		 */
+			//check pointer not equal to proceeding Process pointer, if so, advance
+			if ((que_ptr_tx != que_ptr_proc) && (que_ptr_tx != que_ptr_rx))
+			{
+				que_advance_ptr(&que_ptr_tx);
+			}
+			
+			// decrement pending transmission count
+			if (TX_status.tx_pending_count > 0)
+			{
+				TX_status.tx_pending_count--;
+			}
+			
+			// if the tx pending count is zero, we think we've finished with all
+			// of the pending transmission jobs for now
+			if (TX_status.tx_pending_count == 0)
+			{
+				UNSET_MCP_JOB(status->jobs, JOB_TX_PENDING);
+			}
+			
+			// next state should be return to start
+			mcp_stm_set_state(&mcp_stm, START);
+			
+			break;
+			
 		case READ_RX_0_NORTH:
 		/* READ_RX_n_x is the first step in the job for receiving a CAN message 
 		 * from an MCP RX buffer. The options for the PDCA transfer should be in place
