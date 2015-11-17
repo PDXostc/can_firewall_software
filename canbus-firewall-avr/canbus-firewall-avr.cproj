@@ -213,12 +213,12 @@
         <InterfaceName>aWire</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.avrdragon</ToolType>
-      <ToolNumber>00A200053369</ToolNumber>
+      <ToolNumber>00A200057008</ToolNumber>
       <ToolName>AVR Dragon</ToolName>
     </com_atmel_avrdbg_tool_avrdragon>
     <avrtoolinterface>aWire</avrtoolinterface>
     <ExternalProgrammingToolCommand />
-    <avrtoolserialnumber>00A200053369</avrtoolserialnumber>
+    <avrtoolserialnumber>00A200057008</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x0</avrdeviceexpectedsignature>
     <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
   </PropertyGroup>
@@ -658,6 +658,9 @@
     <Compile Include="src\config\conf_can_mcp.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\config\conf_debug.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\config\conf_messages.c">
       <SubType>compile</SubType>
     </Compile>
@@ -707,6 +710,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\mcp.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\mcp_message_que.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\mcp_message_que.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\pdca_interface.c">

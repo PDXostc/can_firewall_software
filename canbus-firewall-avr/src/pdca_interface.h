@@ -42,10 +42,10 @@
 
 
 // Combined sizes for full transaction
-#define PDCA_SIZE_TRANS_MSG					(PDCA_SIZE_INST	+ PDCA_SIZE_MSG)
-#define PDCA_SIZE_TRANS_SINGLE_INST			(PDCA_SIZE_INST + 1)
+#define PDCA_SIZE_TRANS_MSG_RX_INST			(PDCA_SIZE_INST	+ PDCA_SIZE_MSG)
+#define PDCA_SIZE_TRANS_SINGLE_INST			(PDCA_SIZE_INST + 1) // instruction and response
 #define PDCA_SIZE_TRANS_WRITE_SINGLE_REG	(3) // write + addr + value
-#define PDCA_SIZE_TRANS_STATUS				(PDCA_SIZE_INST + PDCA_SIZE_STATUS)
+#define PDCA_SIZE_TRANS_STATUS				(PDCA_SIZE_INST + PDCA_SIZE_STATUS) // instruction and response
 #define PDCA_SIZE_TRANS_ERROR				(PDCA_SIZE_INST + PDCA_SIZE_ERROR)
 #define PDCA_SIZE_TRANS_BIT_MODIFY			(4) // inst + addr + mask + value
 #define PDCA_SIZE_TRANS_TIMING				(5) // write + addr + CNF3 + CNF2 +CNF1
@@ -56,7 +56,6 @@
 // Storage is left large in rare case that many registers need to be downloaded
 #define PDCA_TEMP_TRANSFER_BUFFER_SIZE		16
 
-volatile uint8_t PDCA_temporary_receive[PDCA_TEMP_TRANSFER_BUFFER_SIZE];
 volatile uint8_t PDCA_temporary_instruction_tx[PDCA_SIZE_TRANS_SINGLE_INST];
 volatile uint8_t PDCA_temporary_instruction_rx[PDCA_SIZE_TRANS_SINGLE_INST];
 volatile uint8_t PDCA_temporary_bit_modify_tx[PDCA_SIZE_TRANS_BIT_MODIFY];
@@ -74,8 +73,7 @@ uint8_t rx_instruction_test[14];
 uint8_t rx_msg_test[14];
 extern volatile bool pdca_test_transfer_complete;
 
-extern pdca_channel_options_t PDCA_options_mcp_spi_msg_rx;
-extern pdca_channel_options_t PDCA_options_mcp_spi_msg_tx;
+
 extern pdca_channel_options_t PDCA_options_mcp_spi_rx_single;
 extern pdca_channel_options_t PDCA_options_mcp_spi_tx_single;
 extern pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_register;

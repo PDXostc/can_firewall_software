@@ -8,21 +8,25 @@
 
 volatile bool pdca_test_transfer_complete = false;
 
-volatile struct MCP_status_t mcp_status = {
+volatile struct MCP_state_machine_t mcp_stm = {
 	.mcp_state = START,
+	};
+
+volatile struct MCP_status_t mcp_status = {
 	.status_byte_north = 0x00,
 	.status_byte_south = 0x00,
 	.error_byte_north = 0x00,
 	.error_byte_south = 0x00,
 	.jobs = 0x00000000,
 	.attention = 0x00,
-	//.PDCA_busy = 0x00,
 	};
 
 // External interrupts set for low level trigger. Asynch mode allows wake on interrupt
 uint8_t init_eic_options(void)
 {
 	// Enable level-triggered interrupt.
+	//eic_options[0].eic_mode = EIC_MODE_LEVEL_TRIGGERED;
+	// Enable edge-triggered interrupt.
 	eic_options[0].eic_mode   = EIC_MODE_EDGE_TRIGGERED;
 	// Interrupt will trigger on low-level.
 	//eic_options[0].eic_level  = EIC_LEVEL_LOW_LEVEL;
@@ -51,7 +55,7 @@ uint8_t init_eic_options(void)
 // Initialize the MCP status structure
 uint8_t init_mcp_status(void)
 {
-	mcp_status.mcp_state = START;
+	mcp_stm.mcp_state = START;
 	
 	uint8_t result = MCP_RETURN_FAIL;
 	uint8_t cnf1, cnf2, cnf3;
@@ -142,9 +146,17 @@ __interrupt
 #endif
 void mcp_interrupt_handler_north(void)
 {
-	cpu_irq_disable_level(0); // proc handler level
-	cpu_irq_disable_level(1); // mcp machine and pdca handler level
-	cpu_irq_disable_level(2); // mcp eic pin handler level
+	// cpu_irq_disable_level(0); // proc handler level
+	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
+	// cpu_irq_disable_level(2); // mcp eic pin handler level
+	
+	//Disable_global_interrupt();
+	
+	//acknowledge interrupt:
+	volatile uint32_t int_ack = AVR32_EIC.isr;
+	
+	// test disable at this time, will enable after jobs are finished
+	// eic_disable_interrupt_line(&AVR32_EIC, EXT_INT_IVI_LINE);
 	
 // 	volatile bool line01 = false;
 // 	volatile bool line02 = false;
@@ -189,15 +201,24 @@ void mcp_interrupt_handler_north(void)
 	#endif
 	
 	//set attention required and activate the interrupt pin for the MCP state machine
-	mcp_status.attention |= MCP_DIR_NORTH;
+	//mcp_status.attention |= MCP_DIR_NORTH;
+	// 
+	// attention required is the same as needing a status update
+	SET_MCP_JOB(mcp_status.jobs, JOB_GET_STATUS_NORTH);
 	mcp_machine_int_set();
 	
 	// clear external interrupt line
 	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_IVI_LINE);
 	
-	cpu_irq_enable_level(0); // proc handler level
-	cpu_irq_enable_level(1); // mcp machine and pdca handler level
-	cpu_irq_enable_level(2); // mcp eic pin handler level
+	
+	// cpu_irq_enable_level(2); // mcp eic pin handler level
+	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
+	// cpu_irq_enable_level(0); // proc handler level
+	
+	//Enable_global_interrupt();
+	#if	DBG_INT
+	print_dbg("\n\rNorth Pin Interrupt Exiting");
+	#endif
 }
 
 // temp interrupt handler used for basic testing of mcp interrupt
@@ -208,9 +229,12 @@ __interrupt
 #endif
 void mcp_interrupt_handler_south(void)
 {
-	cpu_irq_disable_level(0); // proc handler level
-	cpu_irq_disable_level(1); // mcp machine and pdca handler level
-	cpu_irq_disable_level(2); // mcp eic pin handler level
+	// cpu_irq_disable_level(0); // proc handler level
+	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
+	// cpu_irq_disable_level(2); // mcp eic pin handler level
+	
+	//acknowledge interrupt:
+	volatile uint32_t int_ack = AVR32_EIC.isr;
 	
 // 	volatile bool line01 = false;
 // 	volatile bool line02 = false;
@@ -224,31 +248,31 @@ void mcp_interrupt_handler_south(void)
 	
 	//mcp_print_status(MCP_DEV_SOUTH);
 	// test: display status:
-	#if 0
-	
-	mcp_print_status(MCP_DEV_SOUTH);
-	print_dbg("\n\rCanSTAT REgister");
-	mcp_print_registers(MCP_DEV_SOUTH, MCP_ADD_CANSTAT, 1);
-	print_dbg("\n\rCANINTE Register");
-	mcp_print_registers(MCP_DEV_SOUTH, MCP_ADD_CANINTE, 1);
-	print_dbg("\n\rCANINTF Register");
-	mcp_print_registers(MCP_DEV_SOUTH, MCP_ADD_CANINTF, 1);
-	#endif
+// 	#if 0
+// 	
+// 	mcp_print_status(MCP_DEV_SOUTH);
+// 	print_dbg("\n\rCanSTAT REgister");
+// 	mcp_print_registers(MCP_DEV_SOUTH, MCP_ADD_CANSTAT, 1);
+// 	print_dbg("\n\rCANINTE Register");
+// 	mcp_print_registers(MCP_DEV_SOUTH, MCP_ADD_CANINTE, 1);
+// 	print_dbg("\n\rCANINTF Register");
+// 	mcp_print_registers(MCP_DEV_SOUTH, MCP_ADD_CANINTF, 1);
+// 	#endif
 	
 	#if DBG_INT
 	print_dbg("\n\rCalled South INT and Attention should be set...");
 	#endif
 	
-	//set attention required and activate the interrupt pin for the MCP state machine
-	mcp_status.attention |= MCP_DIR_SOUTH;
+	// attention required is the same as needing a status update
+	SET_MCP_JOB(mcp_status.jobs, JOB_GET_STATUS_SOUTH);
 	mcp_machine_int_set();
 	
 	// clear external interrupt line
 	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_CAR_LINE);
 	
-	cpu_irq_enable_level(0); // proc handler level
-	cpu_irq_enable_level(1); // mcp machine and pdca handler level
-	cpu_irq_enable_level(2); // mcp eic pin handler level
+	// cpu_irq_enable_level(0); // proc handler level
+	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
+	// cpu_irq_enable_level(2); // mcp eic pin handler level
 }
 
 // Processing jobs interrupt handler
@@ -259,7 +283,10 @@ __interrupt
 #endif
 void proc_int_handler(void)
 {
-	cpu_irq_disable_level(0); // proc handler level
+	//cpu_irq_disable_level(0); // proc handler level
+	
+	// acknowledge interrupt: (PA pins are gpio port 0)
+	volatile uint32_t int_ack = AVR32_GPIO.port[PROC_INT_PIN/32].ifrc;
 	
 	#if DBG_INT
 	//test
@@ -271,7 +298,7 @@ void proc_int_handler(void)
 	gpio_set_pin_high(PROC_INT_PIN);
 	gpio_clear_pin_interrupt_flag(PROC_INT_PIN);
 	
-	cpu_irq_enable_level(0); // proc handler level	
+	//cpu_irq_enable_level(0); // proc handler level	
 }
 
 // MCP state machine interrupt handler
@@ -289,12 +316,19 @@ void mcp_machine_int_handler(void)
 	// 
 	cpu_irq_disable_level(0); // proc handler level
 	cpu_irq_disable_level(1); // mcp machine and pdca handler level
+	//Disable_global_interrupt();
+	
 	#if DBG_INT
 	//test
 	set_led(LED_01, LED_ON);
 	print_dbg("\n\rMCP_machine_int_handler_called!");
 	set_led(LED_01, LED_OFF);
 	#endif
+	
+	// acknowledge interrupt: (GPIO pins PA are on port 0)
+	volatile uint32_t int_ack = AVR32_GPIO.port[MCP_MACHINE_INT_PIN/32].ifrc;
+	
+	mcp_machine_int_clear();
 	//Disable_global_interrupt();
 	
 	
@@ -310,11 +344,10 @@ void mcp_machine_int_handler(void)
 // 	gpio_set_pin_high(MCP_MACHINE_INT_PIN);
 // 	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
 // 	
-	nop();
-	mcp_machine_int_clear();
 	
-	cpu_irq_enable_level(0); // proc handler level
 	cpu_irq_enable_level(1); // mcp machine and pdca handler level
+	cpu_irq_enable_level(0); // proc handler level
+	//Enable_global_interrupt();
 }
 
 #if defined (__GNUC__)
@@ -324,17 +357,24 @@ __interrupt
 #endif
 void pdca_rx_transfer_complete_int_handler(void)
 {
-	cpu_irq_disable_level(0); // proc handler level
-	cpu_irq_disable_level(1); // mcp machine and pdca handler level
+	// cpu_irq_disable_level(0); // proc handler level
+	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
 	
-	//handle transfer complete
-	//pdca_test_transfer_complete = true;
-	
+	//acknowledge interrupt: 
+	volatile uint32_t int_ack = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].isr;
 	
 	// Disable pdca interrupts now that transfer is complete
 // 	volatile avr32_pdca_channel_t *pdca = pdca_get_handler(PDCA_CHANNEL_SPI_RX);
 // 	pdca->idr = 0x07;
 
+	// if error:
+	if ((AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].isr & AVR32_PDCA_TERR_MASK) == AVR32_PDCA_TERR_MASK)
+	{
+		// get the error address...
+		volatile uint32_t err_add = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].mar;
+		err_add;
+	}
+	
 	pdca_disable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
 	pdca_disable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_RX);
 
@@ -358,8 +398,8 @@ void pdca_rx_transfer_complete_int_handler(void)
 	//set the mcp interrupt
 	mcp_machine_int_set();
 	
-	cpu_irq_enable_level(0); // proc handler level
-	cpu_irq_enable_level(1); // mcp machine and pdca handler level
+	// cpu_irq_enable_level(0); // proc handler level
+	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
 }
 
 #if defined (__GNUC__)
@@ -369,11 +409,19 @@ __interrupt
 #endif
 void pdca_tx_transfer_complete_int_handler(void)
 {
-	cpu_irq_disable_level(0); // proc handler level
-	cpu_irq_disable_level(1); // mcp machine and pdca handler level
-	//handle transfer complete
-	//pdca_test_transfer_complete = true;
+	// cpu_irq_disable_level(0); // proc handler level
+	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
 	
+	//acknowledge interrupt:
+	volatile uint32_t int_ack = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].isr;
+	
+	// if error:
+	if ((AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].isr & AVR32_PDCA_TERR_MASK) == AVR32_PDCA_TERR_MASK)
+	{
+		// get the error address...
+		volatile uint32_t err_add = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].mar;
+		err_add;
+	}
 	
 	// Disable pdca interrupts now that transfer is complete
 // 	volatile avr32_pdca_channel_t *pdca = pdca_get_handler(PDCA_CHANNEL_SPI_TX);
@@ -400,8 +448,8 @@ void pdca_tx_transfer_complete_int_handler(void)
 	//set the mcp interrupt
 	mcp_machine_int_set();
 	
-	cpu_irq_enable_level(0); // proc handler level
-	cpu_irq_enable_level(1); // mcp machine and pdca handler level
+	// cpu_irq_enable_level(0); // proc handler level
+	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
 }
 
 // Set up a job for receiving response data over SPI
@@ -409,7 +457,7 @@ void pdca_tx_transfer_complete_int_handler(void)
 // with instruction. Sending buffer must include dummy information to facilitate
 // response byte(s) sent by MCP over SPI
 //
-void PDCA_set_job_rx(struct spi_device *device,
+void PDCA_set_job_rx(const struct spi_device *device,
 pdca_channel_options_t *options_tx,
 pdca_channel_options_t *options_rx,
 uint8_t pdca_busy_flag
@@ -426,10 +474,13 @@ uint8_t pdca_busy_flag
 	// register the interrupt for receive transfer complete. IRQ 1 corresponds to the SPI_RX channel,
 	// INT level 1 is used so that interrupt resides on same level as the MCP state machine, able
 	// to interrupt the Main loop or Processing handler
-	INTC_register_interrupt(&pdca_rx_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, INT_LEVEL_PDCA);
+	// INTC_register_interrupt(&pdca_rx_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, INT_LEVEL_PDCA);
 	
 	// enable the interrupt for receive transfer complete
 	pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_RX);
+	
+	// enable the transfer error interrupt, if memory address appears invalid
+	pdca_enable_interrupt_transfer_error(PDCA_CHANNEL_SPI_RX);
 	
 	// select the device associated with this job
 	mcp_select(device);
@@ -445,7 +496,7 @@ uint8_t pdca_busy_flag
 // instruction. This function does not care about the received data; therefore it
 // calls back on transmit complete and does not init the PDCA_SPI_RX channel
 //
-void PDCA_set_job_tx(struct spi_device *device,
+void PDCA_set_job_tx(const struct spi_device *device,
 pdca_channel_options_t *options_tx,
 uint8_t pdca_busy_flag
 )
@@ -457,7 +508,7 @@ uint8_t pdca_busy_flag
 	pdca_init_channel(PDCA_CHANNEL_SPI_TX, options_tx);
 	
 	// register the interrupt for transmit complete
-	INTC_register_interrupt(&pdca_tx_transfer_complete_int_handler, AVR32_PDCA_IRQ_0, INT_LEVEL_PDCA);
+	// INTC_register_interrupt(&pdca_tx_transfer_complete_int_handler, AVR32_PDCA_IRQ_0, INT_LEVEL_PDCA);
 	
 	// enable interrupt for transmission complete
 	pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
@@ -497,6 +548,15 @@ void init_interrupt_machines(void)
 	
 	gpio_enable_pin_interrupt(MCP_MACHINE_INT_PIN, GPIO_FALLING_EDGE);
 	gpio_enable_pin_interrupt(PROC_INT_PIN, GPIO_FALLING_EDGE);	
+	
+	
+	// register the interrupt for receive transfer complete. IRQ 1 corresponds to the SPI_RX channel,
+	// INT level 1 is used so that interrupt resides on same level as the MCP state machine, able
+	// to interrupt the Main loop or Processing handler
+	INTC_register_interrupt(&pdca_rx_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, INT_LEVEL_PDCA);
+	
+	// register the interrupt for transmit complete
+	INTC_register_interrupt(&pdca_tx_transfer_complete_int_handler, AVR32_PDCA_IRQ_0, INT_LEVEL_PDCA);
 	
 	/************************************************************************/
 	/* Setup Interrupts for MCP Using EIC                                   */
@@ -569,10 +629,10 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 	while ((pdca_status.PDCA_busy == 0) && (run_machine == true))
 	{
 		#if DBG_MCP_STATE
-		print_dbg("\n\r...Entered while loop of machine...");
+		//print_dbg("\n\r...Entered while loop of machine...");
 		#endif
 		//run machine
-		switch (status->mcp_state)
+		switch (mcp_stm.mcp_state)
 		{
 		case START:
 		/* START case should be the default state. Other states should return here
@@ -582,26 +642,40 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			// goto jobs if pending
 			if (status->jobs > 0)
 			{
-				mcp_stm_set_state(status, JOB_START);
+				mcp_stm_set_state(&mcp_stm, JOB_START);
 			} 
 			// no jobs pending, but interupt was thrown, check for attention required status
-			else if (status->attention > 0)
-			{
-				if ((status->attention & MCP_DIR_NORTH) == MCP_DIR_NORTH)
+// 			else if (status->attention > 0)
+// 			{
+// 				if ((status->attention & MCP_DIR_NORTH) == MCP_DIR_NORTH)
+// 				{
+// 					mcp_stm_set_job(status, JOB_GET_STATUS_NORTH);
+// 				}
+// 				
+// 				if ((status->attention & MCP_DIR_SOUTH) == MCP_DIR_SOUTH)
+// 				{
+// 					mcp_stm_set_job(status, JOB_GET_STATUS_SOUTH);
+// 				}
+// 				
+// 				mcp_stm_set_state(&mcp_stm, JOB_START);
+// 			}
+			else {
+				// check for pin still held low, meaning attention is needed
+				if (!gpio_get_pin_value(IVI_INT_PIN))
 				{
 					mcp_stm_set_job(status, JOB_GET_STATUS_NORTH);
 				}
 				
-				if ((status->attention & MCP_DIR_SOUTH) == MCP_DIR_SOUTH)
+				if (!gpio_get_pin_value(CAR_INT_PIN))
 				{
 					mcp_stm_set_job(status, JOB_GET_STATUS_SOUTH);
 				}
 				
-				mcp_stm_set_state(status, JOB_START);
-			}
-			else {
-				// no jobs or attention required, cease the machine
-				run_machine = false;
+				if(status->jobs == 0)
+				{
+					// no jobs or attention required, cease the machine
+					run_machine = false;					
+				}
 			}
 
 			
@@ -615,58 +689,58 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 		 * can be started.
 		 */			
 			if ((status->jobs & JOB_RESET_NORTH) == JOB_RESET_NORTH) {
-				mcp_stm_set_state(status, RESET_NORTH);
+				mcp_stm_set_state(&mcp_stm, RESET_NORTH);
 			}		
 			else if ((status->jobs & JOB_RESET_SOUTH) == JOB_RESET_SOUTH) {
-				mcp_stm_set_state(status, RESET_SOUTH);
+				mcp_stm_set_state(&mcp_stm, RESET_SOUTH);
 			}
 			else if ((status->jobs & JOB_CONFIGURE_NORTH) == JOB_CONFIGURE_NORTH) {
-				mcp_stm_set_state(status, ENTER_CONFIG_MODE_NORTH);
+				mcp_stm_set_state(&mcp_stm, ENTER_CONFIG_MODE_NORTH);
 			}
 			else if ((status->jobs & JOB_CONFIGURE_SOUTH) == JOB_CONFIGURE_SOUTH) {
-				mcp_stm_set_state(status, ENTER_CONFIG_MODE_SOUTH);
+				mcp_stm_set_state(&mcp_stm, ENTER_CONFIG_MODE_SOUTH);
 			}
 			else if ((status->jobs & JOB_GET_STATUS_NORTH) == JOB_GET_STATUS_NORTH) {
-				mcp_stm_set_state(status, GET_STATUS_NORTH);
+				mcp_stm_set_state(&mcp_stm, GET_STATUS_NORTH);
 			}
 			else if ((status->jobs & JOB_GET_STATUS_SOUTH) == JOB_GET_STATUS_SOUTH) {
-				mcp_stm_set_state(status, GET_STATUS_SOUTH);
+				mcp_stm_set_state(&mcp_stm, GET_STATUS_SOUTH);
 			}
 			else if ((status->jobs & JOB_GET_ERROR_REG_NORTH) == JOB_GET_ERROR_REG_NORTH) {
-				mcp_stm_set_state(status, GET_ERROR_REG_NORTH);
+				mcp_stm_set_state(&mcp_stm, GET_ERROR_REG_NORTH);
 			}
 			else if ((status->jobs & JOB_GET_ERROR_REG_SOUTH) == JOB_GET_ERROR_REG_SOUTH) {
-				mcp_stm_set_state(status, GET_ERROR_REG_SOUTH);
+				mcp_stm_set_state(&mcp_stm, GET_ERROR_REG_SOUTH);
 			}
 			else if ((status->jobs & JOB_TX_PENDING) == JOB_TX_PENDING) {
-				mcp_stm_set_state(status, TX_PENDING);
+				mcp_stm_set_state(&mcp_stm, TX_PENDING);
 			}
 			else if ((status->jobs & JOB_RX_0_NORTH) == JOB_RX_0_NORTH) {
-				mcp_stm_set_state(status, READ_RX_0_NORTH);
+				mcp_stm_set_state(&mcp_stm, READ_RX_0_NORTH);
 				//temp!!! aborting here because we don't handle this job yet
-				print_dbg("\n\rABORTING\n\r");
-				run_machine = false;
+// 				print_dbg("\n\rABORTING\n\r");
+// 				run_machine = false;
 			}
 			else if ((status->jobs & JOB_RX_0_SOUTH) == JOB_RX_0_SOUTH) {
-				mcp_stm_set_state(status, READ_RX_0_SOUTH);
+				mcp_stm_set_state(&mcp_stm, READ_RX_0_SOUTH);
 				//temp!!! aborting here because we don't handle this job yet
-				print_dbg("\n\rABORTING\n\r");
-				run_machine = false;
+// 				print_dbg("\n\rABORTING\n\r");
+// 				run_machine = false;
 			}
 			else if ((status->jobs & JOB_RX_1_NORTH) == JOB_RX_1_NORTH) {
-				mcp_stm_set_state(status, READ_RX_1_NORTH);
+				mcp_stm_set_state(&mcp_stm, READ_RX_1_NORTH);
 				//temp!!! aborting here because we don't handle this job yet
-				print_dbg("\n\rABORTING\n\r");
-				run_machine = false;
+// 				print_dbg("\n\rABORTING\n\r");
+// 				run_machine = false;
 			}
 			else if ((status->jobs & JOB_RX_1_SOUTH) == JOB_RX_1_SOUTH) {
-				mcp_stm_set_state(status, READ_RX_1_SOUTH);
+				mcp_stm_set_state(&mcp_stm, READ_RX_1_SOUTH);
 				//temp!!! aborting here because we don't handle this job yet
-				print_dbg("\n\rABORTING\n\r");
-				run_machine = false;
+// 				print_dbg("\n\rABORTING\n\r");
+// 				run_machine = false;
 			}
 			else if (status->jobs == JOB_NO_JOBS) {
-				mcp_stm_set_state(status, NO_JOBS);
+				mcp_stm_set_state(&mcp_stm, NO_JOBS);
 			}
 			break;
 			
@@ -674,12 +748,13 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 		/* NO_JOBS is the fall through case for job initiation. If there are no jobs
 		 * the machine should go back to the start.
 		 */
-			mcp_stm_set_state(status, START);
+			mcp_stm_set_state(&mcp_stm, START);
+			run_machine = false;
 			
 			break;
 			
 		case RESET_NORTH:
-		/* RESET_ case requires that either:
+		/* RESET_x case requires that either:
 		 *		the pin to drive the reset on an MCP chip is held low, or
 		 *		the RESET command is sent over SPI, as a PDCA job
 		 *	It is probably faster to wait a few cycles holding the pin, but conceivable
@@ -691,7 +766,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			//if using pin method, set job complete in this state
 			mcp_stm_unset_job(status, JOB_RESET_NORTH);
 			
-			mcp_stm_set_state(status, START);
+			mcp_stm_set_state(&mcp_stm, START);
 			
 			break;
 			
@@ -702,12 +777,12 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			//if using pin method, set job complete in this state
 			mcp_stm_unset_job(status, JOB_RESET_SOUTH);
 		
-			mcp_stm_set_state(status, START);
+			mcp_stm_set_state(&mcp_stm, START);
 		
 			break;
 		
 		case ENTER_CONFIG_MODE_NORTH:
-		/* ENTER_CONFIG_MODE_ is the first state in the mcp configuration job sequence.
+		/* ENTER_CONFIG_MODE_x is the first state in the mcp configuration job sequence.
 		 * Multiple registers will be configured in this sequence, requiring multiple
 		 * PDCA jobs. The callback for each state of the sequence should simply be
 		 * the next state in the sequence, as no data needs to be received for a
@@ -725,7 +800,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			PDCA_set_job_tx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_tx_bit_modify, MCP_DIR_NORTH);
 			
 			// next state when called back will be to configure the mcp can timing
-			mcp_stm_set_state(status, CONFIGURE_BIT_TIMINGS_NORTH);
+			mcp_stm_set_state(&mcp_stm, CONFIGURE_BIT_TIMINGS_NORTH);
 			
 			#if DBG_MCP_STATE
 			print_dbg("\n\rEnter Config Mode North Job, Next is Configure Bit Timings North");
@@ -746,7 +821,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			PDCA_set_job_tx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_tx_bit_modify, MCP_DIR_SOUTH);
 			
 			// next state when called back will be to configure the mcp can timing
-			mcp_stm_set_state(status, CONFIGURE_BIT_TIMINGS_SOUTH);
+			mcp_stm_set_state(&mcp_stm, CONFIGURE_BIT_TIMINGS_SOUTH);
 			
 			#if DBG_MCP_STATE
 			print_dbg("\n\rEnter Config Mode South Job, Next is Configure Bit Timings South");
@@ -755,7 +830,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			break;
 			
 		case CONFIGURE_BIT_TIMINGS_NORTH:
-		/* CONFIGURE_BIT_TIMINGS_ uses the preconfigured bit timings set up in the 
+		/* CONFIGURE_BIT_TIMINGS_x uses the preconfigured bit timings set up in the 
 		 * MCP status structure. A job is scheduled with the PDCA for a consecutive
 		 * write of registers on the MCP corresponding to CNF3, CNF2, CNF1
 		 */
@@ -768,7 +843,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			PDCA_set_job_tx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_tx_configure_timings, MCP_DIR_NORTH);
 			
 			// next state will be to set the interrupt enable in the MCP interrupt enable register
-			mcp_stm_set_state(status, SET_MCP_INTERRUPT_ENABLE_NORTH);
+			mcp_stm_set_state(&mcp_stm, SET_MCP_INTERRUPT_ENABLE_NORTH);
 			
 			#if DBG_MCP_STATE
 			print_dbg("\n\rConfigure Bit Timings North Job, Next is Configure RX0 North");
@@ -786,12 +861,12 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			PDCA_set_job_tx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_tx_configure_timings, MCP_DIR_SOUTH);
 			
 			// next state will be to configure the first receive buffer
-			mcp_stm_set_state(status, SET_MCP_INTERRUPT_ENABLE_SOUTH);
+			mcp_stm_set_state(&mcp_stm, SET_MCP_INTERRUPT_ENABLE_SOUTH);
 			
 			break;
 			
 		case SET_MCP_INTERRUPT_ENABLE_NORTH:
-		/* SET_MCP_INTERRUPT_ENABLE_ stage in programming job to set the MCP interrupt
+		/* SET_MCP_INTERRUPT_ENABLE_x stage in programming job to set the MCP interrupt
 		 * enable register to desired settings. Currently, our design only wants
 		 * proactive interrupts on new messages received by the MCP. Interrupts for
 		 * transmission buffer(s) are not used, as the system will check the last
@@ -807,7 +882,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			PDCA_set_job_tx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_tx_write_single_register, MCP_DIR_NORTH);
 			
 			// next state should be to configure the receive buffer 0
-			mcp_stm_set_state(status, CONFIGURE_RX_0_NORTH);
+			mcp_stm_set_state(&mcp_stm, CONFIGURE_RX_0_NORTH);
 			break;
 			
 		case SET_MCP_INTERRUPT_ENABLE_SOUTH:
@@ -820,11 +895,11 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			PDCA_set_job_tx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_tx_write_single_register, MCP_DIR_SOUTH);
 			
 			// next state should be to configure the receive buffer 0
-			mcp_stm_set_state(status, CONFIGURE_RX_0_SOUTH);
+			mcp_stm_set_state(&mcp_stm, CONFIGURE_RX_0_SOUTH);
 			break;
 			
 		case CONFIGURE_RX_0_NORTH:
-		/* CONFIGURE_RX is part of the start up and programming sequence. Configuration
+		/* CONFIGURE_RX_n_x is part of the start up and programming sequence. Configuration
 		 * of the MCP receive buffers can only be done in Configuration Mode;
 		 */
 			//TODO: Use PDCA for proper job, requiring more states to be inserted
@@ -837,7 +912,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			mcp_configure_rx_0(MCP_DEV_NORTH, status->rx_config_north);
 			
 			// next state configures the second receive buffer
-			mcp_stm_set_state(status, CONFIGURE_RX_1_NORTH);
+			mcp_stm_set_state(&mcp_stm, CONFIGURE_RX_1_NORTH);
 			
 			#if DBG_MCP_STATE
 			print_dbg("\n\rConfigure_RX0 North Job, Next is Configure RX1 North");
@@ -849,7 +924,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			mcp_configure_rx_1(MCP_DEV_NORTH, status->rx_config_north);
 			
 			// next state is to configure the ready to send pins on MCP
-			mcp_stm_set_state(status, CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_NORTH);
+			mcp_stm_set_state(&mcp_stm, CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_NORTH);
 			
 			#if DBG_MCP_STATE
 			print_dbg("\n\rConfigure_RX1 North Job, Next is Configure Ready To Send Pins");
@@ -868,19 +943,19 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			mcp_configure_rx_0(MCP_DEV_SOUTH, status->rx_config_south);
 		
 			// next state configures the second receive buffer
-			mcp_stm_set_state(status, CONFIGURE_RX_1_SOUTH);
+			mcp_stm_set_state(&mcp_stm, CONFIGURE_RX_1_SOUTH);
 		
 			break;
 		case CONFIGURE_RX_1_SOUTH:
 			mcp_configure_rx_1(MCP_DEV_SOUTH, status->rx_config_south);
 					
 			// next state is to configure the ready to send pins on MCP
-			mcp_stm_set_state(status, CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_SOUTH);
+			mcp_stm_set_state(&mcp_stm, CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_SOUTH);
 					
 			break;
 			
 		case CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_NORTH:
-		/* CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_ is a simple but necessary operation
+		/* CONFIGURE_READY_TO_SEND_PINS_TO_DIGITAL_x is a simple but necessary operation
 		 * in the programming phase of initializing MCP controllers. The RTS pins
 		 * in our case should be set to digital output so that the transmit buffer 
 		 * conditions are not controlled by the exterior pins on the MCP
@@ -893,7 +968,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			PDCA_set_job_tx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_tx_write_single_register, MCP_DIR_NORTH);
 			
 			// next state should be configuration complete, set mcp to normal operation mode
-			mcp_stm_set_state(status, ENTER_NORMAL_MODE_NORTH);
+			mcp_stm_set_state(&mcp_stm, ENTER_NORMAL_MODE_NORTH);
 			
 			#if DBG_MCP_STATE
 			print_dbg("\n\rConfigure Ready To Send Pins North Job, Next is Enter Normal Mode North");
@@ -910,12 +985,12 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			PDCA_set_job_tx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_tx_write_single_register, MCP_DIR_SOUTH);
 			
 			// next state should be configuration complete, set mcp to normal operation mode
-			mcp_stm_set_state(status, ENTER_NORMAL_MODE_SOUTH);
+			mcp_stm_set_state(&mcp_stm, ENTER_NORMAL_MODE_SOUTH);
 			
 			break;
 			
 		case ENTER_NORMAL_MODE_NORTH:
-		/* ENTER_NORMAL_MODE_ should be the final step after all configurations 
+		/* ENTER_NORMAL_MODE_x should be the final step after all configurations 
 		 * have been made to the MCP device. Uses a bit modify command to set the
 		 * CTRL registers on the MCP.
 		 */
@@ -928,7 +1003,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			PDCA_set_job_tx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_tx_bit_modify, MCP_DIR_NORTH);
 						
 			// go to start state after normal mode has been entered
-			mcp_stm_set_state(status, ENTER_NORMAL_MODE_NORTH_CALLBACK);
+			mcp_stm_set_state(&mcp_stm, ENTER_NORMAL_MODE_NORTH_CALLBACK);
 			
 			#if DBG_MCP_STATE
 			print_dbg("\n\rEnter Normal Mode North Job, Next is Enter Normal Mode North CALLBACK");
@@ -946,16 +1021,16 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			PDCA_set_job_tx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_tx_bit_modify, MCP_DIR_SOUTH);
 			
 			// go to start state after normal mode has been entered
-			mcp_stm_set_state(status, ENTER_NORMAL_MODE_SOUTH_CALLBACK);
+			mcp_stm_set_state(&mcp_stm, ENTER_NORMAL_MODE_SOUTH_CALLBACK);
 			
 			break;
 		
 		case ENTER_NORMAL_MODE_NORTH_CALLBACK:
 		/* ENTER_NORMAL_MODE_x_CALLBACK indicates the configuration job is complete
 		 */
-			UNSET_JOB(status->jobs, JOB_CONFIGURE_NORTH);
+			UNSET_MCP_JOB(status->jobs, JOB_CONFIGURE_NORTH);
 			
-			mcp_stm_set_state(status, START);
+			mcp_stm_set_state(&mcp_stm, START);
 			
 			#if DBG_MCP_STATE
 			print_dbg("\n\rEnter Normal Mode North CALLBACK Job, Next is Back to START");
@@ -966,14 +1041,14 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 		case ENTER_NORMAL_MODE_SOUTH_CALLBACK:
 		/* ENTER_NORMAL_MODE_x_CALLBACK indicates the configuration job is complete
 		 */
-			UNSET_JOB(status->jobs, JOB_CONFIGURE_SOUTH);
+			UNSET_MCP_JOB(status->jobs, JOB_CONFIGURE_SOUTH);
 			
-			mcp_stm_set_state(status, START);
+			mcp_stm_set_state(&mcp_stm, START);
 			
 			break;
 			
 		case GET_STATUS_NORTH:
-		/* GET_STATUS_ is a small job to request an updated status byte from the MCP
+		/* GET_STATUS_x is a small job to request an updated status byte from the MCP
 		 * device. Getting status is usually done when a new attention request has
 		 * been received from an external MCP interrupt pin, and no jobs are found
 		 * pending. The status byte will be analyzed on callback and used to set
@@ -991,20 +1066,21 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 		 */
 			// clear attention for north
 			//status->attention &= ~MCP_DIR_NORTH;
+			MCP_UNSET_ATTN(status->attention, MCP_DIR_NORTH);
 		
 			// temporary instruction buffer is used for this purpose, just has to be
 			// loaded with the correct instruction byte
 			PDCA_temporary_instruction_tx[0] = MCP_INST_READ_STATUS;
 			
 			//testing reload counter usage to eliminate extra byte
-			PDCA_options_mcp_spi_rx_get_status_north.r_addr = &mcp_status.status_byte_north;
+			//PDCA_options_mcp_spi_rx_get_status_north.r_addr = &mcp_status.status_byte_north;
 			
 			// set job to receive a status byte from the mcp. options for single 
 			// instruction sizes should correspond to a single byte in this case
 			PDCA_set_job_rx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_tx_write_single_instruction, &PDCA_options_mcp_spi_rx_get_status_north, MCP_DIR_NORTH);
 			
 			// go to status callback when byte transferred
-			mcp_stm_set_state(status, GET_STATUS_NORTH_CALLBACK);
+			mcp_stm_set_state(&mcp_stm, GET_STATUS_NORTH_CALLBACK);
 			
 			break;
 			
@@ -1022,12 +1098,12 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			PDCA_set_job_rx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_tx_write_single_instruction, &PDCA_options_mcp_spi_rx_get_status_south, MCP_DIR_SOUTH);
 			
 			// go to status callback when byte transferred
-			mcp_stm_set_state(status, GET_STATUS_SOUTH_CALLBACK);
+			mcp_stm_set_state(&mcp_stm, GET_STATUS_SOUTH_CALLBACK);
 			
 			break;
 			
 		case GET_STATUS_NORTH_CALLBACK:
-		/* GET_STATUS_CALLBACK_ expects that the status byte requested for the MCP
+		/* GET_STATUS_x_CALLBACK_ expects that the status byte requested for the MCP
 		 * device has been received. The status byte is then used to set pending
 		 * jobs for the MCP state machine. Practically, we are only setting jobs here
 		 * based on the RX buffer status, 
@@ -1040,26 +1116,24 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 // 				SET_JOB(status->jobs, JOB_GET_ERROR_REG_NORTH);
 // 			}
 			
-			//copy info in temp instruction response buffer to status byte
-			//status->status_byte_north = PDCA_temporary_instruction_rx[1];
 			
 			//use status byte from north to set specific receive jobs for north
 			// set job will or the existing jobs list, so if the job is zeros, 
 			// no others will be affected
 			if ((status->status_byte_north & 0x01) == 0x01)
 			{
-				SET_JOB(status->jobs, JOB_RX_0_NORTH);
+				SET_MCP_JOB(status->jobs, JOB_RX_0_NORTH);
 			}
 			if ((status->status_byte_north & 0x02) == 0x02)
 			{
-				SET_JOB(status->jobs, JOB_RX_1_NORTH);
+				SET_MCP_JOB(status->jobs, JOB_RX_1_NORTH);
 			}
 			
 			// set getting of status job complete
-			UNSET_JOB(status->jobs, JOB_GET_STATUS_NORTH);
+			UNSET_MCP_JOB(status->jobs, JOB_GET_STATUS_NORTH);
 			
 			// go to start now that additional jobs have been set
-			mcp_stm_set_state(status, START);
+			mcp_stm_set_state(&mcp_stm, START);
 			
 			#if DBG_MCP_STATUS
 			// print status byte and jobs that have been set
@@ -1069,7 +1143,7 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			print_dbg("_Jobs_Pending_");
 			print_dbg_hex(status->jobs);
 			
-				#if 1
+				#if DBG_MCP
 				// also do a slow print from the actual mcp
 				mcp_print_status(MCP_DEV_NORTH);
 				#endif
@@ -1078,27 +1152,24 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			
 			break;
 			
-		case GET_STATUS_SOUTH_CALLBACK:
-			//copy info in temp instruction response buffer to status byte
-			status->status_byte_south = PDCA_temporary_instruction_rx[1];
-		
+		case GET_STATUS_SOUTH_CALLBACK:		
 			//use status byte from north to set specific receive jobs for north
 			// set job will or the existing jobs list, so if the job is zeros,
 			// no others will be affected
 			if ((status->status_byte_south & 0x01) == 0x01)
 			{
-				SET_JOB(status->jobs, JOB_RX_0_SOUTH);
+				SET_MCP_JOB(status->jobs, JOB_RX_0_SOUTH);
 			}
 			if ((status->status_byte_south & 0x02) == 0x02)
 			{
-				SET_JOB(status->jobs, JOB_RX_1_SOUTH);
+				SET_MCP_JOB(status->jobs, JOB_RX_1_SOUTH);
 			}
 		
 			// set getting of status job complete
-			UNSET_JOB(status->jobs, JOB_GET_STATUS_SOUTH);
+			UNSET_MCP_JOB(status->jobs, JOB_GET_STATUS_SOUTH);
 		
 			// go to start now that additional jobs have been set
-			mcp_stm_set_state(status, START);
+			mcp_stm_set_state(&mcp_stm, START);
 		
 			#if DBG_MCP_STATUS
 			// print status byte and jobs that have been set
@@ -1108,17 +1179,24 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			print_dbg("_Jobs_Pending_");
 			print_dbg_hex(status->jobs);
 		
-				#if 1
+				#if DBG_MCP
 				// also do a slow print from the actual mcp
 				mcp_print_status(MCP_DEV_SOUTH);
 				#endif
 		
 			#endif
 			break;
+			
 		case GET_ERROR_REG_NORTH:
+		//TODO			
 		case GET_ERROR_REG_SOUTH:
+		// TODO
 		case GET_ERROR_REG_NORTH_CALLBACK:
+		// TODO
 		case GET_ERROR_REG_SOUTH_CALLBACK:
+		// TODO
+			break;
+			
 		case TX_PENDING:
 		case EVALUATE_TX_POINTER:
 		case LOAD_TXB_0_NORTH:
@@ -1134,16 +1212,172 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 		case LOAD_TXB_1_SOUTH_CALLBACK:
 		case LOAD_TXB_2_SOUTH_CALLBACK:
 		case READ_RX_0_NORTH:
-		case READ_RX_1_NORTH:
-		case READ_RX_0_NORTH_CALLBACK:
-		case READ_RX_1_NORTH_CALLBACK:
-		case READ_RX_0_SOUTH:
-		case READ_RX_1_SOUTH:
-		case READ_RX_0_SOUTH_CALLBACK:
-		case READ_RX_1_SOUTH_CALLBACK:
-			//temp!!!
-			run_machine = false;
+		/* READ_RX_n_x is the first step in the job for receiving a CAN message 
+		 * from an MCP RX buffer. The options for the PDCA transfer should be in place
+		 * by this time, but because the pointers are not constants, their addresses
+		 * must be provided at this time.
+		 */
+			// set message direction on the rx_ptr location. Please note that this
+			// is the direction the message is headed, ie Northbound/Southbound.
+			// Therefore messages received North are set to South direction of travel.
+			// 
+			set_que_ptr_direction(que_ptr_rx, MCP_DIR_SOUTH);
+			
+			// set instruction to read rx buffer 0 on mcp
+			PDCA_temporary_instruction_tx[0] = MCP_INST_READ_RX_0;
+			
+			// provide addresses for messages in que
+			PDCA_options_mcp_spi_msg_tx.r_addr = &que_ptr_tx->msg;
+			PDCA_options_mcp_spi_msg_rx.r_addr = &que_ptr_rx->msg;
+			
+			// set pdca job, no addresses need to be set, as the options are pointed
+			// at the que locations by default. In this receive case, it does not
+			// matter what is in the tx buffer, the MCP will ignore the contents and 
+			// transmit its own RX buffer contents only
+			PDCA_set_job_rx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_msg_tx, &PDCA_options_mcp_spi_msg_rx, MCP_DIR_NORTH);
+			
+			mcp_stm_set_state(&mcp_stm, READ_RX_0_NORTH_CALLBACK);
+			
 			break;
+			
+		case READ_RX_1_NORTH:
+			// set message direction on the rx_ptr location. Please note that this
+			// is the direction the message is headed, ie Northbound/Southbound.
+			// Therefore messages received North are set to South direction of travel.
+			//
+			set_que_ptr_direction(que_ptr_rx, MCP_DIR_SOUTH);
+			
+			// set instruction to read rx buffer 0 on mcp
+			PDCA_temporary_instruction_tx[0] = MCP_INST_READ_RX_1;
+			
+			// provide addresses for messages in que
+			PDCA_options_mcp_spi_msg_tx.r_addr = &que_ptr_tx->msg;
+			PDCA_options_mcp_spi_msg_rx.r_addr = &que_ptr_rx->msg;
+			
+			// set pdca job, no addresses need to be set, as the options are pointed
+			// at the que locations by default. In this receive case, it does not
+			// matter what is in the tx buffer, the MCP will ignore the contents and
+			// transmit its own RX buffer contents only
+			PDCA_set_job_rx(MCP_DEV_NORTH, &PDCA_options_mcp_spi_msg_tx, &PDCA_options_mcp_spi_msg_rx, MCP_DIR_NORTH);
+			
+			mcp_stm_set_state(&mcp_stm, READ_RX_1_NORTH_CALLBACK);
+			
+			break;
+			
+		case READ_RX_0_NORTH_CALLBACK:
+		/* READ_RX_n_x_CALLBACK when a message has been received to the que via
+		 * PDCA SPI transfer, this state should advance the rx_ptr and set the job
+		 * complete for reading the message from the MCP.
+		 */
+			#if DBG_MCP_STATE //&& DBG_MCP_CAN_RX
+			//print the msg received
+			print_dbg("\n\r__MSG_RECEIVED__");
+			print_array_uint8(que_ptr_rx->msg, MCP_CAN_MSG_SIZE);
+			#endif
+		
+			que_advance_ptr(&que_ptr_rx);
+			
+			// set job complete
+			mcp_stm_unset_job(status, JOB_RX_0_NORTH);
+			
+			// next state should be START to give a chance for attention to be checked
+			mcp_stm_set_state(&mcp_stm, START);
+			
+			break;
+			
+		case READ_RX_1_NORTH_CALLBACK:
+			#if DBG_MCP_STATE //&& DBG_MCP_CAN_RX
+			//print the msg received
+			print_dbg("\n\r__MSG_RECEIVED__");
+			print_array_uint8(que_ptr_rx->msg, MCP_CAN_MSG_SIZE);
+			#endif
+			
+			que_advance_ptr(&que_ptr_rx);
+			
+			// set job complete
+			mcp_stm_unset_job(status, JOB_RX_1_NORTH);
+			
+			// next state should be START to give a chance for attention to be checked
+			mcp_stm_set_state(&mcp_stm, START);
+			
+			break;
+			
+		case READ_RX_0_SOUTH:
+			//set northbound direction when receiving from south
+			set_que_ptr_direction(que_ptr_rx, MCP_DIR_NORTH);
+			
+			// set instruction to read rx buffer 0 on mcp
+			PDCA_temporary_instruction_tx[0] = MCP_INST_READ_RX_0;
+			
+			// provide addresses for messages in que
+			PDCA_options_mcp_spi_msg_tx.r_addr = &que_ptr_tx->msg;
+			PDCA_options_mcp_spi_msg_rx.r_addr = &que_ptr_rx->msg;
+			
+			// set pdca job, no addresses need to be set, as the options are pointed
+			// at the que locations by default. In this receive case, it does not
+			// matter what is in the tx buffer, the MCP will ignore the contents and
+			// transmit its own RX buffer contents only
+			PDCA_set_job_rx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_msg_tx, &PDCA_options_mcp_spi_msg_rx, MCP_DIR_SOUTH);
+			
+			mcp_stm_set_state(&mcp_stm, READ_RX_0_SOUTH_CALLBACK);
+			
+			break;
+			
+		case READ_RX_1_SOUTH:
+			//set northbound direction when receiving from south
+			set_que_ptr_direction(que_ptr_rx, MCP_DIR_NORTH);
+		
+			// set instruction to read rx buffer 0 on mcp
+			PDCA_temporary_instruction_tx[0] = MCP_INST_READ_RX_1;
+		
+			// provide addresses for messages in que
+			PDCA_options_mcp_spi_msg_tx.r_addr = &que_ptr_tx->msg;
+			PDCA_options_mcp_spi_msg_rx.r_addr = &que_ptr_rx->msg;
+		
+			// set pdca job, no addresses need to be set, as the options are pointed
+			// at the que locations by default. In this receive case, it does not
+			// matter what is in the tx buffer, the MCP will ignore the contents and
+			// transmit its own RX buffer contents only
+			PDCA_set_job_rx(MCP_DEV_SOUTH, &PDCA_options_mcp_spi_msg_tx, &PDCA_options_mcp_spi_msg_rx, MCP_DIR_SOUTH);
+		
+			mcp_stm_set_state(&mcp_stm, READ_RX_1_SOUTH_CALLBACK);
+		
+			break;
+			
+		case READ_RX_0_SOUTH_CALLBACK:
+			#if DBG_MCP_STATE //&& DBG_MCP_CAN_RX
+			//print the msg received
+			print_dbg("\n\r__MSG_RECEIVED__");
+			print_array_uint8(que_ptr_rx->msg, MCP_CAN_MSG_SIZE);
+			#endif
+		
+			que_advance_ptr(&que_ptr_rx);
+		
+			// set job complete
+			mcp_stm_unset_job(status, JOB_RX_0_SOUTH);
+		
+			// next state should be START to give a chance for attention to be checked
+			mcp_stm_set_state(&mcp_stm, START);
+		
+			break;
+			
+		case READ_RX_1_SOUTH_CALLBACK:
+			#if DBG_MCP_STATE //&& DBG_MCP_CAN_RX
+			//print the msg received
+			print_dbg("\n\r__MSG_RECEIVED__");
+			print_array_uint8(que_ptr_rx->msg, MCP_CAN_MSG_SIZE);
+			#endif
+			
+			que_advance_ptr(&que_ptr_rx);
+			
+			// set job complete
+			mcp_stm_unset_job(status, JOB_RX_1_SOUTH);
+			
+			// next state should be START to give a chance for attention to be checked
+			mcp_stm_set_state(&mcp_stm, START);
+			
+			break;
+			
 		default:
 			break;
 		}
@@ -1151,6 +1385,6 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 	//else get out and wait
 	#if DBG_MCP_STATE
 	print_dbg("\n\rLast State on State Loop Exit: ");
-	print_dbg_ulong((unsigned long)mcp_status.mcp_state);
+	print_dbg_ulong((unsigned long)mcp_stm.mcp_state);
 	#endif
 }

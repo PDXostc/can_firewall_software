@@ -64,30 +64,30 @@ uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 #define DLC_LENGTH		DLC_LENGTH_STANDARD
 
 // CAN MOB allocation into HSB RAM
-#if defined (__GNUC__) && defined (__AVR32__)
-volatile can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] __attribute__ ((__section__(".hsb_ram_loc")));
-volatile can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] __attribute__ ((__section__(".hsb_ram_loc")));
-volatile can_mob_t can_msg_que_north_rx_south_tx[CAN_MSG_QUE_SIZE] __attribute__ ((__section__(".hsb_ram_loc")));
-volatile can_mob_t can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE] __attribute__ ((__section__(".hsb_ram_loc")));
-#elif defined (__ICCAVR32__)
-volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA0000000;
-volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
-volatile __no_init can_mob_t can_msg_que_north_rx_south_tx[CAN_MSG_QUE_SIZE] @0xA0000000;
-volatile __no_init can_mob_t can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE] @0xA0000000;
-#endif
+// #if defined (__GNUC__) && defined (__AVR32__)
+// volatile can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] __attribute__ ((__section__(".hsb_ram_loc")));
+// volatile can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] __attribute__ ((__section__(".hsb_ram_loc")));
+// volatile can_mob_t can_msg_que_north_rx_south_tx[CAN_MSG_QUE_SIZE] __attribute__ ((__section__(".hsb_ram_loc")));
+// volatile can_mob_t can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE] __attribute__ ((__section__(".hsb_ram_loc")));
+// #elif defined (__ICCAVR32__)
+// volatile __no_init can_msg_t CAN_MOB_NORTH_RX_SOUTH_TX[NB_MOB_CHANNEL] @0xA0000000;
+// volatile __no_init can_msg_t CAN_MOB_SOUTH_RX_NORTH_TX[NB_MOB_CHANNEL] @0xA0000000;
+// volatile __no_init can_mob_t can_msg_que_north_rx_south_tx[CAN_MSG_QUE_SIZE] @0xA0000000;
+// volatile __no_init can_mob_t can_msg_que_south_rx_north_tx[CAN_MSG_QUE_SIZE] @0xA0000000;
+// #endif
 
 //SRAM Allocation for loaded filter rulesets
 static rule_t can_ruleset_north_rx_south_tx[SIZE_RULESET];
 static rule_t can_ruleset_south_rx_north_tx[SIZE_RULESET];
 
 //ptrs to que, initialize to beginning
-volatile can_mob_t *rx_s =   &can_msg_que_south_rx_north_tx[0];
-volatile can_mob_t *proc_s = &can_msg_que_south_rx_north_tx[0];
-volatile can_mob_t *tx_n =   &can_msg_que_south_rx_north_tx[0];
-
-volatile can_mob_t *rx_n =   &can_msg_que_north_rx_south_tx[0];
-volatile can_mob_t *proc_n = &can_msg_que_north_rx_south_tx[0];
-volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
+// volatile can_mob_t *rx_s =   &can_msg_que_south_rx_north_tx[0];
+// volatile can_mob_t *proc_s = &can_msg_que_south_rx_north_tx[0];
+// volatile can_mob_t *tx_n =   &can_msg_que_south_rx_north_tx[0];
+// 
+// volatile can_mob_t *rx_n =   &can_msg_que_north_rx_south_tx[0];
+// volatile can_mob_t *proc_n = &can_msg_que_north_rx_south_tx[0];
+// volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 
@@ -139,16 +139,6 @@ static inline void wipe_mob(volatile can_mob_t **mob)
 	memset((void *)(*mob), 0, sizeof(can_mob_t));
 }
 
-static void print_array_uint8(uint8_t *arr, int length)
-{
-	PRINT_NEWLINE()
-	print_dbg("Array Values: ");
-	for (int i = 0; i < length; i++)
-	{
-		print_dbg_char_hex(arr[i]);
-		print_dbg(" | ");
-	}
-}
 
 /* Process function to be deprecated. Shows handling of messages based on
 * evaluation function included in filter
@@ -336,6 +326,9 @@ int main (void)
 	
 	// INIT MCP MODULE
 	init_mcp_module();
+	
+	// INIT MESSAGING QUE
+	init_message_que();
 
 	// INIT ALL INTERRUPTS AND INTERRUPT DRIVEN STATE MACHINES
 	init_interrupt_machines();
@@ -395,7 +388,7 @@ int main (void)
 	{	
 		//mcp_machine_int_set();	
 		//run_firewall();
-		//print_dbg("\n\r N  O  P  ");
+		// print_dbg("\n\r N  O  P  ");
 		nop();
 	}
 	
