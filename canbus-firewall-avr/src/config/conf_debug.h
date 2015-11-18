@@ -14,9 +14,9 @@
 
 #include <asf.h>
 
-#define DBG_ON				1			//master enable debug
+#define DBG_ON				0			//master enable debug
 #define DBG_TEST			1			//temp, misc
-#define DBG_CLKS			DBG_ON  && 1 //clocks
+#define DBG_CLKS			DBG_ON  && 0 //clocks
 #define DBG_CAN_MSG			DBG_ON  && 0 //can messages
 #define DBG_FLASH			DBG_ON  && 0 //flash
 #define DBG_HMAC			DBG_ON  && 0 //hmac
@@ -28,7 +28,7 @@
 #define DBG_MCP_STATE		DBG_ON	&& 0 //state machine 
 #define DBG_MCP_STATUS		DBG_ON  && 0 //mcp chipset status printing
 #define DBG_MSG_QUE			DBG_ON  && 0 //message que
-#define DBG_TEST_THROUGHPUT DBG_ON  && 1
+#define DBG_TEST_THROUGHPUT /*DBG_ON  &&*/ 1
 
 #define DBG_RX_PTR			DBG_ON  && 1
 

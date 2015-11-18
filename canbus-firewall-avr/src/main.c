@@ -336,12 +336,13 @@ int main (void)
 	init_interrupt_machines();
 	
 	// testing messages in que...
-	#if DBG_MSG_QUE
 	//arrays to send
 	volatile uint8_t test_arr_dec_01[13] = {0xff, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
 	volatile uint8_t test_arr_dec_02[13] = {0xf0, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
 	volatile uint8_t test_arr_dec_03[13] = {0xfa, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
 	volatile uint8_t test_arr_inc[13] = {0xff, 0xaa, 0xa5, 0x5a, 8, 1, 2, 3, 4, 5, 6, 7, 8};
+		
+	#if DBG_MSG_QUE
 	
 	//create some test junk in que
 	mcp_message_que[0].direction = MCP_DIR_NORTH;
@@ -400,6 +401,24 @@ int main (void)
 	// GO!
 	
 	// Main loop should attempt to be idle when not running interrupt driven job
+	
+	
+	/************************************************************************/
+	/* SPAM CAN BUS TEST                                                    */
+	/************************************************************************/
+// 	mcp_init_can(MCP_DEV_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
+// 	//going to use slow mcp interface to just keep sending rts for all tx buffers
+// 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_01, MCP_ENUM_TXB_0, MCP_CAN_MSG_SIZE, true);
+// 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_02, MCP_ENUM_TXB_1, MCP_CAN_MSG_SIZE, true);
+// 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_03, MCP_ENUM_TXB_2, MCP_CAN_MSG_SIZE, true);
+// 	
+// 	while (1)
+// 	{
+// 		mcp_request_to_send(MCP_DEV_NORTH, MCP_INST_RTS_TXB0);
+// 		mcp_request_to_send(MCP_DEV_NORTH, MCP_INST_RTS_TXB1);
+// 		mcp_request_to_send(MCP_DEV_NORTH, MCP_INST_RTS_TXB2);
+// 		//delay_ms(1);
+// 	}
 	
 	
 	/************************************************************************/
