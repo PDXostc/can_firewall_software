@@ -595,6 +595,17 @@ void init_interrupt_machines(void)
 	mcp_machine_int_set();
 	
 }
+// temp test routine of queing a received message for transmission for throughput
+void test_set_received_message_for_transmit(void)
+{
+	//have to keep proc ahead of tx, for now we cheat and set it == rx
+	que_ptr_proc = que_ptr_rx;
+	
+	//set job pending and inc tx pending count
+	TX_status.tx_pending_count++;
+	SET_MCP_JOB(mcp_status.jobs, JOB_TX_PENDING);
+}
+
 /* MCP state machine
  * The MCP state machine should be run inside an interrupt handler, triggering 
  * a state execution sequence.
@@ -1603,6 +1614,10 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			// set job complete
 			mcp_stm_unset_job(status, JOB_RX_0_NORTH);
 			
+			#if DBG_TEST_THROUGHPUT
+			test_set_received_message_for_transmit();
+			#endif
+			
 			// next state should be START to give a chance for attention to be checked
 			mcp_stm_set_state(&mcp_stm, START);
 			
@@ -1619,6 +1634,10 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			
 			// set job complete
 			mcp_stm_unset_job(status, JOB_RX_1_NORTH);
+			
+			#if DBG_TEST_THROUGHPUT
+			test_set_received_message_for_transmit();
+			#endif
 			
 			// next state should be START to give a chance for attention to be checked
 			mcp_stm_set_state(&mcp_stm, START);
@@ -1679,6 +1698,10 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			// set job complete
 			mcp_stm_unset_job(status, JOB_RX_0_SOUTH);
 		
+			#if DBG_TEST_THROUGHPUT
+			test_set_received_message_for_transmit();
+			#endif
+		
 			// next state should be START to give a chance for attention to be checked
 			mcp_stm_set_state(&mcp_stm, START);
 		
@@ -1695,6 +1718,10 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			
 			// set job complete
 			mcp_stm_unset_job(status, JOB_RX_1_SOUTH);
+			
+			#if DBG_TEST_THROUGHPUT
+			test_set_received_message_for_transmit();
+			#endif
 			
 			// next state should be START to give a chance for attention to be checked
 			mcp_stm_set_state(&mcp_stm, START);

@@ -369,8 +369,8 @@ int main (void)
 	//proc pointer to 3. should not transmit because proc pointer is here
 	que_ptr_proc = &mcp_message_que[3];
 	
-	// set tx increment to num jobs we should try to do, also
-	TX_status.tx_pending_count = 3;
+	// set tx increment to num jobs we should try to do, also, we see if tx will overrun proc when it should not
+	TX_status.tx_pending_count = 5;
 	
 	// set tx pending job
 	SET_MCP_JOB(mcp_status.jobs, JOB_TX_PENDING);
