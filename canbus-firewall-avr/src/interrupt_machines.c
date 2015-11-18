@@ -664,12 +664,12 @@ void run_mcp_state_machine(volatile struct MCP_status_t *status)
 			else 
 			{
 				// check for pin still held low, meaning attention is needed
-				if (!gpio_get_pin_value(IVI_INT_PIN))
+				if (!gpio_local_get_pin_value(IVI_INT_PIN))
 				{
 					mcp_stm_set_job(status, JOB_GET_STATUS_NORTH);
 				}
 				
-				if (!gpio_get_pin_value(CAR_INT_PIN))
+				if (!gpio_local_get_pin_value(CAR_INT_PIN))
 				{
 					mcp_stm_set_job(status, JOB_GET_STATUS_SOUTH);
 				}
