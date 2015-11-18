@@ -313,8 +313,28 @@ static inline void run_firewall(void)
 	#endif
 }
 
+#if (defined __GNUC__)
+__attribute__((aligned(4)))
+#elif (defined __ICCAVR32__)
+#pragma data_alignment=4
+#endif
+volatile char __tracebuffer__[8192];
+
+volatile int __tracebuffersize__ = sizeof(__tracebuffer__);
+
+void InitTraceBuffer()
+{
+	int index = 0;
+	for(index =0; index<8192; index++)
+	{
+		__tracebuffer__[index];
+		__tracebuffersize__;
+	}
+}
+
 int main (void)
 {
+	InitTraceBuffer();
 	//setup
 	init();
 	init_rules();
@@ -406,9 +426,10 @@ int main (void)
 	/************************************************************************/
 	/* SPAM CAN BUS TEST                                                    */
 	/************************************************************************/
-// 	mcp_init_can(MCP_DEV_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
+ 	mcp_init_can(MCP_DEV_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_default, MCP_VAL_MODE_NORMAL);
+	mcp_init_can(MCP_DEV_SOUTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_default, MCP_VAL_MODE_NORMAL);
 // 	//going to use slow mcp interface to just keep sending rts for all tx buffers
-// 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_01, MCP_ENUM_TXB_0, MCP_CAN_MSG_SIZE, true);
+ 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_01, MCP_ENUM_TXB_0, MCP_CAN_MSG_SIZE, true);
 // 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_02, MCP_ENUM_TXB_1, MCP_CAN_MSG_SIZE, true);
 // 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_03, MCP_ENUM_TXB_2, MCP_CAN_MSG_SIZE, true);
 // 	

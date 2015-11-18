@@ -290,12 +290,14 @@ extern void mcp_machine_int_handler(void);
 
 static inline void mcp_machine_int_set(void)
 {
-	gpio_set_pin_low(MCP_MACHINE_INT_PIN);
+	// gpio_set_pin_low(MCP_MACHINE_INT_PIN);
+	gpio_local_clr_gpio_pin(MCP_MACHINE_INT_PIN);
 }
 
 static inline void mcp_machine_int_clear(void)
 {
-	gpio_set_pin_high(MCP_MACHINE_INT_PIN);
+	// gpio_set_pin_high(MCP_MACHINE_INT_PIN);
+	gpio_local_set_gpio_pin(MCP_MACHINE_INT_PIN);
 	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
 }
 

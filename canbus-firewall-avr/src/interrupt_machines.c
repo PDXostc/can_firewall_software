@@ -314,8 +314,8 @@ void mcp_machine_int_handler(void)
 	// and execution mean that we will have to manually mask interrupts at this level
 	// and below, then reenable them when exiting this handler
 	// 
-	cpu_irq_disable_level(0); // proc handler level
-	cpu_irq_disable_level(1); // mcp machine and pdca handler level
+	// cpu_irq_disable_level(0); // proc handler level
+	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
 	//Disable_global_interrupt();
 	
 	#if DBG_INT
@@ -345,8 +345,8 @@ void mcp_machine_int_handler(void)
 // 	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
 // 	
 	
-	cpu_irq_enable_level(1); // mcp machine and pdca handler level
-	cpu_irq_enable_level(0); // proc handler level
+	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
+	// cpu_irq_enable_level(0); // proc handler level
 	//Enable_global_interrupt();
 }
 
@@ -480,7 +480,7 @@ uint8_t pdca_busy_flag
 	pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_RX);
 	
 	// enable the transfer error interrupt, if memory address appears invalid
-	pdca_enable_interrupt_transfer_error(PDCA_CHANNEL_SPI_RX);
+	// pdca_enable_interrupt_transfer_error(PDCA_CHANNEL_SPI_RX);
 	
 	// select the device associated with this job
 	mcp_select(device);
@@ -536,6 +536,12 @@ void init_interrupt_machines(void)
 	// Setup Pin interrupts for MCP state machine and processing jobs
 	gpio_configure_pin(MCP_MACHINE_INT_PIN, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
 	gpio_configure_pin(PROC_INT_PIN, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
+	
+	// testing using local interface for pins instead
+	gpio_local_init();
+	// gpio_local_enable_pin_output_driver(MCP_MACHINE_INT_PIN);
+	// gpio_local_set_gpio_pin(MCP_MACHINE_INT_PIN);
+	
 	/* For GPIO IRQ, the formula should be:
 	 * (gpio_irq0 + gpio pin number/ eight )
 	 * so PA05 = 0 and PA21 = 2...

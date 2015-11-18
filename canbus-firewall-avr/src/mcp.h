@@ -20,6 +20,7 @@
 
 #define MCP_SPI_MAX_BAUDRATE		10000000 //10Mhz
 #define MCP_SPI_BAUDRATE			9000000	 //9Mhz
+//#define MCP_SPI_BAUDRATE			10700000	 //this actually bumps it up to 10, perhaps due to a rounding issue...
 
 #ifndef MCP_SPI
 #define MCP_SPI		(&AVR32_SPI0)
