@@ -51,14 +51,14 @@ struct TX_status_t {
 	uint32_t tx_pending_count;
 };
 
-struct TX_status_t TX_status;
+volatile struct TX_status_t TX_status;
 
 // Process pointer status
 struct PROC_status_t {
 	uint32_t proc_pending_count;
 };
 
-struct PROC_status_t PROC_status;
+volatile struct PROC_status_t PROC_status;
 
 //ptr que function calls
 static inline void set_que_ptr_direction(volatile struct MCP_message_t *ptr, uint8_t direction)
