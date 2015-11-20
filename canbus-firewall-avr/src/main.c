@@ -54,6 +54,7 @@
 #include "mcp.h"
 #include "interrupt_machines.h"
 #include "mcp_message_que.h"
+#include "timestamp.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
@@ -313,8 +314,28 @@ static inline void run_firewall(void)
 	#endif
 }
 
+#if (defined __GNUC__)
+__attribute__((aligned(4)))
+#elif (defined __ICCAVR32__)
+#pragma data_alignment=4
+#endif
+volatile char __tracebuffer__[8192];
+
+volatile int __tracebuffersize__ = sizeof(__tracebuffer__);
+
+void InitTraceBuffer()
+{
+	int index = 0;
+	for(index =0; index<8192; index++)
+	{
+		__tracebuffer__[index];
+		__tracebuffersize__;
+	}
+}
+
 int main (void)
 {
+	InitTraceBuffer();
 	//setup
 	init();
 	init_rules();
@@ -336,12 +357,13 @@ int main (void)
 	init_interrupt_machines();
 	
 	// testing messages in que...
-	#if DBG_MSG_QUE
 	//arrays to send
 	volatile uint8_t test_arr_dec_01[13] = {0xff, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
 	volatile uint8_t test_arr_dec_02[13] = {0xf0, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
 	volatile uint8_t test_arr_dec_03[13] = {0xfa, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
 	volatile uint8_t test_arr_inc[13] = {0xff, 0xaa, 0xa5, 0x5a, 8, 1, 2, 3, 4, 5, 6, 7, 8};
+		
+	#if DBG_MSG_QUE
 	
 	//create some test junk in que
 	mcp_message_que[0].direction = MCP_DIR_NORTH;
@@ -369,8 +391,8 @@ int main (void)
 	//proc pointer to 3. should not transmit because proc pointer is here
 	que_ptr_proc = &mcp_message_que[3];
 	
-	// set tx increment to num jobs we should try to do, also
-	TX_status.tx_pending_count = 3;
+	// set tx increment to num jobs we should try to do, also, we see if tx will overrun proc when it should not
+	TX_status.tx_pending_count = 5;
 	
 	// set tx pending job
 	SET_MCP_JOB(mcp_status.jobs, JOB_TX_PENDING);
@@ -395,11 +417,34 @@ int main (void)
 // 	}
 		
 	/* SETUP AND INITS COMPLETE. ENABLE ALL INTERRUPTS */
+	set_timestamp("start", Get_sys_count());
+	
 	Enable_global_interrupt();
 	
 	// GO!
 	
 	// Main loop should attempt to be idle when not running interrupt driven job
+	
+	
+	/************************************************************************/
+	/* SPAM CAN BUS TEST                                                    */
+	/************************************************************************/
+ 	mcp_init_can(MCP_DEV_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_default, MCP_VAL_MODE_NORMAL);
+	mcp_init_can(MCP_DEV_SOUTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_default, MCP_VAL_MODE_NORMAL);
+// 	//going to use slow mcp interface to just keep sending rts for all tx buffers
+ 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_01, MCP_ENUM_TXB_0, MCP_CAN_MSG_SIZE, true);
+// 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_inc, MCP_ENUM_TXB_1, MCP_CAN_MSG_SIZE, true);
+// 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_03, MCP_ENUM_TXB_2, MCP_CAN_MSG_SIZE, true);
+// 	
+// 	while (1)
+// 	{
+// 		mcp_request_to_send(MCP_DEV_NORTH, MCP_INST_RTS_TXB0);
+// 		mcp_request_to_send(MCP_DEV_NORTH, MCP_INST_RTS_TXB1);
+// 		mcp_request_to_send(MCP_DEV_NORTH, MCP_INST_RTS_TXB2);
+// 		//delay_ms(1);
+// 	}
+	
+	
 	
 	
 	/************************************************************************/
@@ -426,15 +471,28 @@ int main (void)
 	
 	mcp_print_error_registers(MCP_SOUTH);
 #endif
-
-	while (1)
+#if DBG_TIME
+	while (timestamp_count < 256)
 	{	
 		//mcp_machine_int_set();	
 		//run_firewall();
 		// print_dbg("\n\r N  O  P  ");
-		nop();
+		// 
+		set_timestamp("main", Get_sys_count());
+		// nop();
 	}
-	
+	calc_timestamps_since_last(timestamp_count);
+	for (int i = 0; i < timestamp_count; i++)
+	{
+		PRINT_NEWLINE()
+		print_dbg(timestamps[i].name);
+		print_dbg("    ");
+		print_dbg_ulong(timestamps[i].since_last);
+		print_dbg("    ");
+		print_dbg_ulong(timestamps[i].stamp);
+	}
+	timestamp_count;
+	#endif
 	delay_ms(1000);
 	
 	//wait for end while debugging

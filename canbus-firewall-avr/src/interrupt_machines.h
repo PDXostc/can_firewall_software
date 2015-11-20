@@ -13,6 +13,7 @@
 #include "mcp.h"
 #include "pdca_interface.h"
 #include "mcp_message_que.h"
+#include "timestamp.h"
 
 //interrupt levels
 #define INT_LEVEL_PROC			AVR32_INTC_INT0
@@ -258,7 +259,7 @@ uint8_t init_mcp_status(void);
 
 extern void init_interrupt_machines(void);
 
-void run_mcp_state_machine(volatile struct MCP_status_t *status);
+void run_mcp_state_machine(void);
 
 #if defined (__GNUC__)
 __attribute__((__interrupt__))
@@ -290,12 +291,14 @@ extern void mcp_machine_int_handler(void);
 
 static inline void mcp_machine_int_set(void)
 {
-	gpio_set_pin_low(MCP_MACHINE_INT_PIN);
+	// gpio_set_pin_low(MCP_MACHINE_INT_PIN);
+	gpio_local_clr_gpio_pin(MCP_MACHINE_INT_PIN);
 }
 
 static inline void mcp_machine_int_clear(void)
 {
-	gpio_set_pin_high(MCP_MACHINE_INT_PIN);
+	// gpio_set_pin_high(MCP_MACHINE_INT_PIN);
+	gpio_local_set_gpio_pin(MCP_MACHINE_INT_PIN);
 	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
 }
 
