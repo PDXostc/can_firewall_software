@@ -27,14 +27,15 @@
 #define DBG_INT				DBG_ON		&& 0 //interrupts
 #define DBG_MCP_STATE		DBG_ON		&& 0 //state machine 
 #define DBG_MCP_STATUS		DBG_ON		&& 0 //mcp chipset status printing
-#define DBG_MSG_QUE			DBG_ON		&& 0 //message que
-#define DBG_TIME			DBG_ON		&& 1
-#define DBG_TIME_INT		DBG_TIME	&& 1
-#define DBG_TIME_PDCA		DBG_TIME	&& 1
-#define DBG_TIME_MCP		DBG_TIME	&& 1
-#define DBG_TIME_STATUS		DBG_TIME	&& 1
+#define DBG_MSG_QUE			DBG_ON		&& 1 //message que
+#define DBG_TIME			DBG_ON		&& 0
+#define DBG_TIME_INT		DBG_TIME	&& 0
+#define DBG_TIME_PDCA		DBG_TIME	&& 0
+#define DBG_TIME_MCP		DBG_TIME	&& 0
+#define DBG_TIME_STATUS		DBG_TIME	&& 0
 #define DBG_CS_PDCA			DBG_TIME	&& 0
 #define DBG_TEST_THROUGHPUT /*DBG_ON  &&*/ 1
+#define DBG_INT_GLBL_SWITCH DBG_ON		&& 1
 
 #define DBG_RX_PTR			DBG_ON  && 0
 

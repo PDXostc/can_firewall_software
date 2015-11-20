@@ -93,47 +93,6 @@ static rule_t can_ruleset_south_rx_north_tx[SIZE_RULESET];
 
 #define member_size(type, member) sizeof(((type *)0)->member)
 
-//test of our rx_config struct
-struct RX_config rx_config_default = {
-	._RXM0 = 0x00000000,
-	._RXF0 = 0x00000000,
-	._RXF1 = 0x00000000,
-	._RX0_EID = 0x00,
-	._RXM1 = 0x00000000,
-	._RXF2 = 0x00000000,
-	._RXF3 = 0x00000000,
-	._RXF4 = 0x00000000,
-	._RXF5 = 0x00000000,
-	._RX1_EID = (MCP_MASK_RXM1_EID |\
-	MCP_MASK_RXF2_EID |\
-	MCP_MASK_RXF3_EID |\
-	MCP_MASK_RXF4_EID |\
-	MCP_MASK_RXF5_EID),
-	._RXB0_BUKT = MCP_VAL_BUKT_ROLLOVER_EN,
-	._MCP_VAL_RX0_CTRL = MCP_VAL_RXM_STD_EXT,
-	._MCP_VAL_RX1_CTRL = MCP_VAL_RXM_STD_EXT
-};
-
-struct RX_config rx_config_test_01 = {
-	._RXM0 = 0x7FF,
-	._RXF0 = 0x7FF,
-	._RXF1 = 0x0A5,
-	._RX0_EID = 0x00,
-	._RXM1 = 0x1FFFFFFF,
-	._RXF2 = 0x1FFFFFFF,
-	._RXF3 = 0x1A5A5A5A,
-	._RXF4 = 0x00000000,
-	._RXF5 = 0x00000000,
-	._RX1_EID = (MCP_MASK_RXM1_EID |\
-	MCP_MASK_RXF2_EID |\
-	MCP_MASK_RXF3_EID |\
-	MCP_MASK_RXF4_EID |\
-	MCP_MASK_RXF5_EID),
-	//._RXB0_BUKT = MCP_VAL_BUKT_ROLLOVER_EN,
-	._MCP_VAL_RX0_CTRL = MCP_VAL_RXM_STD_ONLY,
-	._MCP_VAL_RX1_CTRL = MCP_VAL_RXM_EXT_ONLY
-};
-
 /* Utility wrapper for deleting an Atmel CAN message object
 */
 static inline void wipe_mob(volatile can_mob_t **mob)
@@ -367,14 +326,14 @@ int main (void)
 	
 	//create some test junk in que
 	mcp_message_que[0].direction = MCP_DIR_NORTH;
-	mcp_message_que[1].direction = MCP_DIR_NORTH;
-	mcp_message_que[2].direction = MCP_DIR_NORTH;
-	mcp_message_que[3].direction = MCP_DIR_NORTH;
+	// mcp_message_que[1].direction = MCP_DIR_NORTH;
+	// mcp_message_que[2].direction = MCP_DIR_NORTH;
+	// mcp_message_que[3].direction = MCP_DIR_NORTH;
 	for (int i = 0; i < 13; i++)
 	{
 		mcp_message_que[0].msg[i] = test_arr_dec_01[i];
-		mcp_message_que[1].msg[i] = test_arr_dec_02[i];
-		mcp_message_que[2].msg[i] = test_arr_dec_03[i];		
+		// mcp_message_que[1].msg[i] = test_arr_dec_02[i];
+		// mcp_message_que[2].msg[i] = test_arr_dec_03[i];		
 		// memcpy(mcp_message_que[0].msg, test_arr_dec, sizeof(mcp_message_que[0].msg));
 		// memcpy(mcp_message_que[1].msg, test_arr_dec, sizeof(mcp_message_que[0].msg));
 		// memcpy(mcp_message_que[2].msg, test_arr_dec, sizeof(mcp_message_que[0].msg));
@@ -386,13 +345,13 @@ int main (void)
 	}
 	
 	//make sure rx pointer starts out well ahead
-	que_ptr_rx = &mcp_message_que[4];
+	que_ptr_rx = &mcp_message_que[1];
 	
 	//proc pointer to 3. should not transmit because proc pointer is here
-	que_ptr_proc = &mcp_message_que[3];
+	que_ptr_proc = &mcp_message_que[1];
 	
 	// set tx increment to num jobs we should try to do, also, we see if tx will overrun proc when it should not
-	TX_status.tx_pending_count = 5;
+	TX_status.tx_pending_count = 1;
 	
 	// set tx pending job
 	SET_MCP_JOB(mcp_status.jobs, JOB_TX_PENDING);
@@ -429,10 +388,10 @@ int main (void)
 	/************************************************************************/
 	/* SPAM CAN BUS TEST                                                    */
 	/************************************************************************/
- 	mcp_init_can(MCP_DEV_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_default, MCP_VAL_MODE_NORMAL);
-	mcp_init_can(MCP_DEV_SOUTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_default, MCP_VAL_MODE_NORMAL);
+// 	mcp_init_can(MCP_DEV_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_default, MCP_VAL_MODE_NORMAL);
+//	mcp_init_can(MCP_DEV_SOUTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_default, MCP_VAL_MODE_NORMAL);
 // 	//going to use slow mcp interface to just keep sending rts for all tx buffers
- 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_01, MCP_ENUM_TXB_0, MCP_CAN_MSG_SIZE, true);
+// 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_01, MCP_ENUM_TXB_0, MCP_CAN_MSG_SIZE, true);
 // 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_inc, MCP_ENUM_TXB_1, MCP_CAN_MSG_SIZE, true);
 // 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_03, MCP_ENUM_TXB_2, MCP_CAN_MSG_SIZE, true);
 // 	
@@ -492,7 +451,7 @@ int main (void)
 		print_dbg_ulong(timestamps[i].stamp);
 	}
 	timestamp_count;
-	#endif
+#endif
 	delay_ms(1000);
 	
 	//wait for end while debugging

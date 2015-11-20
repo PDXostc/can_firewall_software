@@ -23,7 +23,7 @@ volatile struct MCP_message_t mcp_message_que[MCP_QUE_SIZE] = {
 		}
 	};
 
-pdca_channel_options_t PDCA_options_mcp_spi_msg_rx = {
+volatile pdca_channel_options_t PDCA_options_mcp_spi_msg_rx = {
 	.pid = PDCA_ID_SPI_RX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = &PDCA_temporary_instruction_rx,
@@ -32,7 +32,7 @@ pdca_channel_options_t PDCA_options_mcp_spi_msg_rx = {
 	.r_size = MCP_CAN_MSG_SIZE,
 };
 
-pdca_channel_options_t PDCA_options_mcp_spi_msg_tx = {
+volatile pdca_channel_options_t PDCA_options_mcp_spi_msg_tx = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = &PDCA_temporary_instruction_tx,

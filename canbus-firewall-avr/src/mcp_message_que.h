@@ -74,8 +74,8 @@ static inline uint8_t get_que_ptr_direction(volatile struct MCP_message_t *ptr)
 //advance pointer, given pointer address. checks for bounds of que and resets position if necessary
 extern void que_advance_ptr(volatile struct MCP_message_t **ptr);
 
-extern pdca_channel_options_t PDCA_options_mcp_spi_msg_rx;
-extern pdca_channel_options_t PDCA_options_mcp_spi_msg_tx;
+extern volatile pdca_channel_options_t PDCA_options_mcp_spi_msg_rx;
+extern volatile pdca_channel_options_t PDCA_options_mcp_spi_msg_tx;
 
 // init ptrs func
 // TODO

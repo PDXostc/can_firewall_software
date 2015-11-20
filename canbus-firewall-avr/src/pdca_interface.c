@@ -14,7 +14,7 @@ volatile struct PDCA_status_t pdca_status = {
 	};
 
 // PDCA channel settings, uses Atmel convention struct
-pdca_channel_options_t PDCA_options_mcp_spi_rx_single = {
+volatile pdca_channel_options_t PDCA_options_mcp_spi_rx_single = {
 	.pid = PDCA_ID_SPI_RX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = NULL,
@@ -23,7 +23,7 @@ pdca_channel_options_t PDCA_options_mcp_spi_rx_single = {
 	.r_size = 0,
 };
 
-pdca_channel_options_t PDCA_options_mcp_spi_tx_single = {
+volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_single = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = NULL,
@@ -32,7 +32,7 @@ pdca_channel_options_t PDCA_options_mcp_spi_tx_single = {
 	.r_size = 0,
 };
 
-pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_register = {
+volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_register = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = &PDCA_temporary_write_single,
@@ -41,7 +41,7 @@ pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_register = {
 	.r_size = 0,
 };
 
-pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_instruction = {
+volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_instruction = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = &PDCA_temporary_instruction_tx,
@@ -50,7 +50,7 @@ pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_instruction = {
 	.r_size = 0,
 };
 
-pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_instruction_single_response = {
+volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_instruction_single_response = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = &PDCA_temporary_instruction_tx,
@@ -59,7 +59,7 @@ pdca_channel_options_t PDCA_options_mcp_spi_tx_write_single_instruction_single_r
 	.r_size = 0,
 };
 
-pdca_channel_options_t PDCA_options_mcp_spi_tx_bit_modify = {
+volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_bit_modify = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = &PDCA_temporary_bit_modify_tx,
@@ -68,7 +68,7 @@ pdca_channel_options_t PDCA_options_mcp_spi_tx_bit_modify = {
 	.r_size = 0,
 };
 
-pdca_channel_options_t PDCA_options_mcp_spi_tx_configure_timings = {
+volatile pdca_channel_options_t PDCA_options_mcp_spi_tx_configure_timings = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = NULL,
@@ -77,7 +77,7 @@ pdca_channel_options_t PDCA_options_mcp_spi_tx_configure_timings = {
 	.r_size = 0,
 };
 
-pdca_channel_options_t PDCA_options_mcp_spi_rx_get_status_north = {
+volatile pdca_channel_options_t PDCA_options_mcp_spi_rx_get_status_north = {
 	.pid = PDCA_ID_SPI_RX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = &PDCA_temporary_instruction_rx,
@@ -86,7 +86,7 @@ pdca_channel_options_t PDCA_options_mcp_spi_rx_get_status_north = {
 	.r_size = 1,
 };
 
-pdca_channel_options_t PDCA_options_mcp_spi_rx_get_status_south = {
+volatile pdca_channel_options_t PDCA_options_mcp_spi_rx_get_status_south = {
 	.pid = PDCA_ID_SPI_RX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = &PDCA_temporary_instruction_rx,
@@ -95,7 +95,7 @@ pdca_channel_options_t PDCA_options_mcp_spi_rx_get_status_south = {
 	.r_size = 1,
 };
 
-pdca_channel_options_t PDCA_OPTIONS_rx_test = {
+volatile pdca_channel_options_t PDCA_OPTIONS_rx_test = {
 	.pid = PDCA_ID_SPI_RX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = NULL,
@@ -104,7 +104,7 @@ pdca_channel_options_t PDCA_OPTIONS_rx_test = {
 	.r_size = 0,
 };
 
-pdca_channel_options_t PDCA_OPTIONS_tx_test = {
+volatile pdca_channel_options_t PDCA_OPTIONS_tx_test = {
 	.pid = PDCA_ID_SPI_TX,
 	.transfer_size = PDCA_TRANSFER_SIZE_BYTE,
 	.addr = NULL,

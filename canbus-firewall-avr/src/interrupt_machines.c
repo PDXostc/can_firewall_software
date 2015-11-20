@@ -135,6 +135,14 @@ uint8_t init_mcp_status(void)
 		mcp_status.timings_south[4] = cnf1;
 	}
 	
+	// need receiver configuration
+	// TODO: this should be expanded to read the rulesets and determine a helpful
+	// set of filter boundaries. For now, the MCPs remain entirely open
+	rx_config_ptr = &rx_config_default;
+	
+	mcp_status.rx_config_north = rx_config_ptr;
+	mcp_status.rx_config_south = rx_config_ptr;
+	
 	return result;
 }
 
@@ -149,9 +157,9 @@ void mcp_interrupt_handler_north(void)
 	// cpu_irq_disable_level(0); // proc handler level
 	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
 	// cpu_irq_disable_level(2); // mcp eic pin handler level
-	
-	//Disable_global_interrupt();
-	
+	#if DBG_INT_GLBL_SWITCH
+	Disable_global_interrupt();
+	#endif
 	//acknowledge interrupt:
 	volatile uint32_t int_ack = AVR32_EIC.isr;
 	
@@ -215,7 +223,11 @@ void mcp_interrupt_handler_north(void)
 	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
 	// cpu_irq_enable_level(0); // proc handler level
 	
-	//Enable_global_interrupt();
+	
+	#if DBG_INT_GLBL_SWITCH
+	Enable_global_interrupt();
+	#endif
+	
 	#if	DBG_INT
 	print_dbg("\n\rNorth Pin Interrupt Exiting");
 	#endif
@@ -235,6 +247,10 @@ void mcp_interrupt_handler_south(void)
 	// cpu_irq_disable_level(0); // proc handler level
 	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
 	// cpu_irq_disable_level(2); // mcp eic pin handler level
+	
+	#if DBG_INT_GLBL_SWITCH
+	Disable_global_interrupt();
+	#endif
 	
 	//acknowledge interrupt:
 	volatile uint32_t int_ack = AVR32_EIC.isr;
@@ -276,6 +292,10 @@ void mcp_interrupt_handler_south(void)
 	// cpu_irq_enable_level(0); // proc handler level
 	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
 	// cpu_irq_enable_level(2); // mcp eic pin handler level
+	// 
+	#if DBG_INT_GLBL_SWITCH
+	Enable_global_interrupt();
+	#endif
 }
 
 // Processing jobs interrupt handler
@@ -322,7 +342,10 @@ void mcp_machine_int_handler(void)
 	// 
 	// cpu_irq_disable_level(0); // proc handler level
 	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
-	//Disable_global_interrupt();
+	
+	#if DBG_INT_GLBL_SWITCH
+	Disable_global_interrupt();
+	#endif
 	
 	#if DBG_INT
 	//test
@@ -334,7 +357,6 @@ void mcp_machine_int_handler(void)
 	// acknowledge interrupt: (GPIO pins PA are on port 0)
 	volatile uint32_t int_ack = AVR32_GPIO.port[MCP_MACHINE_INT_PIN/32].ifrc;
 	
-	mcp_machine_int_clear();
 	//Disable_global_interrupt();
 	
 	
@@ -347,13 +369,17 @@ void mcp_machine_int_handler(void)
 	//		
 	run_mcp_state_machine();
 	
+	mcp_machine_int_clear();
 // 	gpio_set_pin_high(MCP_MACHINE_INT_PIN);
 // 	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
 // 	
 	
 	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
 	// cpu_irq_enable_level(0); // proc handler level
-	//Enable_global_interrupt();
+	#if DBG_INT_GLBL_SWITCH
+	Enable_global_interrupt();
+	#endif
+	
 #if DBG_TIME_MCP
 	set_timestamp("MCPexit", Get_sys_count());
 #endif
@@ -366,6 +392,10 @@ __interrupt
 #endif
 void pdca_rx_transfer_complete_int_handler(void)
 {
+	#if DBG_INT_GLBL_SWITCH
+	Disable_global_interrupt();
+	#endif
+	
 	#if DBG_CS_PDCA
 	//test! select deselect for time stamping
 	if (pdca_status.PDCA_busy == MCP_DIR_NORTH)
@@ -436,8 +466,13 @@ void pdca_rx_transfer_complete_int_handler(void)
 	
 	// cpu_irq_enable_level(0); // proc handler level
 	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
+	// 
 	#if DBG_TIME_PDCA
 	set_timestamp("pdcarxout", Get_sys_count());
+	#endif
+	
+	#if DBG_INT_GLBL_SWITCH
+	Enable_global_interrupt();
 	#endif
 }
 
@@ -448,6 +483,10 @@ __interrupt
 #endif
 void pdca_tx_transfer_complete_int_handler(void)
 {
+	#if DBG_INT_GLBL_SWITCH
+	Disable_global_interrupt();
+	#endif
+	
 	#if DBG_CS_PDCA
 	//test! select deselect for time stamping
 	if (pdca_status.PDCA_busy == MCP_DIR_NORTH)
@@ -526,6 +565,10 @@ void pdca_tx_transfer_complete_int_handler(void)
 	#if DBG_TIME_PDCA
 	set_timestamp("pdcatxout", Get_sys_count());
 	#endif
+	
+	#if DBG_INT_GLBL_SWITCH
+	Enable_global_interrupt();
+	#endif
 }
 
 // Set up a job for receiving response data over SPI
@@ -533,9 +576,9 @@ void pdca_tx_transfer_complete_int_handler(void)
 // with instruction. Sending buffer must include dummy information to facilitate
 // response byte(s) sent by MCP over SPI
 //
-void PDCA_set_job_rx(const struct spi_device *device,
-pdca_channel_options_t *options_tx,
-pdca_channel_options_t *options_rx,
+extern void PDCA_set_job_rx(const struct spi_device *device,
+volatile pdca_channel_options_t *options_tx,
+volatile pdca_channel_options_t *options_rx,
 uint8_t pdca_busy_flag
 )
 {
@@ -575,8 +618,8 @@ uint8_t pdca_busy_flag
 // instruction. This function does not care about the received data; therefore it
 // calls back on transmit complete and does not init the PDCA_SPI_RX channel
 //
-void PDCA_set_job_tx(const struct spi_device *device,
-pdca_channel_options_t *options_tx,
+extern void PDCA_set_job_tx(const struct spi_device *device,
+volatile pdca_channel_options_t *options_tx,
 uint8_t pdca_busy_flag
 )
 {
@@ -678,6 +721,9 @@ void init_interrupt_machines(void)
 	//mcp_status.jobs = (JOB_RESET_NORTH | JOB_RESET_SOUTH | JOB_CONFIGURE_NORTH | JOB_CONFIGURE_SOUTH);
 	mcp_stm_set_job(&mcp_status, (JOB_RESET_NORTH | JOB_RESET_SOUTH | JOB_CONFIGURE_NORTH | JOB_CONFIGURE_SOUTH));
 	
+	//test
+	// mcp_stm_set_job(&mcp_status, (JOB_GET_STATUS_NORTH | JOB_GET_STATUS_SOUTH));
+	
 	//trigger mcp state machine for first run
 	//set the mcp interrupt
 	mcp_machine_int_set();
@@ -687,7 +733,7 @@ void init_interrupt_machines(void)
 bool local_test_once = true;
 int local_tx_count = 0;
 
-#define TEST_ONCE true
+#define TEST_ONCE false
 
 // temp test routine of queing a received message for transmission for throughput
 void test_set_received_message_for_transmit(void)
@@ -695,7 +741,7 @@ void test_set_received_message_for_transmit(void)
 	//have to keep proc ahead of tx, for now we cheat and set it == rx
 	que_ptr_proc = que_ptr_rx;
 	#if TEST_ONCE
-	if ((local_test_once == true) && local_tx_count > 1)
+	if ((local_test_once == true) && local_tx_count > 2)
 	{
 		return;
 	}
