@@ -154,55 +154,11 @@ __interrupt
 #endif
 void mcp_interrupt_handler_north(void)
 {
-	// cpu_irq_disable_level(0); // proc handler level
-	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
-	// cpu_irq_disable_level(2); // mcp eic pin handler level
-	#if DBG_INT_GLBL_SWITCH
+	#if DBG_INT_GLBL_SWITCH_EIC
 	Disable_global_interrupt();
 	#endif
 	//acknowledge interrupt:
 	volatile uint32_t int_ack = AVR32_EIC.isr;
-	
-	// test disable at this time, will enable after jobs are finished
-	// eic_disable_interrupt_line(&AVR32_EIC, EXT_INT_IVI_LINE);
-	
-// 	volatile bool line01 = false;
-// 	volatile bool line02 = false;
-// 	line01 = gpio_get_pin_value(IVI_INT_PIN);
-// 	line02 = gpio_get_pin_value(CAR_INT_PIN);
-	//test clear mcp int flags for now
-	
-	//cheat, clear mcp flags slow
-	//mcp_set_register(MCP_DEV_NORTH, MCP_ADD_CANINTF, 0x00);
-	
-	//PDCA on interrupt test
-	
-// 		rx_instruction_test[0] = MCP_INST_READ_RX_0;
-// 		// update pdca_options
-// 		PDCA_OPTIONS_tx_test.addr = &rx_instruction_test;
-// 		int test_size = sizeof(rx_instruction_test);
-// 		PDCA_OPTIONS_tx_test.size = sizeof(rx_instruction_test);
-// 		
-// 		PDCA_OPTIONS_rx_test.addr = &rx_msg_test;
-// 		test_size = sizeof(rx_msg_test);
-// 		PDCA_OPTIONS_rx_test.size = sizeof(rx_msg_test);		
-// 		
-// 		pdca_init_channel(PDCA_CHANNEL_SPI_TX, &PDCA_OPTIONS_tx_test);
-// 		pdca_init_channel(PDCA_CHANNEL_SPI_RX, &PDCA_OPTIONS_rx_test);
-// 		
-// 		//register interrupt for rx complete...
-// 		/*INTC_register_interrupt(&pdca_transfer_complete_int_handler, AVR32_PDCA_IRQ_0, AVR32_INTC_INT1);*/
-// 		INTC_register_interrupt(&pdca_rx_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, AVR32_INTC_INT1);;
-// 		
-// 		//pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
-// 		pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_RX);
-// 		//
-// 		
-// 		//chip select mcp
-// 		mcp_select(MCP_DEV_NORTH);
-// 		
-// 		pdca_enable(PDCA_CHANNEL_SPI_TX);
-// 		pdca_enable(PDCA_CHANNEL_SPI_RX);
 
 	#if DBG_INT
 	print_dbg("\n\rCalled North INT and Attention should be set...");
@@ -216,15 +172,9 @@ void mcp_interrupt_handler_north(void)
 	mcp_machine_int_set();
 	
 	// clear external interrupt line
-	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_IVI_LINE);
+	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_IVI_LINE);	
 	
-	
-	// cpu_irq_enable_level(2); // mcp eic pin handler level
-	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
-	// cpu_irq_enable_level(0); // proc handler level
-	
-	
-	#if DBG_INT_GLBL_SWITCH
+	#if DBG_INT_GLBL_SWITCH_EIC
 	Enable_global_interrupt();
 	#endif
 	
@@ -244,39 +194,13 @@ void mcp_interrupt_handler_south(void)
 	#if DBG_TIME_INT
 	set_timestamp("EIC_INT_south", Get_sys_count());
 	#endif
-	// cpu_irq_disable_level(0); // proc handler level
-	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
-	// cpu_irq_disable_level(2); // mcp eic pin handler level
 	
-	#if DBG_INT_GLBL_SWITCH
+	#if DBG_INT_GLBL_SWITCH_EIC
 	Disable_global_interrupt();
 	#endif
 	
 	//acknowledge interrupt:
 	volatile uint32_t int_ack = AVR32_EIC.isr;
-	
-// 	volatile bool line01 = false;
-// 	volatile bool line02 = false;
-// 	line01 = gpio_get_pin_value(IVI_INT_PIN);
-// 	line02 = gpio_get_pin_value(CAR_INT_PIN);
-	
-	//test clear mcp int flags for now
-	//mcp_set_register(MCP_DEV_SOUTH, MCP_ADD_CANINTF, 0x00);
-	// clear external interrupt line
-	// ask for mcp int status
-	
-	//mcp_print_status(MCP_DEV_SOUTH);
-	// test: display status:
-// 	#if 0
-// 	
-// 	mcp_print_status(MCP_DEV_SOUTH);
-// 	print_dbg("\n\rCanSTAT REgister");
-// 	mcp_print_registers(MCP_DEV_SOUTH, MCP_ADD_CANSTAT, 1);
-// 	print_dbg("\n\rCANINTE Register");
-// 	mcp_print_registers(MCP_DEV_SOUTH, MCP_ADD_CANINTE, 1);
-// 	print_dbg("\n\rCANINTF Register");
-// 	mcp_print_registers(MCP_DEV_SOUTH, MCP_ADD_CANINTF, 1);
-// 	#endif
 	
 	#if DBG_INT
 	print_dbg("\n\rCalled South INT and Attention should be set...");
@@ -289,11 +213,7 @@ void mcp_interrupt_handler_south(void)
 	// clear external interrupt line
 	eic_clear_interrupt_line(&AVR32_EIC, EXT_INT_CAR_LINE);
 	
-	// cpu_irq_enable_level(0); // proc handler level
-	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
-	// cpu_irq_enable_level(2); // mcp eic pin handler level
-	// 
-	#if DBG_INT_GLBL_SWITCH
+	#if DBG_INT_GLBL_SWITCH_EIC
 	Enable_global_interrupt();
 	#endif
 }
@@ -343,7 +263,7 @@ void mcp_machine_int_handler(void)
 	// cpu_irq_disable_level(0); // proc handler level
 	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
 	
-	#if DBG_INT_GLBL_SWITCH
+	#if DBG_INT_GLBL_SWITCH_MCP
 	Disable_global_interrupt();
 	#endif
 	
@@ -367,16 +287,17 @@ void mcp_machine_int_handler(void)
 	//		waiting for pending tx
 	//		waiting for mcp external interrupt attention flag
 	//		
+	mcp_machine_int_clear();
+	
 	run_mcp_state_machine();
 	
-	mcp_machine_int_clear();
 // 	gpio_set_pin_high(MCP_MACHINE_INT_PIN);
 // 	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
 // 	
 	
 	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
 	// cpu_irq_enable_level(0); // proc handler level
-	#if DBG_INT_GLBL_SWITCH
+	#if DBG_INT_GLBL_SWITCH_MCP
 	Enable_global_interrupt();
 	#endif
 	
@@ -392,7 +313,7 @@ __interrupt
 #endif
 void pdca_rx_transfer_complete_int_handler(void)
 {
-	#if DBG_INT_GLBL_SWITCH
+	#if DBG_INT_GLBL_SWITCH_PDCA
 	Disable_global_interrupt();
 	#endif
 	
@@ -420,18 +341,6 @@ void pdca_rx_transfer_complete_int_handler(void)
 	
 	//acknowledge interrupt: 
 	volatile uint32_t int_ack = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].isr;
-	
-	// Disable pdca interrupts now that transfer is complete
-// 	volatile avr32_pdca_channel_t *pdca = pdca_get_handler(PDCA_CHANNEL_SPI_RX);
-// 	pdca->idr = 0x07;
-
-	// if error:
-// 	if ((AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].isr & AVR32_PDCA_TERR_MASK) == AVR32_PDCA_TERR_MASK)
-// 	{
-// 		// get the error address...
-// 		volatile uint32_t err_add = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].mar;
-// 		err_add;
-// 	}
 	
 	pdca_disable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
 	pdca_disable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_RX);
@@ -471,7 +380,7 @@ void pdca_rx_transfer_complete_int_handler(void)
 	set_timestamp("pdcarxout", Get_sys_count());
 	#endif
 	
-	#if DBG_INT_GLBL_SWITCH
+	#if DBG_INT_GLBL_SWITCH_PDCA
 	Enable_global_interrupt();
 	#endif
 }
@@ -483,7 +392,7 @@ __interrupt
 #endif
 void pdca_tx_transfer_complete_int_handler(void)
 {
-	#if DBG_INT_GLBL_SWITCH
+	#if DBG_INT_GLBL_SWITCH_PDCA
 	Disable_global_interrupt();
 	#endif
 	
@@ -566,7 +475,7 @@ void pdca_tx_transfer_complete_int_handler(void)
 	set_timestamp("pdcatxout", Get_sys_count());
 	#endif
 	
-	#if DBG_INT_GLBL_SWITCH
+	#if DBG_INT_GLBL_SWITCH_PDCA
 	Enable_global_interrupt();
 	#endif
 }

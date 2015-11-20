@@ -19,8 +19,8 @@
 #define MCP_H_
 
 #define MCP_SPI_MAX_BAUDRATE		10000000 //10Mhz
-// #define MCP_SPI_BAUDRATE			9000000	 //9Mhz
-#define MCP_SPI_BAUDRATE			4000000	 //9Mhz
+#define MCP_SPI_BAUDRATE			9000000	 //9Mhz
+//#define MCP_SPI_BAUDRATE			4000000	 //9Mhz
 //#define MCP_SPI_BAUDRATE			10700000	 //this actually bumps it up to 10, perhaps due to a rounding issue...
 
 #ifndef MCP_SPI
@@ -148,7 +148,12 @@ static inline void mcp_select(const struct spi_device *device)
 	spi_select_device(MCP_SPI, device);
 
 	//test flush the fifo...
-	AVR32_SPI0.cr |= AVR32_SPI_FLUSHFIFO;
+	MCP_SPI->rdr;
+	MCP_SPI->rdr;
+	MCP_SPI->rdr;
+	MCP_SPI->rdr;
+	
+	MCP_SPI->cr |= AVR32_SPI_FLUSHFIFO;
 	
 	#if USE_LED
 	if(device->id > 0) {set_led(LED_01, LED_ON);} else {set_led(LED_02, LED_ON);}

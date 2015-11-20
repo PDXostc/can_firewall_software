@@ -326,32 +326,32 @@ int main (void)
 	
 	//create some test junk in que
 	mcp_message_que[0].direction = MCP_DIR_NORTH;
-	// mcp_message_que[1].direction = MCP_DIR_NORTH;
+	mcp_message_que[1].direction = MCP_DIR_NORTH;
 	// mcp_message_que[2].direction = MCP_DIR_NORTH;
 	// mcp_message_que[3].direction = MCP_DIR_NORTH;
 	for (int i = 0; i < 13; i++)
 	{
 		mcp_message_que[0].msg[i] = test_arr_dec_01[i];
-		// mcp_message_que[1].msg[i] = test_arr_dec_02[i];
+		mcp_message_que[1].msg[i] = test_arr_inc[i];
 		// mcp_message_que[2].msg[i] = test_arr_dec_03[i];		
 		// memcpy(mcp_message_que[0].msg, test_arr_dec, sizeof(mcp_message_que[0].msg));
 		// memcpy(mcp_message_que[1].msg, test_arr_dec, sizeof(mcp_message_que[0].msg));
 		// memcpy(mcp_message_que[2].msg, test_arr_dec, sizeof(mcp_message_que[0].msg));
 	}
-	for (int i = 0; i < 13; i++)
-	{
-		mcp_message_que[3].msg[i] = test_arr_inc[i];
-		// memcpy(mcp_message_que[3].msg, test_arr_inc, sizeof(mcp_message_que[0].msg));
-	}
+// 	for (int i = 0; i < 13; i++)
+// 	{
+// 		mcp_message_que[3].msg[i] = test_arr_inc[i];
+// 		// memcpy(mcp_message_que[3].msg, test_arr_inc, sizeof(mcp_message_que[0].msg));
+// 	}
 	
 	//make sure rx pointer starts out well ahead
-	que_ptr_rx = &mcp_message_que[1];
+	que_ptr_rx = &mcp_message_que[2];
 	
 	//proc pointer to 3. should not transmit because proc pointer is here
-	que_ptr_proc = &mcp_message_que[1];
+	que_ptr_proc = &mcp_message_que[2];
 	
 	// set tx increment to num jobs we should try to do, also, we see if tx will overrun proc when it should not
-	TX_status.tx_pending_count = 1;
+	TX_status.tx_pending_count = 2;
 	
 	// set tx pending job
 	SET_MCP_JOB(mcp_status.jobs, JOB_TX_PENDING);
