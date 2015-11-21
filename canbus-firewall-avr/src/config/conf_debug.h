@@ -28,18 +28,17 @@
 #define DBG_MCP_STATE				DBG_ON		&& 0 //state machine 
 #define DBG_MCP_STATUS				DBG_ON		&& 0 //mcp chipset status printing
 #define DBG_MSG_QUE					DBG_ON		&& 1 //message que
-#define DBG_TIME					DBG_ON		&& 0
-#define DBG_TIME_INT				DBG_TIME	&& 0
-#define DBG_TIME_PDCA				DBG_TIME	&& 0
-#define DBG_TIME_MCP				DBG_TIME	&& 0
-#define DBG_TIME_STATUS				DBG_TIME	&& 0
-#define DBG_CS_PDCA					DBG_TIME	&& 0
-#define DBG_TEST_THROUGHPUT			/*DBG_ON  &&*/ 1
-#define DBG_INT_GLBL_SWITCH			1
-#define DBG_INT_GLBL_SWITCH_EIC		DBG_INT_GLBL_SWITCH && 0
-#define DBG_INT_GLBL_SWITCH_PDCA	DBG_INT_GLBL_SWITCH && 0
-#define DBG_INT_GLBL_SWITCH_MCP		DBG_INT_GLBL_SWITCH && 0
-#define DBG_RX_PTR			DBG_ON  && 0
+#define DBG_TIME					DBG_ON		&& 0 // timestamping
+#define DBG_TIME_INT				DBG_TIME	&& 0 // timestamping
+#define DBG_TIME_PDCA				DBG_TIME	&& 0 // timestamping
+#define DBG_TIME_MCP				DBG_TIME	&& 0 // timestamping
+#define DBG_TIME_STATUS				DBG_TIME	&& 0 // timestamping
+#define DBG_TEST_THROUGHPUT			/*DBG_ON  &&*/ 1 // all messages received will be flagged for immediate retransmission
+#define DBG_INT_GLBL_SWITCH			0
+#define DBG_INT_GLBL_SWITCH_EIC		DBG_INT_GLBL_SWITCH && 0 // disable global interrupts in respective handler
+#define DBG_INT_GLBL_SWITCH_PDCA	DBG_INT_GLBL_SWITCH && 0 // disable global interrupts in respective handler
+#define DBG_INT_GLBL_SWITCH_MCP		DBG_INT_GLBL_SWITCH && 0 // disable global interrupts in respective handler
+#define DBG_RX_PTR					DBG_ON  && 0
 
 #define PRINT_NEWLINE()       { if(DBG_ON) {print_dbg("\n\r");} }
 

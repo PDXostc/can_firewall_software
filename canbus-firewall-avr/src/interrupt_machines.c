@@ -18,7 +18,6 @@ volatile struct MCP_status_t mcp_status = {
 	.error_byte_north = 0x00,
 	.error_byte_south = 0x00,
 	.jobs = 0x00000000,
-	.attention = 0x00,
 	};
 
 // External interrupts set for low level trigger. Asynch mode allows wake on interrupt
@@ -164,9 +163,6 @@ void mcp_interrupt_handler_north(void)
 	print_dbg("\n\rCalled North INT and Attention should be set...");
 	#endif
 	
-	//set attention required and activate the interrupt pin for the MCP state machine
-	//mcp_status.attention |= MCP_DIR_NORTH;
-	// 
 	// attention required is the same as needing a status update
 	SET_MCP_JOB(mcp_status.jobs, JOB_GET_STATUS_NORTH);
 	mcp_machine_int_set();
@@ -226,7 +222,6 @@ __interrupt
 #endif
 void proc_int_handler(void)
 {
-	//cpu_irq_disable_level(0); // proc handler level
 	
 	// acknowledge interrupt: (PA pins are gpio port 0)
 	volatile uint32_t int_ack = AVR32_GPIO.port[PROC_INT_PIN/32].ifrc;
@@ -240,8 +235,7 @@ void proc_int_handler(void)
 	// test sequence
 	gpio_set_pin_high(PROC_INT_PIN);
 	gpio_clear_pin_interrupt_flag(PROC_INT_PIN);
-	
-	//cpu_irq_enable_level(0); // proc handler level	
+		
 }
 
 // MCP state machine interrupt handler
@@ -255,13 +249,6 @@ void mcp_machine_int_handler(void)
 	#if DBG_TIME_MCP
 	set_timestamp("MCPINTERRUPT", Get_sys_count());
 	#endif
-	// MCP state machine runs at INT level 1, so does PDCA
-	// normally masking of interrupts would be handled for us, but our function calls
-	// and execution mean that we will have to manually mask interrupts at this level
-	// and below, then reenable them when exiting this handler
-	// 
-	// cpu_irq_disable_level(0); // proc handler level
-	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
 	
 	#if DBG_INT_GLBL_SWITCH_MCP
 	Disable_global_interrupt();
@@ -275,28 +262,20 @@ void mcp_machine_int_handler(void)
 	#endif
 	
 	// acknowledge interrupt: (GPIO pins PA are on port 0)
-	volatile uint32_t int_ack = AVR32_GPIO.port[MCP_MACHINE_INT_PIN/32].ifrc;
-	
-	//Disable_global_interrupt();
-	
+	volatile uint32_t int_ack = AVR32_GPIO.port[MCP_MACHINE_INT_PIN/32].ifrc;	
 	
 	// run state machine
 	// if logic permits, loop will exit and set the pin high to wait for next interruption
 	// example cases:
 	//		waiting for PDCA transfer complete, 
 	//		waiting for pending tx
-	//		waiting for mcp external interrupt attention flag
+	//		waiting for mcp external interrupt attention flag		
 	//		
+	// must clear pin before running state machine, so that EIC correctly sets pin again
 	mcp_machine_int_clear();
 	
 	run_mcp_state_machine();
-	
-// 	gpio_set_pin_high(MCP_MACHINE_INT_PIN);
-// 	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
-// 	
-	
-	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
-	// cpu_irq_enable_level(0); // proc handler level
+
 	#if DBG_INT_GLBL_SWITCH_MCP
 	Enable_global_interrupt();
 	#endif
@@ -317,27 +296,9 @@ void pdca_rx_transfer_complete_int_handler(void)
 	Disable_global_interrupt();
 	#endif
 	
-	#if DBG_CS_PDCA
-	//test! select deselect for time stamping
-	if (pdca_status.PDCA_busy == MCP_DIR_NORTH)
-	{
-		mcp_deselect(MCP_DEV_NORTH);
-		mcp_select(MCP_DEV_NORTH);
-		mcp_deselect(MCP_DEV_NORTH);
-	}
-	else if (pdca_status.PDCA_busy == MCP_DIR_SOUTH)
-	{
-		mcp_deselect(MCP_DEV_SOUTH);
-		mcp_select(MCP_DEV_SOUTH);
-		mcp_deselect(MCP_DEV_SOUTH);
-	}
-	#endif
-	
 	#if DBG_TIME_PDCA
 	set_timestamp("pdcarxin", Get_sys_count());
 	#endif
-	// cpu_irq_disable_level(0); // proc handler level
-	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
 	
 	//acknowledge interrupt: 
 	volatile uint32_t int_ack = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].isr;
@@ -352,18 +313,10 @@ void pdca_rx_transfer_complete_int_handler(void)
 	// has been set by the mcp machine which also started this job
 	if (pdca_status.PDCA_busy == MCP_DIR_NORTH)
 	{
-		#if DBG_CS_PDCA
-		mcp_deselect(MCP_DEV_NORTH);
-		mcp_select(MCP_DEV_NORTH);
-		#endif
 		mcp_deselect(MCP_DEV_NORTH);		
 	} 
 	else if (pdca_status.PDCA_busy == MCP_DIR_SOUTH)
 	{
-		#if DBG_CS_PDCA
-		mcp_deselect(MCP_DEV_SOUTH);
-		mcp_select(MCP_DEV_SOUTH);
-		#endif
 		mcp_deselect(MCP_DEV_SOUTH);
 	}
 	
@@ -372,10 +325,7 @@ void pdca_rx_transfer_complete_int_handler(void)
 	
 	//set the mcp interrupt
 	mcp_machine_int_set();
-	
-	// cpu_irq_enable_level(0); // proc handler level
-	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
-	// 
+
 	#if DBG_TIME_PDCA
 	set_timestamp("pdcarxout", Get_sys_count());
 	#endif
@@ -395,31 +345,10 @@ void pdca_tx_transfer_complete_int_handler(void)
 	#if DBG_INT_GLBL_SWITCH_PDCA
 	Disable_global_interrupt();
 	#endif
-	
-	#if DBG_CS_PDCA
-	//test! select deselect for time stamping
-	if (pdca_status.PDCA_busy == MCP_DIR_NORTH)
-	{
-		mcp_deselect(MCP_DEV_NORTH);
-		delay_us(164);
-		mcp_select(MCP_DEV_NORTH);
-		delay_us(164);
-		mcp_deselect(MCP_DEV_NORTH);
-	}
-	else if (pdca_status.PDCA_busy == MCP_DIR_SOUTH)
-	{
-		mcp_deselect(MCP_DEV_SOUTH);
-		delay_us(164);
-		mcp_select(MCP_DEV_SOUTH);
-		delay_us(164);
-		mcp_deselect(MCP_DEV_SOUTH);
-	}
-	#endif
+
 	#if DBG_TIME_PDCA
 	set_timestamp("pdcatxin", Get_sys_count());
 	#endif
-	// cpu_irq_disable_level(0); // proc handler level
-	// cpu_irq_disable_level(1); // mcp machine and pdca handler level
 	
 	//acknowledge interrupt:
 	volatile uint32_t int_ack = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].isr;
@@ -431,10 +360,6 @@ void pdca_tx_transfer_complete_int_handler(void)
 // 		volatile uint32_t err_add = AVR32_PDCA.channel[PDCA_CHANNEL_SPI_TX].mar;
 // 		err_add;
 // 	}
-	
-	// Disable pdca interrupts now that transfer is complete
-// 	volatile avr32_pdca_channel_t *pdca = pdca_get_handler(PDCA_CHANNEL_SPI_TX);
-// 	pdca->idr = 0x07;
 
 	pdca_disable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
 
@@ -444,22 +369,10 @@ void pdca_tx_transfer_complete_int_handler(void)
 	// has been set by the mcp machine which also started this job
 	if (pdca_status.PDCA_busy == MCP_DIR_NORTH)
 	{
-		#if DBG_CS_PDCA
-		mcp_deselect(MCP_DEV_NORTH);
-		delay_us(164);
-		mcp_select(MCP_DEV_NORTH);
-		delay_us(164);
-		#endif
 		mcp_deselect(MCP_DEV_NORTH);
 	}
 	else if (pdca_status.PDCA_busy == MCP_DIR_SOUTH)
 	{
-		#if DBG_CS_PDCA
-		mcp_deselect(MCP_DEV_SOUTH);
-		delay_us(164);
-		mcp_select(MCP_DEV_SOUTH);
-		delay_us(164);
-		#endif
 		mcp_deselect(MCP_DEV_SOUTH);
 	}
 	
@@ -469,8 +382,6 @@ void pdca_tx_transfer_complete_int_handler(void)
 	//set the mcp interrupt
 	mcp_machine_int_set();
 	
-	// cpu_irq_enable_level(0); // proc handler level
-	// cpu_irq_enable_level(1); // mcp machine and pdca handler level
 	#if DBG_TIME_PDCA
 	set_timestamp("pdcatxout", Get_sys_count());
 	#endif
@@ -491,9 +402,8 @@ volatile pdca_channel_options_t *options_rx,
 uint8_t pdca_busy_flag
 )
 {
-	// test, see if selection before init channel shows significant delay
-		// select the device associated with this job
-		mcp_select(device);
+	// select the device associated with this job
+	mcp_select(device);
 	
 	// set pdca busy
 	pdca_status.PDCA_busy = pdca_busy_flag;
@@ -502,19 +412,11 @@ uint8_t pdca_busy_flag
 	pdca_init_channel(PDCA_CHANNEL_SPI_TX, options_tx);
 	pdca_init_channel(PDCA_CHANNEL_SPI_RX, options_rx);
 	
-	// register the interrupt for receive transfer complete. IRQ 1 corresponds to the SPI_RX channel,
-	// INT level 1 is used so that interrupt resides on same level as the MCP state machine, able
-	// to interrupt the Main loop or Processing handler
-	// INTC_register_interrupt(&pdca_rx_transfer_complete_int_handler, AVR32_PDCA_IRQ_1, INT_LEVEL_PDCA);
-	
 	// enable the interrupt for receive transfer complete
 	pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_RX);
 	
 	// enable the transfer error interrupt, if memory address appears invalid
 	// pdca_enable_interrupt_transfer_error(PDCA_CHANNEL_SPI_RX);
-	
-	// select the device associated with this job
-	// mcp_select(device);
 	
 	//enable both channels for transfer
 	pdca_enable(PDCA_CHANNEL_SPI_TX);
@@ -532,17 +434,14 @@ volatile pdca_channel_options_t *options_tx,
 uint8_t pdca_busy_flag
 )
 {
-	// test, see if selection prior shows significant delay
-		// select the device associated with this job
-		mcp_select(device);
+	// select the device associated with this job
+	mcp_select(device);
+	
 	// set pdca busy
 	pdca_status.PDCA_busy = pdca_busy_flag;
 	
 	// initialize tx channel with options
 	pdca_init_channel(PDCA_CHANNEL_SPI_TX, options_tx);
-	
-	// register the interrupt for transmit complete
-	// INTC_register_interrupt(&pdca_tx_transfer_complete_int_handler, AVR32_PDCA_IRQ_0, INT_LEVEL_PDCA);
 	
 	// enable interrupt for transmission complete
 	pdca_enable_interrupt_transfer_complete(PDCA_CHANNEL_SPI_TX);
@@ -571,10 +470,8 @@ void init_interrupt_machines(void)
 	gpio_configure_pin(MCP_MACHINE_INT_PIN, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
 	gpio_configure_pin(PROC_INT_PIN, GPIO_DIR_OUTPUT | GPIO_INIT_HIGH);
 	
-	// testing using local interface for pins instead
+	//using local interface for pins instead
 	gpio_local_init();
-	// gpio_local_enable_pin_output_driver(MCP_MACHINE_INT_PIN);
-	// gpio_local_set_gpio_pin(MCP_MACHINE_INT_PIN);
 	
 	/* For GPIO IRQ, the formula should be:
 	 * (gpio_irq0 + gpio pin number/ eight )
@@ -627,7 +524,6 @@ void init_interrupt_machines(void)
 	/************************************************************************/
 	
 	// Set jobs to reset and program mcp chips
-	//mcp_status.jobs = (JOB_RESET_NORTH | JOB_RESET_SOUTH | JOB_CONFIGURE_NORTH | JOB_CONFIGURE_SOUTH);
 	mcp_stm_set_job(&mcp_status, (JOB_RESET_NORTH | JOB_RESET_SOUTH | JOB_CONFIGURE_NORTH | JOB_CONFIGURE_SOUTH));
 	
 	//test
@@ -698,7 +594,7 @@ void run_mcp_state_machine(void)
 	while ((pdca_status.PDCA_busy == 0) && (run_machine == true))
 	{
 		#if DBG_MCP_STATE
-		//print_dbg("\n\r...Entered while loop of machine...");
+		print_dbg("\n\r...Entered while loop of machine...");
 		#endif
 		//run machine
 		switch (mcp_stm.mcp_state)
@@ -772,27 +668,15 @@ void run_mcp_state_machine(void)
 			}
 			else if ((mcp_status.jobs & JOB_RX_0_NORTH) == JOB_RX_0_NORTH) {
 				mcp_stm_set_state(&mcp_stm, READ_RX_0_NORTH);
-				//temp!!! aborting here because we don't handle this job yet
-// 				print_dbg("\n\rABORTING\n\r");
-// 				run_machine = false;
 			}
 			else if ((mcp_status.jobs & JOB_RX_0_SOUTH) == JOB_RX_0_SOUTH) {
 				mcp_stm_set_state(&mcp_stm, READ_RX_0_SOUTH);
-				//temp!!! aborting here because we don't handle this job yet
-// 				print_dbg("\n\rABORTING\n\r");
-// 				run_machine = false;
 			}
 			else if ((mcp_status.jobs & JOB_RX_1_NORTH) == JOB_RX_1_NORTH) {
 				mcp_stm_set_state(&mcp_stm, READ_RX_1_NORTH);
-				//temp!!! aborting here because we don't handle this job yet
-// 				print_dbg("\n\rABORTING\n\r");
-// 				run_machine = false;
 			}
 			else if ((mcp_status.jobs & JOB_RX_1_SOUTH) == JOB_RX_1_SOUTH) {
 				mcp_stm_set_state(&mcp_stm, READ_RX_1_SOUTH);
-				//temp!!! aborting here because we don't handle this job yet
-// 				print_dbg("\n\rABORTING\n\r");
-// 				run_machine = false;
 			}
 			else if (mcp_status.jobs == JOB_NO_JOBS) {
 				mcp_stm_set_state(&mcp_stm, NO_JOBS);
@@ -1119,9 +1003,6 @@ void run_mcp_state_machine(void)
 		 * instruction to get a CAN msg, which clears the flag on the MCP.
 		 * Please remember to clear the attention when on the receive message callback state
 		 */
-			// clear attention for north
-			//mcp_status.attention &= ~MCP_DIR_NORTH;
-			MCP_UNSET_ATTN(mcp_status.attention, MCP_DIR_NORTH);
 		
 			// temporary instruction buffer is used for this purpose, just has to be
 			// loaded with the correct instruction byte
@@ -1140,9 +1021,6 @@ void run_mcp_state_machine(void)
 			break;
 			
 		case GET_STATUS_SOUTH:
-		// TODO
-			// clear attention for north
-			//mcp_status.attention &= ~MCP_DIR_SOUTH;
 			
 			#if DBG_TIME_STATUS
 			set_timestamp("status_south", Get_sys_count());

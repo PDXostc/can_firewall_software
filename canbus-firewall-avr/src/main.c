@@ -334,15 +334,7 @@ int main (void)
 		mcp_message_que[0].msg[i] = test_arr_dec_01[i];
 		mcp_message_que[1].msg[i] = test_arr_inc[i];
 		// mcp_message_que[2].msg[i] = test_arr_dec_03[i];		
-		// memcpy(mcp_message_que[0].msg, test_arr_dec, sizeof(mcp_message_que[0].msg));
-		// memcpy(mcp_message_que[1].msg, test_arr_dec, sizeof(mcp_message_que[0].msg));
-		// memcpy(mcp_message_que[2].msg, test_arr_dec, sizeof(mcp_message_que[0].msg));
 	}
-// 	for (int i = 0; i < 13; i++)
-// 	{
-// 		mcp_message_que[3].msg[i] = test_arr_inc[i];
-// 		// memcpy(mcp_message_que[3].msg, test_arr_inc, sizeof(mcp_message_que[0].msg));
-// 	}
 	
 	//make sure rx pointer starts out well ahead
 	que_ptr_rx = &mcp_message_que[2];
@@ -351,29 +343,11 @@ int main (void)
 	que_ptr_proc = &mcp_message_que[2];
 	
 	// set tx increment to num jobs we should try to do, also, we see if tx will overrun proc when it should not
-	TX_status.tx_pending_count = 2;
+	TX_status.tx_pending_count = 4;
 	
 	// set tx pending job
 	SET_MCP_JOB(mcp_status.jobs, JOB_TX_PENDING);
 	#endif
-	
-	// Prior
-	/************************************************************************/
-	/* MCP CAN INIT                                                         */
-	/************************************************************************/
-	
-// 	uint8_t init_success = 0xFF;
-// 
-// 	init_success = mcp_init_can(MCP_DEV_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
-// 	if (init_success != MCP_RETURN_SUCCESS)
-// 	{
-// 		print_dbg("\n\rInit FAIL NORTH");
-// 	}
-// 	init_success = mcp_init_can(MCP_DEV_SOUTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
-// 	if (init_success != MCP_RETURN_SUCCESS)
-// 	{
-// 		print_dbg("\n\rInit FAIL SOUTH");
-// 	}
 		
 	/* SETUP AND INITS COMPLETE. ENABLE ALL INTERRUPTS */
 	set_timestamp("start", Get_sys_count());
@@ -384,52 +358,6 @@ int main (void)
 	
 	// Main loop should attempt to be idle when not running interrupt driven job
 	
-	
-	/************************************************************************/
-	/* SPAM CAN BUS TEST                                                    */
-	/************************************************************************/
-// 	mcp_init_can(MCP_DEV_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_default, MCP_VAL_MODE_NORMAL);
-//	mcp_init_can(MCP_DEV_SOUTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_default, MCP_VAL_MODE_NORMAL);
-// 	//going to use slow mcp interface to just keep sending rts for all tx buffers
-// 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_01, MCP_ENUM_TXB_0, MCP_CAN_MSG_SIZE, true);
-// 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_inc, MCP_ENUM_TXB_1, MCP_CAN_MSG_SIZE, true);
-// 	mcp_load_tx_buffer(MCP_DEV_NORTH, &test_arr_dec_03, MCP_ENUM_TXB_2, MCP_CAN_MSG_SIZE, true);
-// 	
-// 	while (1)
-// 	{
-// 		mcp_request_to_send(MCP_DEV_NORTH, MCP_INST_RTS_TXB0);
-// 		mcp_request_to_send(MCP_DEV_NORTH, MCP_INST_RTS_TXB1);
-// 		mcp_request_to_send(MCP_DEV_NORTH, MCP_INST_RTS_TXB2);
-// 		//delay_ms(1);
-// 	}
-	
-	
-	
-	
-	/************************************************************************/
-	/* old debugging section, delete when done                              */
-	/************************************************************************/
-#if 0
-	nop();
-	
-	
-	
-	test_setup_transmit_mcp_can(MCP_NORTH);
-	test_setup_transmit_mcp_can(MCP_SOUTH);
-	
-	uint8_t rx_test[MCP_CAN_MSG_SIZE] = {0};
-	
-	mcp_print_status(MCP_NORTH);
-	mcp_print_status(MCP_SOUTH);
-	
-	mcp_print_txbnctrl(MCP_NORTH);
-	
-	mcp_print_error_registers(MCP_NORTH);
-
-	mcp_print_txbnctrl(MCP_SOUTH);
-	
-	mcp_print_error_registers(MCP_SOUTH);
-#endif
 #if DBG_TIME
 	while (timestamp_count < 256)
 	{	
@@ -452,9 +380,10 @@ int main (void)
 	}
 	timestamp_count;
 #endif
-	delay_ms(1000);
-	
-	//wait for end while debugging
-	
-	sleep_mode_start();
+
+	while (1)
+	{
+		delay_ms(1000);
+		sleep_mode_start();
+	}
 }
