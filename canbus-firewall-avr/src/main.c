@@ -356,7 +356,36 @@ int main (void)
 	
 	// GO!
 	
-	// Main loop should attempt to be idle when not running interrupt driven job
+	// Main loop should attempt to be idle when not running interrupt driven job,
+	// or filtering
+	while (1)
+	{
+		while (!gpio_local_get_pin_value(PROC_INT_PIN))
+		{
+			#if DBG_TEST_THROUGHPUT_PROC
+			test_set_received_message_for_transmit();
+			#endif
+			
+			#if DBG_PROC
+			print_dbg("Processing loop. Proc_pending_count: ");
+			print_dbg_char_hex(PROC_status.proc_pending_count);
+			#endif
+			
+			PROC_status.proc_pending_count--;
+			
+			if (PROC_status.proc_pending_count < 1)
+			{
+				proc_int_clear();
+			}
+			
+			//call mcp interrupt, now that a message is ready
+			mcp_machine_int_set();
+		}
+		//delay_ms(2);
+		//PRINT_NEWLINE()
+		//print_dbg("_PROC_INT_EXIT_");
+		sleep_mode_start();
+	}
 	
 #if DBG_TIME
 	while (timestamp_count < 256)

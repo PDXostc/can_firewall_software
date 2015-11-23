@@ -233,12 +233,12 @@ __interrupt
 #endif
 extern void mcp_interrupt_handler_south(void);
 
-#if defined (__GNUC__)
-__attribute__((__interrupt__))
-#elif defined (__ICCAVR32__)
-__interrupt
-#endif
-extern void proc_int_handler(void);
+// #if defined (__GNUC__)
+// __attribute__((__interrupt__))
+// #elif defined (__ICCAVR32__)
+// __interrupt
+// #endif
+// extern void proc_int_handler(void);
 
 #if defined (__GNUC__)
 __attribute__((__interrupt__))
@@ -260,6 +260,25 @@ static inline void mcp_machine_int_clear(void)
 	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
 }
 
+static inline void proc_int_set(void)
+{
+	gpio_local_clr_gpio_pin(PROC_INT_PIN);
+}
+
+static inline void proc_int_clear(void)
+{
+	gpio_local_set_gpio_pin(PROC_INT_PIN);
+	gpio_clear_pin_interrupt_flag(PROC_INT_PIN);
+}
+
+static inline void proc_que_processing_job(void)
+{
+	//should just increment the number of processing counts, and set the interrupt
+	PROC_status.proc_pending_count++;
+	// temp disable of interrupt
+	proc_int_set();
+}
+
 #if defined (__GNUC__)
 __attribute__((__interrupt__))
 #elif defined (__ICCAVR32__)
@@ -276,5 +295,7 @@ extern void pdca_tx_transfer_complete_int_handler(void);
 
 extern void PDCA_set_job_rx(const struct spi_device *device, volatile pdca_channel_options_t *options_tx, volatile pdca_channel_options_t *options_rx, uint8_t pdca_busy_flag);
 extern void PDCA_set_job_tx(const struct spi_device *device, volatile pdca_channel_options_t *options_tx, uint8_t pdca_busy_flag);
+
+void test_set_received_message_for_transmit(void);
 
 #endif /* INTERRUPT_MACHINES_H_ */
