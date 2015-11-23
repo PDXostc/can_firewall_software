@@ -13,6 +13,7 @@
 #include "mcp.h"
 #include "pdca_interface.h"
 #include "mcp_message_que.h"
+#include "timestamp.h"
 
 //interrupt levels
 #define INT_LEVEL_PROC			AVR32_INTC_INT0
@@ -39,39 +40,6 @@ eic_options_t eic_options[EXT_INT_NUM_LINES];
 // SET_JOB(MCP_status.jobs, JOB_n)
 #define SET_MCP_JOB(jobs, set)		(jobs |= set)
 #define UNSET_MCP_JOB(jobs, unset)	(jobs &= ~unset)
-
-#define SET_JOB_0		(1 << 0)
-#define SET_JOB_1		(1 << 1)
-#define SET_JOB_2		(1 << 2)
-#define SET_JOB_3		(1 << 3)
-#define SET_JOB_4		(1 << 4)
-#define SET_JOB_5		(1 << 5)
-#define SET_JOB_6		(1 << 6)
-#define SET_JOB_7		(1 << 7)
-#define SET_JOB_8		(1 << 8)
-#define SET_JOB_9		(1 << 9)
-#define SET_JOB_10		(1 << 10)
-#define SET_JOB_11		(1 << 11)
-#define SET_JOB_12		(1 << 12)
-#define SET_JOB_13		(1 << 13)
-#define SET_JOB_14		(1 << 14)
-#define SET_JOB_15		(1 << 15)
-#define SET_JOB_16		(1 << 16)
-#define SET_JOB_17		(1 << 17)
-#define SET_JOB_18		(1 << 18)
-#define SET_JOB_19		(1 << 19)
-#define SET_JOB_20		(1 << 20)
-#define SET_JOB_21		(1 << 21)
-#define SET_JOB_22		(1 << 22)
-#define SET_JOB_23		(1 << 23)
-#define SET_JOB_24		(1 << 24)
-#define SET_JOB_25		(1 << 25)
-#define SET_JOB_26		(1 << 26)
-#define SET_JOB_27		(1 << 27)
-#define SET_JOB_28		(1 << 28)
-#define SET_JOB_29		(1 << 29)
-#define SET_JOB_30		(1 << 30)
-#define SET_JOB_31		(1 << 31)
 
 #define JOB_0			(0x00000001)
 #define JOB_1			(0x00000002)
@@ -180,6 +148,7 @@ enum MCP_STATE {
 	LOAD_TXB_0_SOUTH_CALLBACK,
 	LOAD_TXB_1_SOUTH_CALLBACK,
 	LOAD_TXB_2_SOUTH_CALLBACK,
+	ADVANCE_TX,
 	READ_RX_0_NORTH,
 	READ_RX_1_NORTH,
 	READ_RX_0_NORTH_CALLBACK,
@@ -206,15 +175,6 @@ struct MCP_status_t {
 	uint8_t error_byte_south;
 	// pending jobs to handle for mcp device, status byte will set the lower 8 bits
 	uint32_t jobs;
-	// Attention required
-	// Bit 0 = North action
-	// Bit 1 = South action
-	uint8_t attention;
-	// might need dedicated BUSY switch
-	//BUSY flag
-	// set bit 0 = busy North
-	// set bit 1 = busy South
-	//uint8_t PDCA_busy;
 	// bit timing instruction and consecutive registers to be filled with timing information
 	uint8_t timings_north[5];
 	uint8_t timings_south[5];
@@ -238,12 +198,12 @@ inline static enum MCP_STATE mcp_stm_get_state(volatile struct MCP_state_machine
 
 
 // func wrappers for setting jobs
-inline static void mcp_stm_set_job(volatile struct MCP_status_t *status, uint32_t jobs)
+inline static void mcp_stm_set_job(volatile struct MCP_status_t *status, volatile uint32_t jobs)
 {
 	SET_MCP_JOB(status->jobs, jobs);
 }
 
-inline static void mcp_stm_unset_job(volatile struct MCP_status_t *status, uint32_t jobs)
+inline static void mcp_stm_unset_job(volatile struct MCP_status_t *status, volatile uint32_t jobs)
 {
 	UNSET_MCP_JOB(status->jobs, jobs);
 }
@@ -257,7 +217,7 @@ uint8_t init_mcp_status(void);
 
 extern void init_interrupt_machines(void);
 
-void run_mcp_state_machine(volatile struct MCP_status_t *status);
+void run_mcp_state_machine(void);
 
 #if defined (__GNUC__)
 __attribute__((__interrupt__))
@@ -289,12 +249,14 @@ extern void mcp_machine_int_handler(void);
 
 static inline void mcp_machine_int_set(void)
 {
-	gpio_set_pin_low(MCP_MACHINE_INT_PIN);
+	// gpio_set_pin_low(MCP_MACHINE_INT_PIN);
+	gpio_local_clr_gpio_pin(MCP_MACHINE_INT_PIN);
 }
 
 static inline void mcp_machine_int_clear(void)
 {
-	gpio_set_pin_high(MCP_MACHINE_INT_PIN);
+	// gpio_set_pin_high(MCP_MACHINE_INT_PIN);
+	gpio_local_set_gpio_pin(MCP_MACHINE_INT_PIN);
 	gpio_clear_pin_interrupt_flag(MCP_MACHINE_INT_PIN);
 }
 
@@ -312,7 +274,7 @@ __interrupt
 #endif
 extern void pdca_tx_transfer_complete_int_handler(void);
 
-extern void PDCA_set_job_rx(const struct spi_device *device, pdca_channel_options_t *options_tx, pdca_channel_options_t *options_rx, uint8_t pdca_busy_flag);
-extern void PDCA_set_job_tx(const struct spi_device *device, pdca_channel_options_t *options_tx, uint8_t pdca_busy_flag);
+extern void PDCA_set_job_rx(const struct spi_device *device, volatile pdca_channel_options_t *options_tx, volatile pdca_channel_options_t *options_rx, uint8_t pdca_busy_flag);
+extern void PDCA_set_job_tx(const struct spi_device *device, volatile pdca_channel_options_t *options_tx, uint8_t pdca_busy_flag);
 
 #endif /* INTERRUPT_MACHINES_H_ */

@@ -18,6 +18,46 @@ const struct spi_device spi_device_MCP_CAN_SOUTH_CAR_conf = {
 //used for testing often
 uint8_t tx_zero[13] = {0};
 
+//test of our rx_config struct
+struct RX_config rx_config_default = {
+	._RXM0 = 0x00000000,
+	._RXF0 = 0x00000000,
+	._RXF1 = 0x00000000,
+	._RX0_EID = 0x00,
+	._RXM1 = 0x00000000,
+	._RXF2 = 0x00000000,
+	._RXF3 = 0x00000000,
+	._RXF4 = 0x00000000,
+	._RXF5 = 0x00000000,
+	._RX1_EID = (MCP_MASK_RXM1_EID |\
+	MCP_MASK_RXF2_EID |\
+	MCP_MASK_RXF3_EID |\
+	MCP_MASK_RXF4_EID |\
+	MCP_MASK_RXF5_EID),
+	._RXB0_BUKT = MCP_VAL_BUKT_ROLLOVER_EN,
+	._MCP_VAL_RX0_CTRL = MCP_VAL_RXM_STD_EXT,
+	._MCP_VAL_RX1_CTRL = MCP_VAL_RXM_STD_EXT
+};
+
+struct RX_config rx_config_test_01 = {
+	._RXM0 = 0x7FF,
+	._RXF0 = 0x7FF,
+	._RXF1 = 0x0A5,
+	._RX0_EID = 0x00,
+	._RXM1 = 0x1FFFFFFF,
+	._RXF2 = 0x1FFFFFFF,
+	._RXF3 = 0x1A5A5A5A,
+	._RXF4 = 0x00000000,
+	._RXF5 = 0x00000000,
+	._RX1_EID = (MCP_MASK_RXM1_EID |\
+	MCP_MASK_RXF2_EID |\
+	MCP_MASK_RXF3_EID |\
+	MCP_MASK_RXF4_EID |\
+	MCP_MASK_RXF5_EID),
+	//._RXB0_BUKT = MCP_VAL_BUKT_ROLLOVER_EN,
+	._MCP_VAL_RX0_CTRL = MCP_VAL_RXM_STD_ONLY,
+	._MCP_VAL_RX1_CTRL = MCP_VAL_RXM_EXT_ONLY
+};
 
 void init_mcp_pins(void)
 {

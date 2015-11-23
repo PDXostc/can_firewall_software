@@ -53,6 +53,8 @@
 #include "loopback.h"
 #include "mcp.h"
 #include "interrupt_machines.h"
+#include "mcp_message_que.h"
+#include "timestamp.h"
 
 uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 
@@ -90,47 +92,6 @@ static rule_t can_ruleset_south_rx_north_tx[SIZE_RULESET];
 // volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
 
 #define member_size(type, member) sizeof(((type *)0)->member)
-
-//test of our rx_config struct
-struct RX_config rx_config_default = {
-	._RXM0 = 0x00000000,
-	._RXF0 = 0x00000000,
-	._RXF1 = 0x00000000,
-	._RX0_EID = 0x00,
-	._RXM1 = 0x00000000,
-	._RXF2 = 0x00000000,
-	._RXF3 = 0x00000000,
-	._RXF4 = 0x00000000,
-	._RXF5 = 0x00000000,
-	._RX1_EID = (MCP_MASK_RXM1_EID |\
-	MCP_MASK_RXF2_EID |\
-	MCP_MASK_RXF3_EID |\
-	MCP_MASK_RXF4_EID |\
-	MCP_MASK_RXF5_EID),
-	._RXB0_BUKT = MCP_VAL_BUKT_ROLLOVER_EN,
-	._MCP_VAL_RX0_CTRL = MCP_VAL_RXM_STD_EXT,
-	._MCP_VAL_RX1_CTRL = MCP_VAL_RXM_STD_EXT
-};
-
-struct RX_config rx_config_test_01 = {
-	._RXM0 = 0x7FF,
-	._RXF0 = 0x7FF,
-	._RXF1 = 0x0A5,
-	._RX0_EID = 0x00,
-	._RXM1 = 0x1FFFFFFF,
-	._RXF2 = 0x1FFFFFFF,
-	._RXF3 = 0x1A5A5A5A,
-	._RXF4 = 0x00000000,
-	._RXF5 = 0x00000000,
-	._RX1_EID = (MCP_MASK_RXM1_EID |\
-	MCP_MASK_RXF2_EID |\
-	MCP_MASK_RXF3_EID |\
-	MCP_MASK_RXF4_EID |\
-	MCP_MASK_RXF5_EID),
-	//._RXB0_BUKT = MCP_VAL_BUKT_ROLLOVER_EN,
-	._MCP_VAL_RX0_CTRL = MCP_VAL_RXM_STD_ONLY,
-	._MCP_VAL_RX1_CTRL = MCP_VAL_RXM_EXT_ONLY
-};
 
 /* Utility wrapper for deleting an Atmel CAN message object
 */
@@ -312,8 +273,28 @@ static inline void run_firewall(void)
 	#endif
 }
 
+#if (defined __GNUC__)
+__attribute__((aligned(4)))
+#elif (defined __ICCAVR32__)
+#pragma data_alignment=4
+#endif
+volatile char __tracebuffer__[8192];
+
+volatile int __tracebuffersize__ = sizeof(__tracebuffer__);
+
+void InitTraceBuffer()
+{
+	int index = 0;
+	for(index =0; index<8192; index++)
+	{
+		__tracebuffer__[index];
+		__tracebuffersize__;
+	}
+}
+
 int main (void)
 {
+	InitTraceBuffer();
 	//setup
 	init();
 	init_rules();
@@ -331,70 +312,78 @@ int main (void)
 	init_message_que();
 
 	// INIT ALL INTERRUPTS AND INTERRUPT DRIVEN STATE MACHINES
+	// This will also initiate the jobs for the MCP start and program
 	init_interrupt_machines();
 	
-	// Prior
-	/************************************************************************/
-	/* MCP CAN INIT                                                         */
-	/************************************************************************/
+	// testing messages in que...
+	//arrays to send
+	volatile uint8_t test_arr_dec_01[13] = {0xff, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
+	volatile uint8_t test_arr_dec_02[13] = {0xf0, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
+	volatile uint8_t test_arr_dec_03[13] = {0xfa, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
+	volatile uint8_t test_arr_inc[13] = {0xff, 0xaa, 0xa5, 0x5a, 8, 1, 2, 3, 4, 5, 6, 7, 8};
+		
+	#if DBG_MSG_QUE
 	
-// 	uint8_t init_success = 0xFF;
-// 
-// 	init_success = mcp_init_can(MCP_DEV_NORTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
-// 	if (init_success != MCP_RETURN_SUCCESS)
-// 	{
-// 		print_dbg("\n\rInit FAIL NORTH");
-// 	}
-// 	init_success = mcp_init_can(MCP_DEV_SOUTH, MCP_VAL_CAN_1mbps_CLOCK_16Mhz, &rx_config_test_01, MCP_VAL_MODE_NORMAL);
-// 	if (init_success != MCP_RETURN_SUCCESS)
-// 	{
-// 		print_dbg("\n\rInit FAIL SOUTH");
-// 	}
+	//create some test junk in que
+	mcp_message_que[0].direction = MCP_DIR_NORTH;
+	mcp_message_que[1].direction = MCP_DIR_NORTH;
+	// mcp_message_que[2].direction = MCP_DIR_NORTH;
+	// mcp_message_que[3].direction = MCP_DIR_NORTH;
+	for (int i = 0; i < 13; i++)
+	{
+		mcp_message_que[0].msg[i] = test_arr_dec_01[i];
+		mcp_message_que[1].msg[i] = test_arr_inc[i];
+		// mcp_message_que[2].msg[i] = test_arr_dec_03[i];		
+	}
+	
+	//make sure rx pointer starts out well ahead
+	que_ptr_rx = &mcp_message_que[2];
+	
+	//proc pointer to 3. should not transmit because proc pointer is here
+	que_ptr_proc = &mcp_message_que[2];
+	
+	// set tx increment to num jobs we should try to do, also, we see if tx will overrun proc when it should not
+	TX_status.tx_pending_count = 4;
+	
+	// set tx pending job
+	SET_MCP_JOB(mcp_status.jobs, JOB_TX_PENDING);
+	#endif
 		
 	/* SETUP AND INITS COMPLETE. ENABLE ALL INTERRUPTS */
+	set_timestamp("start", Get_sys_count());
+	
 	Enable_global_interrupt();
 	
 	// GO!
 	
 	// Main loop should attempt to be idle when not running interrupt driven job
 	
-	
-	/************************************************************************/
-	/* old debugging section, delete when done                              */
-	/************************************************************************/
-#if 0
-	nop();
-	
-	
-	
-	test_setup_transmit_mcp_can(MCP_NORTH);
-	test_setup_transmit_mcp_can(MCP_SOUTH);
-	
-	uint8_t rx_test[MCP_CAN_MSG_SIZE] = {0};
-	
-	mcp_print_status(MCP_NORTH);
-	mcp_print_status(MCP_SOUTH);
-	
-	mcp_print_txbnctrl(MCP_NORTH);
-	
-	mcp_print_error_registers(MCP_NORTH);
-
-	mcp_print_txbnctrl(MCP_SOUTH);
-	
-	mcp_print_error_registers(MCP_SOUTH);
-#endif
-
-	while (1)
+#if DBG_TIME
+	while (timestamp_count < 256)
 	{	
 		//mcp_machine_int_set();	
 		//run_firewall();
 		// print_dbg("\n\r N  O  P  ");
-		nop();
+		// 
+		set_timestamp("main", Get_sys_count());
+		// nop();
 	}
-	
-	delay_ms(1000);
-	
-	//wait for end while debugging
-	
-	sleep_mode_start();
+	calc_timestamps_since_last(timestamp_count);
+	for (int i = 0; i < timestamp_count; i++)
+	{
+		PRINT_NEWLINE()
+		print_dbg(timestamps[i].name);
+		print_dbg("    ");
+		print_dbg_ulong(timestamps[i].since_last);
+		print_dbg("    ");
+		print_dbg_ulong(timestamps[i].stamp);
+	}
+	timestamp_count;
+#endif
+
+	while (1)
+	{
+		delay_ms(1000);
+		sleep_mode_start();
+	}
 }

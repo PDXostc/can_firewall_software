@@ -19,7 +19,9 @@
 #define MCP_H_
 
 #define MCP_SPI_MAX_BAUDRATE		10000000 //10Mhz
-#define MCP_SPI_BAUDRATE			9000000	 //9Mhz
+//#define MCP_SPI_BAUDRATE			9000000	 //9Mhz
+//#define MCP_SPI_BAUDRATE			4000000	 //9Mhz
+#define MCP_SPI_BAUDRATE			MCP_SPI_MAX_BAUDRATE
 
 #ifndef MCP_SPI
 #define MCP_SPI		(&AVR32_SPI0)
@@ -102,6 +104,11 @@ struct RX_config {
 	uint8_t _MCP_VAL_RX1_CTRL;
 	} RX_config;
 	
+struct RX_config rx_config_default;
+struct RX_config rx_config_test_01;
+// ptr to config we are using
+struct RX_config *rx_config_ptr;
+
 //RX_config masks
 #define MCP_MASK_RXM0_EID	(0x01)
 #define MCP_MASK_RXF0_EID	(0x02)
@@ -140,6 +147,14 @@ static inline void mcp_select(const struct spi_device *device)
 {
 	spi_select_device(MCP_SPI, device);
 
+	//test flush the fifo...
+	MCP_SPI->rdr;
+	MCP_SPI->rdr;
+	MCP_SPI->rdr;
+	MCP_SPI->rdr;
+	
+	MCP_SPI->cr |= AVR32_SPI_FLUSHFIFO;
+	
 	#if USE_LED
 	if(device->id > 0) {set_led(LED_01, LED_ON);} else {set_led(LED_02, LED_ON);}
 	
