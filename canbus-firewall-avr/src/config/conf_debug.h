@@ -40,7 +40,9 @@
 #define DBG_INT_GLBL_SWITCH_PDCA	DBG_INT_GLBL_SWITCH && 0 // disable global interrupts in respective handler
 #define DBG_INT_GLBL_SWITCH_MCP		DBG_INT_GLBL_SWITCH && 0 // disable global interrupts in respective handler
 #define DBG_PROC					DBG_ON		&& 0
-#define DBG_RX_PTR					DBG_ON  && 0
+#define DBG_RX_PTR					DBG_ON		&& 0
+
+#define DBG_TRACE					DBG_ON		&& 1
 
 #define PRINT_NEWLINE()       { if(DBG_ON) {print_dbg("\n\r");} }
 

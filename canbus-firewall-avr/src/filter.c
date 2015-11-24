@@ -128,3 +128,38 @@ inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **o
 	//got here without any match
 	return DISCARD;
 }
+
+// to build an id from bits
+#define OFFSET_IN_EID_TO_32_17_16	(27)
+#define OFFSET_IN_EID_TO_32_15_8	(19)
+#define OFFSET_IN_EID_TO_32_7_0		(11)
+#define OFFSET_IN_STD_TO_32_10_3	(3)
+#define OFFSET_IN_STD_TO_32_2_0		(0)
+
+void translate_id_mcp_to_U32(uint8_t *msg, uint32_t *out_id)
+{
+	// IDE bit is << 3 in component [1] of MCP msg
+	uint8_t extid = ((msg[MCP_BYTE_DLC] & MCP_MASK_IDE_BIT) >> MCP_OFFSET_OUT_IDE_BIT);
+	
+	if (extid > 0)
+	{
+		// treat as extended id and copy out 4 bytes to 29 bit id
+		// start with most significant, shift in
+		*out_id |= ((U32)(msg[MCP_BYTE_SIDL] & MCP_MASK_EID_BITS_17_16)) << OFFSET_IN_EID_TO_32_17_16;
+		
+		*out_id |= ((U32)msg[MCP_BYTE_EID8] & MCP_MASK_EID_BITS_15_8) << OFFSET_IN_EID_TO_32_15_8;
+		
+		*out_id |= ((U32)msg[MCP_BYTE_EID0] & MCP_MASK_EID_BITS_7_0) << OFFSET_IN_EID_TO_32_7_0;
+		
+		*out_id |= ((U32)msg[MCP_BYTE_SIDH] & MCP_MASK_STD_BITS_10_3) << OFFSET_IN_STD_TO_32_10_3;
+		
+		*out_id |= ((U32)msg[MCP_BYTE_SIDL] & MCP_MASK_STD_BITS_2_0) << OFFSET_IN_STD_TO_32_2_0;
+	} 
+	else
+	{
+		//treat as standard id and copy out 2 bytes to 11 bit id
+		*out_id |= ((U32)msg[MCP_BYTE_SIDH] & MCP_MASK_STD_BITS_10_3) << OFFSET_IN_STD_TO_32_10_3;
+		
+		*out_id |= ((U32)msg[MCP_BYTE_SIDL] & MCP_MASK_STD_BITS_2_0) << OFFSET_IN_STD_TO_32_2_0;
+	}
+}

@@ -13,6 +13,7 @@
 #include "rules.h"
 #include "loopback.h"
 #include "conf_messages.h"
+#include "mcp_definitions.h"
 
 /* Evaluation cases to be returned by evaluate function.
  * DISCARD: No matching rule was found, please discard message
@@ -67,4 +68,7 @@ extern int operate_transform_u64(U64 *data, U64 *rule_operand, int xform);
  */
 extern enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **out_rule);
 
+
+
+extern void translate_id_mcp_to_U32(uint8_t *msg, uint32_t *out_id);
 #endif /* FILTER_H_ */

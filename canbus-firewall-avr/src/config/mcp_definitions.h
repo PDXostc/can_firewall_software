@@ -271,6 +271,38 @@
 #define MCP_VAL_CLKOUT_PRE_4		(0x02)
 #define MCP_VAL_CLKOUT_PRE_8		(0x03)
 
+/************************************************************************/
+/* Bytes and bitwise                                                    */
+/************************************************************************/
+#define MCP_BYTE_SIDH					(0)
+#define MCP_BYTE_SIDL					(1)
+#define MCP_BYTE_EID8					(2)
+#define MCP_BYTE_EID0					(3)
+#define MCP_BYTE_DLC					(4)
 
+// all bits from SIDH register
+#define	MCP_MASK_STD_BITS_10_3			(0xFF)
+#define MCP_OFFSET_STD_BITS_10_3		(0)
+
+// get the least significant bits from the SIDL register
+#define MCP_MASK_STD_BITS_2_0			(0xE0)
+// to shift these into least significant position for conversion
+#define MCP_OFFSET_OUT_STD_BITS_2_0		(5)
+
+// get the most significant bits of an EID from SIDL
+#define MCP_MASK_EID_BITS_17_16			(0x03)
+#define MCP_OFFSET_OUT_EID_BITS_17_16	(0)
+
+// get all bits from the EID8 register
+#define MCP_MASK_EID_BITS_15_8			(0xFF)
+#define MCP_OFFSET_OUT_EID_BITS_15_8	(0)
+
+// get all bits from the EID8 register
+#define MCP_MASK_EID_BITS_7_0			(0xFF)
+#define MCP_OFFSET_OUT_EID_BITS_7_0		(0)
+
+// eid bit from SIDL register
+#define MCP_MASK_IDE_BIT				(0x08)
+#define MCP_OFFSET_OUT_IDE_BIT			(3)
 
 #endif /* MCP_DEFINITIONS_H_ */

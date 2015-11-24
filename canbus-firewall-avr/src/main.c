@@ -104,7 +104,7 @@ static inline void wipe_mob(volatile can_mob_t **mob)
 /* Process function to be deprecated. Shows handling of messages based on
 * evaluation function included in filter
 */
-static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, rule_t* ruleset, volatile can_mob_t *que)
+static inline void process(volatile struct MCP_message_t **rx, volatile struct MCP_message_t **proc, rule_t* ruleset, volatile struct MCP_message_t *que)
 {
 	//check for each proc ptr to not equal the location we will copy to
 	//process message pointed to
@@ -124,13 +124,23 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 		U32 xform = 0;
 		int success = -1;
 		
+		//TODO: copy an id from message
+		// need:
+		//	-func trans mcp id to 32
+		//	-func trans 32 to mcp id
+		U32 msg_id;
+		translate_id_mcp_to_U32((*proc)->msg, &msg_id);
+		
+		
+		//TODO: change evaluate to accept an ID, which we copy beforehand
 		enum Eval_t eval = evaluate(*proc, ruleset, &rule_match);
 		
 		switch(eval) {
 			case NEW:
 			if(test_loopback() == true){
 				//does not check for success
-				handle_new_rule_data(&(*proc)->can_msg->data);
+				//handle_new_rule_data(&(*proc)->can_msg->data);
+				// TODO: translate data from message into new rule format
 			}
 			break;
 			
@@ -142,18 +152,25 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 			
 			//operate on id, mask and shift to isolate upper half byte
 			xform = (rule_match->xform & 0xF0) >> 4;
-			success = operate_transform_id((*proc)->can_msg, &rule_match->idoperand, xform);
+			
+			// TODO: operate on the id we've supplied, then copy it back into the MCP message
+			//success = operate_transform_id((*proc)->can_msg, &rule_match->idoperand, xform);
+			// 
 			if (success != 0)
 			{
+				// TODO: implement and use new function for wiping
 				wipe_mob(&(*proc));
 				break;
 			}
 			
 			//operate on data, mask to isolate lower half byte
 			xform = rule_match->xform & 0x0F;
-			success = operate_transform_u64(&(*proc)->can_msg->data.u64, &rule_match->dtoperand, xform);
+			// TODO: operate on the data, needing to convert the MCP format into a 64 bit number to be transformed
+			// and copied back. This will change the existing function
+			//success = operate_transform_u64(&(*proc)->can_msg->data.u64, &rule_match->dtoperand, xform);
 			if (success != 0)
 			{
+				// TODO: implement and use new function for wiping
 				wipe_mob(&(*proc));
 				break;
 			}
@@ -162,6 +179,7 @@ static inline void process(volatile can_mob_t **rx, volatile can_mob_t **proc, r
 			case DISCARD:
 			default:
 			//delete what is here
+			// TODO: implement and use new function for wiping
 			wipe_mob(&(*proc));
 			break;
 		}
@@ -257,22 +275,53 @@ static void init_rules(void)
 	load_ruleset(&flash_can_ruleset[0], can_ruleset_south_rx_north_tx, SIZE_RULESET);
 	load_ruleset(&flash_can_ruleset[SIZE_RULESET], can_ruleset_north_rx_south_tx, SIZE_RULESET);
 	
-	// remember to parse ruleset boundaries for MCP filter programming...
+	// TODO: remember to parse ruleset boundaries for MCP filter programming...
 }
 
 /* Main filter loop; designed to be a linear pipeline that we will try to get done as quickly as possible */
 static inline void run_firewall(void)
 {
-	#if 0
-	//maintain and move proc_ ptrs
-	process(&rx_s, &proc_s, can_ruleset_south_rx_north_tx, can_msg_que_south_rx_north_tx);
-	process(&rx_n, &proc_n, can_ruleset_north_rx_south_tx, can_msg_que_north_rx_south_tx);
-	//maintain and move tx_ ptrs
-	transmit(&proc_s, &tx_n, can_msg_que_south_rx_north_tx);
-	transmit(&proc_n, &tx_s, can_msg_que_north_rx_south_tx);
-	#endif
+	while (!gpio_local_get_pin_value(PROC_INT_PIN))
+	{
+		#if DBG_TEST_THROUGHPUT_PROC
+		test_set_received_message_for_transmit();
+		#endif
+				
+		#if DBG_PROC
+		print_dbg("Processing loop. Proc_pending_count: ");
+		print_dbg_char_hex(PROC_status.proc_pending_count);
+		#endif
+		
+		/************************************************************************/
+		/* Evaluate and Filter                                                  */
+		/************************************************************************/
+		
+		//process using applicable ruleset according to direction
+		if(que_ptr_proc->direction == MCP_DIR_NORTH)
+		{
+			// direction is northbound, use south receive north transmit
+			process(&que_ptr_rx, &que_ptr_proc, can_ruleset_south_rx_north_tx, mcp_message_que);			
+		}
+		else if (que_ptr_proc->direction == MCP_DIR_SOUTH)
+		{
+			// direction is southbound, use north receive south transmit
+			process(&que_ptr_rx, &que_ptr_proc, can_ruleset_north_rx_south_tx, mcp_message_que);			
+		}
+		
+		
+		PROC_status.proc_pending_count--;
+				
+		if (PROC_status.proc_pending_count < 1)
+		{
+			proc_int_clear();
+		}
+				
+		//call mcp interrupt, now that a message is ready
+		mcp_machine_int_set();
+	}
 }
 
+#if DBG_TRACE
 #if (defined __GNUC__)
 __attribute__((aligned(4)))
 #elif (defined __ICCAVR32__)
@@ -291,10 +340,14 @@ void InitTraceBuffer()
 		__tracebuffersize__;
 	}
 }
+#endif
 
 int main (void)
 {
+	#if DBG_TRACE
 	InitTraceBuffer();
+	#endif
+	
 	//setup
 	init();
 	init_rules();
@@ -360,27 +413,7 @@ int main (void)
 	// or filtering
 	while (1)
 	{
-		while (!gpio_local_get_pin_value(PROC_INT_PIN))
-		{
-			#if DBG_TEST_THROUGHPUT_PROC
-			test_set_received_message_for_transmit();
-			#endif
-			
-			#if DBG_PROC
-			print_dbg("Processing loop. Proc_pending_count: ");
-			print_dbg_char_hex(PROC_status.proc_pending_count);
-			#endif
-			
-			PROC_status.proc_pending_count--;
-			
-			if (PROC_status.proc_pending_count < 1)
-			{
-				proc_int_clear();
-			}
-			
-			//call mcp interrupt, now that a message is ready
-			mcp_machine_int_set();
-		}
+		run_firewall();
 		//delay_ms(2);
 		//PRINT_NEWLINE()
 		//print_dbg("_PROC_INT_EXIT_");
