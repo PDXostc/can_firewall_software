@@ -279,6 +279,15 @@
 #define MCP_BYTE_EID8					(2)
 #define MCP_BYTE_EID0					(3)
 #define MCP_BYTE_DLC					(4)
+#define MCP_BYTE_D0						(5)
+#define MCP_BYTE_D1						(6)
+#define MCP_BYTE_D2						(7)
+#define MCP_BYTE_D3						(8)
+#define MCP_BYTE_D4						(9)
+#define MCP_BYTE_D5						(10)
+#define MCP_BYTE_D6						(11)
+#define MCP_BYTE_D7						(12)
+
 
 // all bits from SIDH register
 #define	MCP_MASK_STD_BITS_10_3			(0xFF)
@@ -304,5 +313,8 @@
 // eid bit from SIDL register
 #define MCP_MASK_IDE_BIT				(0x08)
 #define MCP_OFFSET_OUT_IDE_BIT			(3)
+
+// dlc bits from DLC register
+#define MCP_MASK_DLC					(0x0F)
 
 #endif /* MCP_DEFINITIONS_H_ */

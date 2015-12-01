@@ -129,6 +129,41 @@ inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **o
 	return DISCARD;
 }
 
+enum Eval_t evaluate_msg_id(uint32_t msg_id, rule_t *ruleset, rule_t **out_rule)
+{
+	//if new rule case, check for shunt connection
+	if (msg_id == msg_new_rule.id)
+	{
+		if (test_loopback() == true)
+		{
+			return NEW;
+			} else {
+			//new rule attempted without proper connection; no mercy.
+			return DISCARD;
+		}
+	}
+		
+	int i = 0;
+	while(i != SIZE_RULESET){
+		//look for match
+		//test of values:
+		// 		int and_msg = msg->can_msg->id & ruleset[i].mask;
+		// 		int filter = ruleset[i].filter;
+			
+		if((msg_id & ruleset[i].mask) == ruleset[i].filter)
+		{
+			//match found, set out_rule and return evaluation case
+			*out_rule = &ruleset[i];
+			return FILTER;
+		}
+			
+		i += 1;
+	}
+		
+	//got here without any match
+	return DISCARD;
+}
+
 // to build an id from bits
 #define OFFSET_IN_EID_TO_32_17_16	(27)
 #define OFFSET_IN_EID_TO_32_15_8	(19)
@@ -136,7 +171,7 @@ inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **o
 #define OFFSET_IN_STD_TO_32_10_3	(3)
 #define OFFSET_IN_STD_TO_32_2_0		(0)
 
-void translate_id_mcp_to_U32(uint8_t *msg, uint32_t *out_id)
+void translate_id_mcp_to_U32(volatile uint8_t *msg, uint32_t *out_id)
 {
 	// IDE bit is << 3 in component [1] of MCP msg
 	uint8_t extid = ((msg[MCP_BYTE_DLC] & MCP_MASK_IDE_BIT) >> MCP_OFFSET_OUT_IDE_BIT);
@@ -161,5 +196,36 @@ void translate_id_mcp_to_U32(uint8_t *msg, uint32_t *out_id)
 		*out_id |= ((U32)msg[MCP_BYTE_SIDH] & MCP_MASK_STD_BITS_10_3) << OFFSET_IN_STD_TO_32_10_3;
 		
 		*out_id |= ((U32)msg[MCP_BYTE_SIDL] & MCP_MASK_STD_BITS_2_0) << OFFSET_IN_STD_TO_32_2_0;
+	}
+}
+
+void translate_data_mcp_to_U64(volatile uint8_t *msg, Union64 *out_data)
+{
+	//get dlc length of message (from mcp byte format) and use to inform copy length
+	uint8_t length = msg[MCP_BYTE_DLC] & MCP_MASK_DLC;
+	
+	//ensure data length not greater than 8 bytes
+	if (length > 0x80)
+	{
+		length = 0x80;
+	}
+	
+	uint8_t shift_count = length;
+	
+	// build the 64b number from the unsigned 8b data bytes in mcp format
+	// from most to least significant
+	for(int i = 0; i < length; i++)
+	{
+		out_data->u64 |= msg[MCP_BYTE_D0 + i];
+		
+		//increment shift count
+		shift_count--;
+		
+		// if not at the last, shift to make room for the next 8b
+		if (shift_count > 0)
+		{
+			out_data->u64 << 8;
+		}
+		
 	}
 }

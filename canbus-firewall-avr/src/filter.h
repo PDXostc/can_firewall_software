@@ -24,6 +24,17 @@ const enum Eval_t {
 	DISCARD, NEW, FILTER
 } Eval_t;
 
+/* Global structure for temporary storage of message evaluation data. This is used
+ * to hold the translated CAN id and/or CAN data for use during the ruleset compare
+ * stage or rule ingestion.
+ */
+struct Eval_temp_t {
+	uint32_t id;
+	Union64 data;
+} Eval_temp_t;
+
+struct Eval_temp_t Eval_temp;
+
 /**
  * \brief Operate on id field of provided CAN message using operand value and 
  * transform. Transforms are defined in rules and according to spec. Xform value
@@ -68,7 +79,22 @@ extern int operate_transform_u64(U64 *data, U64 *rule_operand, int xform);
  */
 extern enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **out_rule);
 
+/**
+ * \brief Evalutate CAN ID against provided ruleset. Returns enumeration for
+ * recommendation of how to handle message based on whether a match was found.
+ * If a match exists, pointer value to rule will be written to the out_rule.
+ * Note that if no match is found, the function will recommend DISCARD. For a NEW
+ * rule match, the boolean to check the physical shunt must be in place, and an id
+ * for new rules must be defined.
+ * \param msg_id 32b id number pulled from message
+ * \param ruleset Pointer to ruleset array to iterate id against
+ * \param out_rule Double pointer to hold address of matched rule from set, if found
+ * 
+ * \return extern enum Eval_t DISCARD == no match found, NEW == shunt connected and id matches new rule signature, FILTER == match found
+ */
+extern enum Eval_t evaluate_msg_id(uint32_t msg_id, rule_t *ruleset, rule_t **out_rule);
 
 
-extern void translate_id_mcp_to_U32(uint8_t *msg, uint32_t *out_id);
+extern void translate_id_mcp_to_U32(volatile uint8_t *msg, uint32_t *out_id);
+extern void translate_data_mcp_to_U64(volatile uint8_t *msg, Union64 *out_data);
 #endif /* FILTER_H_ */

@@ -124,16 +124,21 @@ static inline void process(volatile struct MCP_message_t **rx, volatile struct M
 		U32 xform = 0;
 		int success = -1;
 		
-		//TODO: copy an id from message
+		//TODO: copy an id from message --done
 		// need:
 		//	-func trans mcp id to 32
 		//	-func trans 32 to mcp id
-		U32 msg_id;
-		translate_id_mcp_to_U32((*proc)->msg, &msg_id);
+		//U32 msg_id;
+		// Uses temporary structure for storing the id of the message currently being evaluated.
+		// This of course assumes that only one message is being fully processed at a time
+		translate_id_mcp_to_U32((*proc)->msg, &Eval_temp.id);
 		
 		
-		//TODO: change evaluate to accept an ID, which we copy beforehand
-		enum Eval_t eval = evaluate(*proc, ruleset, &rule_match);
+		//TODO: change evaluate to accept an ID, which we copy beforehand --done
+		//enum Eval_t eval = evaluate(*proc, ruleset, &rule_match);
+		// 
+		// TODO: use new evaluate function to pass id instead of proc pointer --done
+		enum Eval_t eval = evaluate_msg_id(Eval_temp.id, ruleset, &rule_match);
 		
 		switch(eval) {
 			case NEW:
@@ -141,6 +146,11 @@ static inline void process(volatile struct MCP_message_t **rx, volatile struct M
 				//does not check for success
 				//handle_new_rule_data(&(*proc)->can_msg->data);
 				// TODO: translate data from message into new rule format
+				// 
+				translate_data_mcp_to_U64((*proc)->msg, &Eval_temp.data);
+				// provide translated data to rule handler
+				handle_new_rule_data(&Eval_temp.data);
+				
 			}
 			break;
 			
