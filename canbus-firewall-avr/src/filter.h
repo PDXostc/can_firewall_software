@@ -47,7 +47,18 @@ struct Eval_temp_t Eval_temp;
  * 
  * \return extern int 0 == success, 1 == encountered block xform, -1 == encountered unexpected value
  */
-extern int operate_transform_id(volatile can_msg_t *msg, U32 *rule_operand, int xform);
+extern int operate_transform_id_atmel(volatile can_msg_t *msg, U32 *rule_operand, int xform);
+
+/**
+ * \brief TODO
+ * 
+ * \param msg_id
+ * \param rule_operand
+ * \param xform
+ * 
+ * \return extern int
+ */
+extern int operate_transform_id(uint32_t *msg_id, uint32_t *rule_operand, int xform);
 
 /**
  * \brief Operate on data field of provided CAN message using operand value and
@@ -95,6 +106,40 @@ extern enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **o
 extern enum Eval_t evaluate_msg_id(uint32_t msg_id, rule_t *ruleset, rule_t **out_rule);
 
 
+/**
+ * \brief TODO
+ * 
+ * \param msg
+ * \param out_id
+ * 
+ * \return extern void
+ */
 extern void translate_id_mcp_to_U32(volatile uint8_t *msg, uint32_t *out_id);
-extern void translate_data_mcp_to_U64(volatile uint8_t *msg, Union64 *out_data);
+/**
+ * \brief TODO
+ * 
+ * \param msg
+ * \param in_id
+ * 
+ * \return extern void
+ */
+extern void translate_id_U32_to_mcp(volatile uint8_t *msg, uint32_t *in_id);
+/**
+ * \brief TODO
+ * 
+ * \param msg
+ * \param out_data
+ * 
+ * \return extern void
+ */
+extern void translate_data_mcp_to_U64(volatile uint8_t *msg, U64 *out_data);
+/**
+ * \brief TODO
+ * 
+ * \param msg
+ * \param in_data
+ * 
+ * \return extern void
+ */
+extern void translate_data_U64_to_mcp(volatile uint8_t *msg, U64 *in_data);
 #endif /* FILTER_H_ */

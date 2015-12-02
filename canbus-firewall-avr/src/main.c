@@ -86,7 +86,7 @@ static rule_t can_ruleset_south_rx_north_tx[SIZE_RULESET];
 // volatile can_mob_t *rx_s =   &can_msg_que_south_rx_north_tx[0];
 // volatile can_mob_t *proc_s = &can_msg_que_south_rx_north_tx[0];
 // volatile can_mob_t *tx_n =   &can_msg_que_south_rx_north_tx[0];
-// 
+//
 // volatile can_mob_t *rx_n =   &can_msg_que_north_rx_south_tx[0];
 // volatile can_mob_t *proc_n = &can_msg_que_north_rx_south_tx[0];
 // volatile can_mob_t *tx_s =   &can_msg_que_north_rx_south_tx[0];
@@ -100,6 +100,12 @@ static inline void wipe_mob(volatile can_mob_t **mob)
 	memset((void *)(*mob), 0, sizeof(can_mob_t));
 }
 
+
+void wipe_msg_id(volatile struct MCP_message_t **proc)
+{
+	// wipe the message in question, it will not be transmitted
+	memset((void *)(*proc), 0, sizeof(struct MCP_message_t));
+}
 
 /* Process function to be deprecated. Shows handling of messages based on
 * evaluation function included in filter
@@ -136,7 +142,7 @@ static inline void process(volatile struct MCP_message_t **rx, volatile struct M
 		
 		//TODO: change evaluate to accept an ID, which we copy beforehand --done
 		//enum Eval_t eval = evaluate(*proc, ruleset, &rule_match);
-		// 
+		//
 		// TODO: use new evaluate function to pass id instead of proc pointer --done
 		enum Eval_t eval = evaluate_msg_id(Eval_temp.id, ruleset, &rule_match);
 		
@@ -145,9 +151,9 @@ static inline void process(volatile struct MCP_message_t **rx, volatile struct M
 			if(test_loopback() == true){
 				//does not check for success
 				//handle_new_rule_data(&(*proc)->can_msg->data);
-				// TODO: translate data from message into new rule format
-				// 
-				translate_data_mcp_to_U64((*proc)->msg, &Eval_temp.data);
+				// TODO: translate data from message into new rule format --check
+				//
+				translate_data_mcp_to_U64((*proc)->msg, &Eval_temp.data.u64);
 				// provide translated data to rule handler
 				handle_new_rule_data(&Eval_temp.data);
 				
@@ -165,11 +171,24 @@ static inline void process(volatile struct MCP_message_t **rx, volatile struct M
 			
 			// TODO: operate on the id we've supplied, then copy it back into the MCP message
 			//success = operate_transform_id((*proc)->can_msg, &rule_match->idoperand, xform);
-			// 
+			//
+			// check for PASS condition early out
+			if(xform != XFORM_PASS)
+			{
+				success = operate_transform_id(&Eval_temp.id, &rule_match->idoperand, xform);
+				//copy altered id back to message
+				translate_id_U32_to_mcp((*proc)->msg, &Eval_temp.id);
+			} else
+			{
+				// id passed
+				success = 0;
+			}
+			
 			if (success != 0)
 			{
 				// TODO: implement and use new function for wiping
-				wipe_mob(&(*proc));
+				// wipe_mob(&(*proc));
+				wipe_msg_id(&(*proc));
 				break;
 			}
 			
@@ -178,10 +197,24 @@ static inline void process(volatile struct MCP_message_t **rx, volatile struct M
 			// TODO: operate on the data, needing to convert the MCP format into a 64 bit number to be transformed
 			// and copied back. This will change the existing function
 			//success = operate_transform_u64(&(*proc)->can_msg->data.u64, &rule_match->dtoperand, xform);
+			if (xform != XFORM_PASS)
+			{
+				translate_data_mcp_to_U64((*proc)->msg, &Eval_temp.data.u64);
+				
+				success = operate_transform_u64(&Eval_temp.data.u64, &rule_match->dtoperand, xform);
+				
+				translate_data_U64_to_mcp((*proc)->msg, &Eval_temp.data.u64);
+			}
+			else
+			{
+				success = 0;
+			}
+			
 			if (success != 0)
 			{
 				// TODO: implement and use new function for wiping
-				wipe_mob(&(*proc));
+				//wipe_mob(&(*proc));
+				wipe_msg_id(&(*proc));
 				break;
 			}
 			break;
@@ -190,7 +223,8 @@ static inline void process(volatile struct MCP_message_t **rx, volatile struct M
 			default:
 			//delete what is here
 			// TODO: implement and use new function for wiping
-			wipe_mob(&(*proc));
+			// wipe_mob(&(*proc));
+			wipe_msg_id(&(*proc));
 			break;
 		}
 	}
@@ -296,7 +330,7 @@ static inline void run_firewall(void)
 		#if DBG_TEST_THROUGHPUT_PROC
 		test_set_received_message_for_transmit();
 		#endif
-				
+		
 		#if DBG_PROC
 		print_dbg("Processing loop. Proc_pending_count: ");
 		print_dbg_char_hex(PROC_status.proc_pending_count);
@@ -310,22 +344,22 @@ static inline void run_firewall(void)
 		if(que_ptr_proc->direction == MCP_DIR_NORTH)
 		{
 			// direction is northbound, use south receive north transmit
-			process(&que_ptr_rx, &que_ptr_proc, can_ruleset_south_rx_north_tx, mcp_message_que);			
+			process(&que_ptr_rx, &que_ptr_proc, can_ruleset_south_rx_north_tx, mcp_message_que);
 		}
 		else if (que_ptr_proc->direction == MCP_DIR_SOUTH)
 		{
 			// direction is southbound, use north receive south transmit
-			process(&que_ptr_rx, &que_ptr_proc, can_ruleset_north_rx_south_tx, mcp_message_que);			
+			process(&que_ptr_rx, &que_ptr_proc, can_ruleset_north_rx_south_tx, mcp_message_que);
 		}
 		
 		
 		PROC_status.proc_pending_count--;
-				
+		
 		if (PROC_status.proc_pending_count < 1)
 		{
 			proc_int_clear();
 		}
-				
+		
 		//call mcp interrupt, now that a message is ready
 		mcp_machine_int_set();
 	}
@@ -384,7 +418,9 @@ int main (void)
 	volatile uint8_t test_arr_dec_02[13] = {0xf0, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
 	volatile uint8_t test_arr_dec_03[13] = {0xfa, 0xaa, 0xa5, 0x5a, 8, 8, 7, 6, 5, 4, 3, 2, 1};
 	volatile uint8_t test_arr_inc[13] = {0xff, 0xaa, 0xa5, 0x5a, 8, 1, 2, 3, 4, 5, 6, 7, 8};
-		
+	volatile uint8_t test_mcp_format_inc_std_ff[13] = {0xff, 0xe0, 0x00, 0x00, 3, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+	volatile uint8_t test_mcp_format_inc_ext_ff[13] = {0xff, 0xe0, 0x00, 0x00, 3, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+	
 	#if DBG_MSG_QUE
 	
 	//create some test junk in que
@@ -396,7 +432,27 @@ int main (void)
 	{
 		mcp_message_que[0].msg[i] = test_arr_dec_01[i];
 		mcp_message_que[1].msg[i] = test_arr_inc[i];
-		// mcp_message_que[2].msg[i] = test_arr_dec_03[i];		
+		mcp_message_que[2].msg[i] = test_mcp_format_inc_std_ff[i];
+		mcp_message_que[3].msg[i] = test_mcp_format_inc_ext_ff[i];
+		// mcp_message_que[2].msg[i] = test_arr_dec_03[i];
+	}
+	
+	// test of translation fidelity
+	while (1)
+	{
+		
+		translate_id_mcp_to_U32(&mcp_message_que[3].msg, &Eval_temp.id);
+		Eval_temp.id;
+		translate_id_U32_to_mcp(&mcp_message_que[3].msg, &Eval_temp.id);
+		mcp_message_que[0];
+		
+		translate_data_mcp_to_U64(&mcp_message_que[3].msg, &Eval_temp.data.u64);
+		Eval_temp.data;
+		translate_data_U64_to_mcp(&mcp_message_que[3].msg, &Eval_temp.data.u64);
+		mcp_message_que[0];
+		
+		Eval_temp.id = 0;
+		Eval_temp.data.u64 = 0;
 	}
 	
 	//make sure rx pointer starts out well ahead
@@ -411,7 +467,7 @@ int main (void)
 	// set tx pending job
 	SET_MCP_JOB(mcp_status.jobs, JOB_TX_PENDING);
 	#endif
-		
+	
 	/* SETUP AND INITS COMPLETE. ENABLE ALL INTERRUPTS */
 	set_timestamp("start", Get_sys_count());
 	
@@ -430,13 +486,13 @@ int main (void)
 		sleep_mode_start();
 	}
 	
-#if DBG_TIME
+	#if DBG_TIME
 	while (timestamp_count < 256)
-	{	
-		//mcp_machine_int_set();	
+	{
+		//mcp_machine_int_set();
 		//run_firewall();
 		// print_dbg("\n\r N  O  P  ");
-		// 
+		//
 		set_timestamp("main", Get_sys_count());
 		// nop();
 	}
@@ -451,7 +507,7 @@ int main (void)
 		print_dbg_ulong(timestamps[i].stamp);
 	}
 	timestamp_count;
-#endif
+	#endif
 
 	while (1)
 	{

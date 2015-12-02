@@ -9,6 +9,11 @@
 #ifndef MCP_DEFINITIONS_H_
 #define MCP_DEFINITIONS_H_
 
+//MCP storage parameters
+#define MCP_CAN_MSG_SIZE		13 // bytes
+#define MCP_CAN_MSG_HEADER_SIZE 5
+#define MCP_CAN_MSG_DATA_SIZE	8
+
 //MCP SPI Instructions
 #define MCP_INST_RESET			0xC0
 #define MCP_INST_READ			0x03
