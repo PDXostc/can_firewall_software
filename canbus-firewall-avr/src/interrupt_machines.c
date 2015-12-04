@@ -651,7 +651,7 @@ void run_mcp_state_machine(void)
 		 * jobs.
 		 */
 			// goto jobs if pending
-			if (mcp_status.jobs > 0)
+			if (mcp_status.jobs > 0x00000000)
 			{
 				mcp_stm_set_state(&mcp_stm, JOB_START);
 			} 

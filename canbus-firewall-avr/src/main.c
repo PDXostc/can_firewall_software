@@ -79,8 +79,8 @@ uint32_t clk_main, clk_cpu, clk_periph, clk_busa, clk_busb;
 // #endif
 
 //SRAM Allocation for loaded filter rulesets
-static rule_t can_ruleset_north_rx_south_tx[SIZE_RULESET];
-static rule_t can_ruleset_south_rx_north_tx[SIZE_RULESET];
+static rule_t can_ruleset_southbound[SIZE_RULESET];
+static rule_t can_ruleset_northbound[SIZE_RULESET];
 
 //ptrs to que, initialize to beginning
 // volatile can_mob_t *rx_s =   &can_msg_que_south_rx_north_tx[0];
@@ -229,56 +229,25 @@ static inline void process(volatile struct MCP_message_t **rx, volatile struct M
 		}
 	}
 	
-	//Disable_global_interrupt();
-	
-	//advance ptr
-	if(*proc >= &que[CAN_MSG_QUE_SIZE - 1])
+	// if processing pointer is not in the same position as the receive pointer, advance it
+	if (*proc != *rx)
 	{
-		*proc = &que[0];
-		} else {
-		*proc = *proc + 1;
+		que_advance_ptr(proc);
 	}
 	
-	//Enable_global_interrupt();
-}
-
-/* Transmit function to be deprecated. Shows simple queue output logic.
-*
-*/
-static inline void transmit(volatile can_mob_t **proc, volatile can_mob_t **tx, volatile can_mob_t *que, int tx_direction)
-{
-	if (*tx == *proc)
-	{
-		return;
-	}
-	else
-	{
-		//transmit, if applicable
-		//remember to set dlc
-		
-		//tx test:
-		//don't tx 00. anything else it finds is assumed to have been processed
-		
-		if ((*tx)->can_msg->id > 0)
-		{
-			if (tx_direction == 0)
-			{
-				//can_prepare_data_to_send_north();
-			}
-			else if(tx_direction == 1)
-			{
-				//can_prepare_data_to_send_south();
-			}
-		}
-	}
+	// decrement the number of pending messages in need of processing
+	PROC_status.proc_pending_count--;
 	
-	//increment
-	//advance ptr
-	if(*tx >= &que[CAN_MSG_QUE_SIZE - 1])
+	// increment the number of messages in need of transmission evaluation
+	TX_status.tx_pending_count++;
+	
+	// set job for mcp to evaluate message for transmission
+	SET_MCP_JOB(mcp_status.jobs, JOB_TX_PENDING);
+	
+	// if the last message pending appears to have been processed, clear the pin to switch off the loop
+	if (PROC_status.proc_pending_count < 1)
 	{
-		*tx = &que[0];
-		} else {
-		*tx = *tx + 1;
+		proc_int_clear();
 	}
 	
 }
@@ -311,13 +280,33 @@ static void init(void) {
 	
 }
 
+// load rules with worst case, where only a single rule applies at the end of storage
+void load_rules_manual_test_single(rule_t *applicable_rule)
+{
+	// write 0xfff rule (inapplicable) to all slots
+	for (int i = 0; i < SIZE_RULESET; i++)
+	{
+		can_ruleset_northbound[i] = rule_test_block;
+		can_ruleset_southbound[i] = rule_test_block;
+	}
+	
+	// set the specific rules we want, one for each at end of their respective sets
+	can_ruleset_northbound[SIZE_RULESET - 1] = *applicable_rule;
+	can_ruleset_southbound[SIZE_RULESET - 1] = *applicable_rule;
+}
+
 static void init_rules(void)
 {
 	//rules in flash are stored together.
 	//Northbound[0 : SIZE_RULESET-1]
 	//Southbound[SIZE_RULESET : (SIZERULESET*2)-1]
-	load_ruleset(&flash_can_ruleset[0], can_ruleset_south_rx_north_tx, SIZE_RULESET);
-	load_ruleset(&flash_can_ruleset[SIZE_RULESET], can_ruleset_north_rx_south_tx, SIZE_RULESET);
+	load_ruleset(&flash_can_ruleset[0], can_ruleset_northbound, SIZE_RULESET);
+	load_ruleset(&flash_can_ruleset[SIZE_RULESET], can_ruleset_southbound, SIZE_RULESET);
+	
+	/************************************************************************/
+	/* test rules manually                                                  */
+	/************************************************************************/
+	load_rules_manual_test_single(&rule_test_pass);
 	
 	// TODO: remember to parse ruleset boundaries for MCP filter programming...
 }
@@ -344,20 +333,12 @@ static inline void run_firewall(void)
 		if(que_ptr_proc->direction == MCP_DIR_NORTH)
 		{
 			// direction is northbound, use south receive north transmit
-			process(&que_ptr_rx, &que_ptr_proc, can_ruleset_south_rx_north_tx, mcp_message_que);
+			process(&que_ptr_rx, &que_ptr_proc, can_ruleset_northbound, mcp_message_que);
 		}
 		else if (que_ptr_proc->direction == MCP_DIR_SOUTH)
 		{
 			// direction is southbound, use north receive south transmit
-			process(&que_ptr_rx, &que_ptr_proc, can_ruleset_north_rx_south_tx, mcp_message_que);
-		}
-		
-		
-		PROC_status.proc_pending_count--;
-		
-		if (PROC_status.proc_pending_count < 1)
-		{
-			proc_int_clear();
+			process(&que_ptr_rx, &que_ptr_proc, can_ruleset_southbound, mcp_message_que);
 		}
 		
 		//call mcp interrupt, now that a message is ready
@@ -421,23 +402,25 @@ int main (void)
 	volatile uint8_t test_mcp_format_inc_std_ff[13] = {0xff, 0xe0, 0x00, 0x00, 3, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 	volatile uint8_t test_mcp_format_inc_ext_ff[13] = {0xff, 0xe0, 0x00, 0x00, 3, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 	
-	#if DBG_MSG_QUE
+#if DBG_MSG_QUE
 	
 	//create some test junk in que
 	mcp_message_que[0].direction = MCP_DIR_NORTH;
-	mcp_message_que[1].direction = MCP_DIR_NORTH;
+	mcp_message_que[1].direction = MCP_DIR_SOUTH;
+	mcp_message_que[2].direction = MCP_DIR_NORTH;
+	mcp_message_que[3].direction = MCP_DIR_SOUTH;
 	// mcp_message_que[2].direction = MCP_DIR_NORTH;
 	// mcp_message_que[3].direction = MCP_DIR_NORTH;
 	for (int i = 0; i < 13; i++)
 	{
 		mcp_message_que[0].msg[i] = test_arr_dec_01[i];
 		mcp_message_que[1].msg[i] = test_arr_inc[i];
-		mcp_message_que[2].msg[i] = test_mcp_format_inc_std_ff[i];
-		mcp_message_que[3].msg[i] = test_mcp_format_inc_ext_ff[i];
+		// mcp_message_que[2].msg[i] = test_mcp_format_inc_std_ff[i];
+		// mcp_message_que[3].msg[i] = test_mcp_format_inc_ext_ff[i];
 		// mcp_message_que[2].msg[i] = test_arr_dec_03[i];
 	}
 	
-	// test of translation fidelity
+#if 0 // test of translation fidelity
 	while (1)
 	{
 		
@@ -453,8 +436,9 @@ int main (void)
 		
 		Eval_temp.id = 0;
 		Eval_temp.data.u64 = 0;
-	}
-	
+	}	
+#endif
+
 	//make sure rx pointer starts out well ahead
 	que_ptr_rx = &mcp_message_que[2];
 	
@@ -462,11 +446,12 @@ int main (void)
 	que_ptr_proc = &mcp_message_que[2];
 	
 	// set tx increment to num jobs we should try to do, also, we see if tx will overrun proc when it should not
-	TX_status.tx_pending_count = 4;
+	TX_status.tx_pending_count = 2;
 	
 	// set tx pending job
 	SET_MCP_JOB(mcp_status.jobs, JOB_TX_PENDING);
-	#endif
+	
+#endif // if DBG_MSG_QUE
 	
 	/* SETUP AND INITS COMPLETE. ENABLE ALL INTERRUPTS */
 	set_timestamp("start", Get_sys_count());
@@ -486,7 +471,7 @@ int main (void)
 		sleep_mode_start();
 	}
 	
-	#if DBG_TIME
+#if DBG_TIME
 	while (timestamp_count < 256)
 	{
 		//mcp_machine_int_set();
@@ -507,7 +492,7 @@ int main (void)
 		print_dbg_ulong(timestamps[i].stamp);
 	}
 	timestamp_count;
-	#endif
+#endif // if DBG_TIME
 
 	while (1)
 	{

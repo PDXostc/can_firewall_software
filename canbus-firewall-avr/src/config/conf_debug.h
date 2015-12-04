@@ -34,7 +34,7 @@
 #define DBG_TIME_MCP				DBG_TIME	&& 0 // timestamping
 #define DBG_TIME_STATUS				DBG_TIME	&& 0 // timestamping
 #define DBG_TEST_THROUGHPUT_STM_ONLY/*DBG_ON  &&*/ 0 // all messages received will be flagged for immediate retransmission
-#define DBG_TEST_THROUGHPUT_PROC				   1 // all messages in processing interrupt flagged for immediate retransmission
+#define DBG_TEST_THROUGHPUT_PROC				   0 // all messages in processing interrupt flagged for immediate retransmission
 #define DBG_INT_GLBL_SWITCH						   0
 #define DBG_INT_GLBL_SWITCH_EIC		DBG_INT_GLBL_SWITCH && 0 // disable global interrupts in respective handler
 #define DBG_INT_GLBL_SWITCH_PDCA	DBG_INT_GLBL_SWITCH && 0 // disable global interrupts in respective handler

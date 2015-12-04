@@ -32,7 +32,7 @@ inline int operate_transform_id_atmel(volatile can_msg_t *msg, U32 *rule_operand
 		break;
 		
 		case XFORM_INV:
-		msg->id = ~msg->id;
+		msg->id &= (~*rule_operand);
 		break;
 		
 		case XFORM_PASS:
@@ -71,11 +71,13 @@ inline int operate_transform_id(uint32_t *msg_id, uint32_t *rule_operand, int xf
 		break;
 		
 		case XFORM_XOR:
+		// toggle flagged bits
 		*msg_id ^= *rule_operand;
 		break;
 		
 		case XFORM_INV:
-		*msg_id = ~*msg_id;
+		// negate flagged bits, msg & inverse of rule operand to clear bits
+		*msg_id &= (~*rule_operand);
 		break;
 		
 		case XFORM_PASS:
@@ -268,9 +270,9 @@ void translate_id_U32_to_mcp(volatile uint8_t *msg, uint32_t *in_id)
 							 ((uint8_t)((extid & 0x01) << 3)) |\
 							 ((uint8_t)((*in_id & 0x07) << 5));
 		// bits 15:8 (26:19) of eid go in EID8 register, can be shifted out by the same offset used to create the U32
-		msg[MCP_BYTE_EID8] = (uint8_t)((*in_id & 0x00FF0000) >> OFFSET_IN_EID_TO_32_15_8);
+		msg[MCP_BYTE_EID8] = (uint8_t)((*in_id & 0x07F80000) >> OFFSET_IN_EID_TO_32_15_8);
 		// bits 7:0 (18:11) of eid go in EID0 register, can be shifted out by the same offset used to create the U32
-		msg[MCP_BYTE_EID0] = (uint8_t)((*in_id & 0x0000FF00) >> OFFSET_IN_EID_TO_32_7_0);
+		msg[MCP_BYTE_EID0] = (uint8_t)((*in_id & 0x0007F800) >> OFFSET_IN_EID_TO_32_7_0);
 	} 
 	else
 	{
@@ -297,24 +299,18 @@ extern void translate_data_mcp_to_U64(volatile uint8_t *msg, U64 *out_data)
 		length = 0x08;
 	}
 	
-	// our shift counter needs to preserve most significant bit order. 
+	// our shift factor needs to preserve most significant bit order. 
 	// data lengths should still fill the most significant bits first.
-	uint8_t shift_count = MCP_CAN_MSG_DATA_SIZE - 1;
+	uint8_t shift_factor = MCP_CAN_MSG_DATA_SIZE - 1;
 	
 	// build the 64b number from the unsigned 8b data bytes in mcp format
 	// from most to least significant
 	for(int i = 0; i < length; i++)
 	{
-		*out_data |= (((U64)msg[MCP_BYTE_D0 + i]) << shift_count * MCP_CAN_MSG_DATA_SIZE);
+		*out_data |= (((U64)msg[MCP_BYTE_D0 + i]) << shift_factor * MCP_CAN_MSG_DATA_SIZE);
 		
 		//decrement shift count
-		shift_count--;
-		
-		// if not at the last, shift to make room for the next 8b
-// 		if (shift_count > 0x00)
-// 		{
-// 			*out_data = *out_data << 8;
-// 		}		
+		shift_factor--;	
 	}
 }
 
