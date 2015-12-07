@@ -215,28 +215,69 @@ void mcp_interrupt_handler_south(void)
 }
 
 // Processing jobs interrupt handler
-#if defined (__GNUC__)
-__attribute__((__interrupt__))
-#elif defined (__ICCAVR32__)
-__interrupt
-#endif
-void proc_int_handler(void)
-{
-	
-	// acknowledge interrupt: (PA pins are gpio port 0)
-	volatile uint32_t int_ack = AVR32_GPIO.port[PROC_INT_PIN/32].ifrc;
-	
-	#if DBG_INT
-	//test
-	set_led(LED_02, LED_ON);
-	print_dbg("\n\rProc_int_handler_called!");
-	set_led(LED_02, LED_OFF);
-	#endif
-	// test sequence
-	gpio_set_pin_high(PROC_INT_PIN);
-	gpio_clear_pin_interrupt_flag(PROC_INT_PIN);
-		
-}
+// #if defined (__GNUC__)
+// __attribute__((__interrupt__))
+// #elif defined (__ICCAVR32__)
+// __interrupt
+// #endif
+// void proc_int_handler(void)
+// {
+// 	
+// 	// acknowledge interrupt: (PA pins are gpio port 0)
+// 	volatile uint32_t int_ack = AVR32_GPIO.port[PROC_INT_PIN/32].ifrc;
+// 	
+// 	//mcp_machine_int_set();
+// 	//make sure we can be interrupted by higher interrupts...
+// 	// Enable_interrupt_level(1);
+// 	// Enable_interrupt_level(2);
+// 	bool level_0 = cpu_irq_level_is_enabled(0);
+// 	bool level_1 = cpu_irq_level_is_enabled(1);
+// 	bool level_2 = cpu_irq_level_is_enabled(2); 
+// 	
+// 	level_1;
+// 	level_2;
+// 	
+// 	// Enable_global_interrupt();
+// 	
+// 	#if DBG_INT
+// 	//test
+// 	set_led(LED_02, LED_ON);
+// 	print_dbg("\n\rProc_int_handler_called!");
+// 	set_led(LED_02, LED_OFF);
+// 	#endif
+// 	// flip interrupt pin immediately, in case we are interrupted and it needs to be set again
+// 	gpio_set_pin_high(PROC_INT_PIN);
+// 	gpio_clear_pin_interrupt_flag(PROC_INT_PIN);
+// 	
+// 	//test routine, just throughputs any message, no filtering
+// 	while (!gpio_local_get_pin_value(PROC_INT_PIN))
+// 	{
+// 		#if DBG_TEST_THROUGHPUT_PROC
+// 		test_set_received_message_for_transmit();
+// 		#endif		
+// 		
+// 		#if DBG_PROC
+// 		print_dbg("Processing loop. Proc_pending_count: ");
+// 		print_dbg_char_hex(PROC_status.proc_pending_count);
+// 		#endif
+// 		
+// 		PROC_status.proc_pending_count--;
+// 		
+// 		if (PROC_status.proc_pending_count < 1)
+// 		{
+// 			proc_int_clear();
+// 		}
+// 		
+// 		//call mcp interrupt, now that a message is ready
+// 		mcp_machine_int_set();
+// 	}
+// 	delay_ms(2);
+// 	
+// 	#if DBG_PROC
+// 	PRINT_NEWLINE()
+// 	print_dbg("_PROC_INT_EXIT_");
+// 	#endif
+// }
 
 // MCP state machine interrupt handler
 #if defined (__GNUC__)
@@ -246,6 +287,10 @@ __interrupt
 #endif
 void mcp_machine_int_handler(void)
 {
+	bool level_0 = cpu_irq_level_is_enabled(0);
+	bool level_1 = cpu_irq_level_is_enabled(1);
+	bool level_2 = cpu_irq_level_is_enabled(2);
+	
 	#if DBG_TIME_MCP
 	set_timestamp("MCPINTERRUPT", Get_sys_count());
 	#endif
@@ -481,10 +526,10 @@ void init_interrupt_machines(void)
 	//MCP machine should run at two int levels above main
 	INTC_register_interrupt(&mcp_machine_int_handler, AVR32_GPIO_IRQ_0, INT_LEVEL_MCP_MACHINE);
 	//Proc should run at first int level
-	INTC_register_interrupt(&proc_int_handler, AVR32_GPIO_IRQ_2, INT_LEVEL_PROC);
+	// INTC_register_interrupt(&proc_int_handler, AVR32_GPIO_IRQ_2, INT_LEVEL_PROC);
 	
 	gpio_enable_pin_interrupt(MCP_MACHINE_INT_PIN, GPIO_FALLING_EDGE);
-	gpio_enable_pin_interrupt(PROC_INT_PIN, GPIO_FALLING_EDGE);	
+	// gpio_enable_pin_interrupt(PROC_INT_PIN, GPIO_FALLING_EDGE);	
 	
 	
 	// register the interrupt for receive transfer complete. IRQ 1 corresponds to the SPI_RX channel,
@@ -545,6 +590,7 @@ void test_set_received_message_for_transmit(void)
 {
 	//have to keep proc ahead of tx, for now we cheat and set it == rx
 	que_ptr_proc = que_ptr_rx;
+	
 	#if TEST_ONCE
 	if ((local_test_once == true) && local_tx_count > 2)
 	{
@@ -605,7 +651,7 @@ void run_mcp_state_machine(void)
 		 * jobs.
 		 */
 			// goto jobs if pending
-			if (mcp_status.jobs > 0)
+			if (mcp_status.jobs > 0x00000000)
 			{
 				mcp_stm_set_state(&mcp_stm, JOB_START);
 			} 
@@ -1558,9 +1604,12 @@ void run_mcp_state_machine(void)
 			// set job complete
 			mcp_stm_unset_job(&mcp_status, JOB_RX_0_NORTH);
 			
-			#if DBG_TEST_THROUGHPUT
+			#if DBG_TEST_THROUGHPUT_STM_ONLY
 			test_set_received_message_for_transmit();
 			#endif
+			
+			// set message to be processed
+			proc_que_processing_job();
 			
 			// next state should be START to give a chance for attention to be checked
 			mcp_stm_set_state(&mcp_stm, START);
@@ -1579,9 +1628,12 @@ void run_mcp_state_machine(void)
 			// set job complete
 			mcp_stm_unset_job(&mcp_status, JOB_RX_1_NORTH);
 			
-			#if DBG_TEST_THROUGHPUT
+			#if DBG_TEST_THROUGHPUT_STM_ONLY
 			test_set_received_message_for_transmit();
 			#endif
+			
+			// set message to be processed
+			proc_que_processing_job();
 			
 			// next state should be START to give a chance for attention to be checked
 			mcp_stm_set_state(&mcp_stm, START);
@@ -1652,9 +1704,12 @@ void run_mcp_state_machine(void)
 			// set job complete
 			mcp_stm_unset_job(&mcp_status, JOB_RX_0_SOUTH);
 		
-			#if DBG_TEST_THROUGHPUT
+			#if DBG_TEST_THROUGHPUT_STM_ONLY
 			test_set_received_message_for_transmit();
 			#endif
+		
+			// set message to be processed
+			proc_que_processing_job();
 		
 			// next state should be START to give a chance for attention to be checked
 			mcp_stm_set_state(&mcp_stm, START);
@@ -1676,9 +1731,12 @@ void run_mcp_state_machine(void)
 			// set job complete
 			mcp_stm_unset_job(&mcp_status, JOB_RX_1_SOUTH);
 			
-			#if DBG_TEST_THROUGHPUT
+			#if DBG_TEST_THROUGHPUT_STM_ONLY
 			test_set_received_message_for_transmit();
 			#endif
+			
+			// set message to be processed
+			proc_que_processing_job();
 			
 			// next state should be START to give a chance for attention to be checked
 			mcp_stm_set_state(&mcp_stm, START);

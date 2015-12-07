@@ -331,7 +331,6 @@
   <avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avr32gcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <avr32gcc.compiler.optimization.PrepareDataForGarbageCollection>True</avr32gcc.compiler.optimization.PrepareDataForGarbageCollection>
   <avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>True</avr32gcc.compiler.optimization.UseAssemblerForPseudoInstructions>
-  <avr32gcc.compiler.optimization.DebugLevel>Maximum (-g3)</avr32gcc.compiler.optimization.DebugLevel>
   <avr32gcc.compiler.warnings.AllWarnings>True</avr32gcc.compiler.warnings.AllWarnings>
   <avr32gcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -fno-strict-aliasing -Wstrict-prototypes -Wmissing-prototypes -Werror-implicit-function-declaration -Wpointer-arith -mrelax -mno-cond-exec-before-reload</avr32gcc.compiler.miscellaneous.OtherFlags>
   <avr32gcc.linker.general.DoNotUseStandardStartFiles>True</avr32gcc.linker.general.DoNotUseStandardStartFiles>
@@ -384,7 +383,6 @@
       <Value>../src/ASF/avr32/drivers/pdca</Value>
     </ListValues>
   </avr32gcc.assembler.general.IncludePaths>
-  <avr32gcc.assembler.debugging.DebugLevel>Default (-g)</avr32gcc.assembler.debugging.DebugLevel>
   <avr32gcc.preprocessingassembler.general.AssemblerFlags>-mrelax -DTEST_SUITE_DEFINE_ASSERT_MACRO -D_ASSERT_ENABLE_ -DBOARD=USER_BOARD</avr32gcc.preprocessingassembler.general.AssemblerFlags>
   <avr32gcc.preprocessingassembler.general.IncludePaths>
     <ListValues>
@@ -421,7 +419,6 @@
       <Value>../src/ASF/avr32/drivers/pdca</Value>
     </ListValues>
   </avr32gcc.preprocessingassembler.general.IncludePaths>
-  <avr32gcc.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</avr32gcc.preprocessingassembler.debugging.DebugLevel>
 </Avr32Gcc>
     </ToolchainSettings>
   </PropertyGroup>

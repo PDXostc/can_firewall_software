@@ -13,6 +13,7 @@
 
 //test pass all rule
 rule_t rule_test_pass;
+rule_t rule_test_modify_id_and_data;
 rule_t rule_test_block;
 rule_t rule_test_inside_range_allow;
 rule_t rule_test_inside_range_xform_id_set;
