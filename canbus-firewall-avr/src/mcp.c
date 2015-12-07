@@ -8,16 +8,56 @@
 #include "mcp.h"
 
 //spi device corresponds to spi chip select per board
-struct spi_device spi_device_MCP_CAN_NORTH_IVI_conf = {
+const struct spi_device spi_device_MCP_CAN_NORTH_IVI_conf = {
 	.id = 2 //chip select NPCS[2]
 };
-struct spi_device spi_device_MCP_CAN_SOUTH_CAR_conf = {
+const struct spi_device spi_device_MCP_CAN_SOUTH_CAR_conf = {
 	.id = 0 //chip select NPCS[0]
 };
 
 //used for testing often
 uint8_t tx_zero[13] = {0};
 
+//test of our rx_config struct
+struct RX_config rx_config_default = {
+	._RXM0 = 0x00000000,
+	._RXF0 = 0x00000000,
+	._RXF1 = 0x00000000,
+	._RX0_EID = 0x00,
+	._RXM1 = 0x00000000,
+	._RXF2 = 0x00000000,
+	._RXF3 = 0x00000000,
+	._RXF4 = 0x00000000,
+	._RXF5 = 0x00000000,
+	._RX1_EID = (MCP_MASK_RXM1_EID |\
+	MCP_MASK_RXF2_EID |\
+	MCP_MASK_RXF3_EID |\
+	MCP_MASK_RXF4_EID |\
+	MCP_MASK_RXF5_EID),
+	._RXB0_BUKT = MCP_VAL_BUKT_ROLLOVER_EN,
+	._MCP_VAL_RX0_CTRL = MCP_VAL_RXM_STD_EXT,
+	._MCP_VAL_RX1_CTRL = MCP_VAL_RXM_STD_EXT
+};
+
+struct RX_config rx_config_test_01 = {
+	._RXM0 = 0x7FF,
+	._RXF0 = 0x7FF,
+	._RXF1 = 0x0A5,
+	._RX0_EID = 0x00,
+	._RXM1 = 0x1FFFFFFF,
+	._RXF2 = 0x1FFFFFFF,
+	._RXF3 = 0x1A5A5A5A,
+	._RXF4 = 0x00000000,
+	._RXF5 = 0x00000000,
+	._RX1_EID = (MCP_MASK_RXM1_EID |\
+	MCP_MASK_RXF2_EID |\
+	MCP_MASK_RXF3_EID |\
+	MCP_MASK_RXF4_EID |\
+	MCP_MASK_RXF5_EID),
+	//._RXB0_BUKT = MCP_VAL_BUKT_ROLLOVER_EN,
+	._MCP_VAL_RX0_CTRL = MCP_VAL_RXM_STD_ONLY,
+	._MCP_VAL_RX1_CTRL = MCP_VAL_RXM_EXT_ONLY
+};
 
 void init_mcp_pins(void)
 {
@@ -66,8 +106,8 @@ void init_mcp_pins(void)
 
 void init_mcp_spi(void)
 {
-	mcp_reset_pin(MCP_NORTH);
-	mcp_reset_pin(MCP_SOUTH);
+	mcp_reset_pin(MCP_DEV_NORTH);
+	mcp_reset_pin(MCP_DEV_SOUTH);
 	spi_master_init(MCP_SPI);
 
 	//spi_master service enables some settings by default.
@@ -83,22 +123,22 @@ void init_mcp_spi(void)
 	spi_enable(MCP_SPI);
 
 	//prime spi
-	mcp_select(MCP_NORTH);
+	mcp_select(MCP_DEV_NORTH);
 	mcp_write_single(MCP_INST_DUMMY);
-	mcp_deselect(MCP_NORTH);
-	mcp_select(MCP_SOUTH);
+	mcp_deselect(MCP_DEV_NORTH);
+	mcp_select(MCP_DEV_SOUTH);
 	mcp_write_single(MCP_INST_DUMMY);
-	mcp_deselect(MCP_SOUTH);	
+	mcp_deselect(MCP_DEV_SOUTH);	
 	
 	#if DBG_MCP
 	print_dbg("\n\r__MCP _STATUS_AFTER_RESET_AND_SPI_");
-	mcp_print_status(MCP_NORTH);
+	mcp_print_status(MCP_DEV_NORTH);
 	print_dbg("\n\rCanSTAT REgister");
-	mcp_print_registers(MCP_NORTH, MCP_ADD_CANSTAT, 1);
+	mcp_print_registers(MCP_DEV_NORTH, MCP_ADD_CANSTAT, 1);
 	print_dbg("\n\rCANINTE Register");
-	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTE, 1);
+	mcp_print_registers(MCP_DEV_NORTH, MCP_ADD_CANINTE, 1);
 	print_dbg("\n\rCANINTF Register");
-	mcp_print_registers(MCP_NORTH, MCP_ADD_CANINTF, 1);
+	mcp_print_registers(MCP_DEV_NORTH, MCP_ADD_CANINTF, 1);
 	#endif
 }
 
@@ -108,7 +148,7 @@ void init_mcp_module(void)
 	init_mcp_spi();
 }
 
-uint8_t mcp_configure_bit_timings(struct spi_device *device, uint8_t mcp_val_can_rate)
+uint8_t mcp_configure_bit_timings(const struct spi_device *device, uint8_t mcp_val_can_rate)
 {
 	uint8_t result = MCP_RETURN_FAIL;
 	uint8_t cnf1, cnf2, cnf3;
@@ -198,7 +238,7 @@ uint8_t mcp_configure_bit_timings(struct spi_device *device, uint8_t mcp_val_can
 // 
 
 //turns out we can use the same function for mask or filter...
-void mcp_configure_can_id(struct spi_device *device, uint8_t start_addr,
+void mcp_configure_can_id(const struct spi_device *device, uint8_t start_addr,
 		uint32_t id, bool exide)
 {
 	//if extended, treat id as extended and set registers consecutively
@@ -250,7 +290,7 @@ void mcp_configure_can_id(struct spi_device *device, uint8_t start_addr,
 #endif
 }
 
-void mcp_configure_rx_0(struct spi_device *device, struct RX_config *rx_config)
+void mcp_configure_rx_0(const struct spi_device *device, struct RX_config *rx_config)
 {
 	mcp_configure_can_id(device, MCP_ADD_RXM0SIDH, rx_config->_RXM0, (rx_config->_RX0_EID) & MCP_MASK_RXM0_EID);
 	mcp_configure_can_id(device, MCP_ADD_RXF0SIDH, rx_config->_RXF0, (rx_config->_RX0_EID) & MCP_MASK_RXF0_EID);
@@ -258,7 +298,7 @@ void mcp_configure_rx_0(struct spi_device *device, struct RX_config *rx_config)
 	mcp_set_register(device, MCP_ADD_RXB0CTRL, (rx_config->_MCP_VAL_RX0_CTRL) | (rx_config->_RXB0_BUKT));
 }
 
-void mcp_configure_rx_1(struct spi_device *device, struct RX_config *rx_config)
+void mcp_configure_rx_1(const struct spi_device *device, struct RX_config *rx_config)
 {
 	mcp_configure_can_id(device, MCP_ADD_RXM1SIDH, rx_config->_RXM1, (rx_config->_RX1_EID) & MCP_MASK_RXM1_EID);
 	mcp_configure_can_id(device, MCP_ADD_RXF2SIDH, rx_config->_RXF2, (rx_config->_RX1_EID) & MCP_MASK_RXF2_EID);
@@ -268,7 +308,7 @@ void mcp_configure_rx_1(struct spi_device *device, struct RX_config *rx_config)
 	mcp_set_register(device, MCP_ADD_RXB1CTRL, rx_config->_MCP_VAL_RX1_CTRL);
 }
 
-void mcp_load_tx_buffer_atmel_to_mcp(struct spi_device *device, can_mob_t *mob, 
+void mcp_load_tx_buffer_atmel_to_mcp(const struct spi_device *device, can_mob_t *mob, 
 		uint8_t txb_enum, bool send_immediate)
 {
 	//probably loading full sized message...
@@ -322,7 +362,7 @@ void mcp_load_tx_buffer_atmel_to_mcp(struct spi_device *device, can_mob_t *mob,
 }
 
 // generic load tx buffer function to be called by platform specific functions
-void mcp_load_tx_buffer(struct spi_device *device, uint8_t *tx_data, uint8_t txb_enum,
+void mcp_load_tx_buffer(const struct spi_device *device, uint8_t *tx_data, uint8_t txb_enum,
 		uint8_t length, bool send_immediate)
 {
 	uint8_t txb_ctrl_addr, txb_load_inst, txb_send_inst;
@@ -373,7 +413,7 @@ void mcp_load_tx_buffer(struct spi_device *device, uint8_t *tx_data, uint8_t txb
 }
 
 // initialize CAN to desired rate and mode
-uint8_t mcp_init_can(struct spi_device *device, uint8_t mcp_val_can_rate, struct RX_config *rx_config, uint8_t control_mode)
+uint8_t mcp_init_can(const struct spi_device *device, uint8_t mcp_val_can_rate, struct RX_config *rx_config, uint8_t control_mode)
 {
 	uint8_t success = MCP_RETURN_FAIL;
 	
@@ -453,7 +493,7 @@ uint8_t mcp_init_can(struct spi_device *device, uint8_t mcp_val_can_rate, struct
 }
 
 #if DBG_MCP
-void mcp_print_status(struct spi_device *device)
+void mcp_print_status(const struct spi_device *device)
 {
 	uint8_t status_byte;
 	
@@ -553,7 +593,7 @@ void mcp_print_bit_timings(uint8_t device_id, uint8_t cnf1, uint8_t cnf2, uint8_
 	print_dbg("\n\r_END_BIT_TIMINGS__________");
 }
 
-void mcp_print_registers(struct spi_device *device, uint8_t start_addr, int length)
+void mcp_print_registers(const struct spi_device *device, uint8_t start_addr, int length)
 {
 	uint8_t rx_buffer[length];
 	
@@ -575,7 +615,7 @@ void mcp_print_registers(struct spi_device *device, uint8_t start_addr, int leng
 	print_dbg("__End_Register_Values__");
 }
 
-void mcp_print_txbnctrl(struct spi_device *device)
+void mcp_print_txbnctrl(const struct spi_device *device)
 {
 	//print tx buffers...
 	PRINT_NEWLINE()
@@ -594,7 +634,7 @@ void mcp_print_txbnctrl(struct spi_device *device)
 	print_dbg_char_hex(mcp_read_register(device, MCP_ADD_TXB2CTRL));
 }
 
-void mcp_print_error_registers(struct spi_device *device)
+void mcp_print_error_registers(const struct spi_device *device)
 {
 	//print error counts
 	PRINT_NEWLINE()
@@ -618,7 +658,7 @@ void mcp_print_error_registers(struct spi_device *device)
 
 #if DBG_MCP
 //quick test to make sure that we can get, set, and reset values
-void test_mcp_spi_after_reset(struct spi_device *device)
+void test_mcp_spi_after_reset(const struct spi_device *device)
 {
 	uint8_t status;
 	//send reset command
@@ -721,7 +761,7 @@ void test_mcp_spi_after_reset(struct spi_device *device)
 // }
 
 //still useful until we are using the que logic to upload the tx messages
-void test_setup_transmit_mcp_can(struct spi_device *device)
+void test_setup_transmit_mcp_can(const struct spi_device *device)
 {
 	//disable interrupts for now -- !!
 	//mcp_set_register(device, MCP_ADD_CANINTE, MCP_VAL_INT_RX_TX_DISABLE);

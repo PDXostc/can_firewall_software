@@ -101,6 +101,9 @@
 // From module: Interrupt management - UC3 implementation
 #include <interrupt.h>
 
+// From module: PDCA - Peripheral DMA Controller
+#include <pdca.h>
+
 // From module: PM Power Manager - UC3 C0/C1/C2 implementation
 #include <power_clocks_lib.h>
 #include <sleep.h>
