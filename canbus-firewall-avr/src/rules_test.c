@@ -13,8 +13,18 @@ rule_t rule_test_pass = {
 	.mask = 0x000,
 	.idoperand = 0,
 	.prio = SIZE_RULESET,
-	.xform = 0
+	.xform = ((XFORM_PASS << 4) | XFORM_PASS )
 };
+
+// test worst case modify both fields
+rule_t rule_test_modify_id_and_data = {
+	.dtoperand = 0xffffffffffffffff,
+	.filter = 0x00000000,
+	.mask = 0x00000000,
+	.idoperand = 0xffffffff,
+	.prio = SIZE_RULESET,
+	.xform = ((XFORM_SET << 4) | XFORM_SET)
+	};
 
 rule_t rule_test_block = {
 	.dtoperand = 0,
@@ -31,7 +41,7 @@ rule_t rule_test_inside_range_allow = {
 	.mask = 0x7F0,
 	.idoperand = 0x7FF,
 	.prio = SIZE_RULESET,
-	.xform = 0
+	.xform = ((XFORM_PASS << 4) | XFORM_PASS)
 };
 
 rule_t rule_test_inside_range_xform_id_set = {
@@ -40,7 +50,7 @@ rule_t rule_test_inside_range_xform_id_set = {
 	.mask = 0x7F0,
 	.idoperand = 0x7A5,
 	.prio = SIZE_RULESET,
-	.xform = XFORM_SET << 4
+	.xform = ((XFORM_SET << 4) | XFORM_PASS)
 };
 
 rule_t rule_test_inside_range_xform_id_or = {
@@ -49,7 +59,7 @@ rule_t rule_test_inside_range_xform_id_or = {
 	.mask = 0x7F0,
 	.idoperand = 0x00F,
 	.prio = SIZE_RULESET,
-	.xform = XFORM_OR << 4
+	.xform = ((XFORM_OR << 4) | XFORM_PASS)
 };
 
 rule_t rule_test_inside_range_xform_id_and = {
@@ -58,7 +68,7 @@ rule_t rule_test_inside_range_xform_id_and = {
 	.mask = 0x7F0,
 	.idoperand = 0x00F,
 	.prio = SIZE_RULESET,
-	.xform = XFORM_AND << 4
+	.xform = ((XFORM_AND << 4) | XFORM_PASS)
 };
 
 rule_t rule_test_inside_range_xform_id_xor = {
@@ -67,7 +77,7 @@ rule_t rule_test_inside_range_xform_id_xor = {
 	.mask = 0x7F0,
 	.idoperand = 0x00F,
 	.prio = SIZE_RULESET,
-	.xform = XFORM_XOR << 4
+	.xform = ((XFORM_XOR << 4) | XFORM_PASS)
 };
 
 rule_t rule_test_inside_range_xform_id_inv = {
@@ -76,7 +86,7 @@ rule_t rule_test_inside_range_xform_id_inv = {
 	.mask = 0x7F0,
 	.idoperand = 0x00F,
 	.prio = SIZE_RULESET,
-	.xform = XFORM_INV << 4
+	.xform = ((XFORM_INV << 4) | XFORM_PASS)
 };
 
 rule_t rule_test_inside_range_xform_id_block = {
@@ -85,7 +95,7 @@ rule_t rule_test_inside_range_xform_id_block = {
 	.mask = 0x7F0,
 	.idoperand = 0x00F,
 	.prio = SIZE_RULESET,
-	.xform = XFORM_BLOCK << 4
+	.xform = ((XFORM_BLOCK << 4) | XFORM_PASS)
 };
 
 //dtoperand test rules
@@ -95,7 +105,7 @@ rule_t rule_test_inside_range_xform_data_set = {
 	.mask = 0x7F0,
 	.idoperand = 0x7A5,
 	.prio = SIZE_RULESET,
-	.xform = XFORM_SET
+	.xform = ((XFORM_PASS << 4) | XFORM_SET)
 };
 
 rule_t rule_test_inside_range_xform_data_or = {
@@ -104,16 +114,16 @@ rule_t rule_test_inside_range_xform_data_or = {
 	.mask = 0x7F0,
 	.idoperand = 0x00F,
 	.prio = SIZE_RULESET,
-	.xform = XFORM_OR
+	.xform = ((XFORM_PASS << 4) | XFORM_OR)
 };
 
 rule_t rule_test_inside_range_xform_data_and = {
-	.dtoperand = 0xFFFFFFFFFFFFFFFF,
+	.dtoperand = 0xa5a5a5a5a5a5a5a5,
 	.filter = 0x6F0,
 	.mask = 0x7F0,
 	.idoperand = 0x00F,
 	.prio = SIZE_RULESET,
-	.xform = XFORM_AND
+	.xform = ((XFORM_PASS << 4) | XFORM_AND)
 };
 
 rule_t rule_test_inside_range_xform_data_xor = {
@@ -122,7 +132,7 @@ rule_t rule_test_inside_range_xform_data_xor = {
 	.mask = 0x7F0,
 	.idoperand = 0x00F,
 	.prio = SIZE_RULESET,
-	.xform = XFORM_XOR
+	.xform = ((XFORM_PASS << 4) | XFORM_XOR)
 };
 
 rule_t rule_test_inside_range_xform_data_inv = {
@@ -131,7 +141,7 @@ rule_t rule_test_inside_range_xform_data_inv = {
 	.mask = 0x7F0,
 	.idoperand = 0x00F,
 	.prio = SIZE_RULESET,
-	.xform = XFORM_INV
+	.xform = ((XFORM_PASS << 4) | XFORM_INV)
 };
 
 rule_t rule_test_inside_range_xform_data_block = {
@@ -140,5 +150,5 @@ rule_t rule_test_inside_range_xform_data_block = {
 	.mask = 0x7F0,
 	.idoperand = 0x00F,
 	.prio = SIZE_RULESET,
-	.xform = XFORM_BLOCK
+	.xform = ((XFORM_PASS << 4) | XFORM_BLOCK)
 };

@@ -36,10 +36,6 @@
 #define RESET_PIN_HOLD_DELAY_US		3
 #define RESET_PIN_HOLD_DELAY()		delay_us(RESET_PIN_HOLD_DELAY_US)
 
-#define MCP_CAN_MSG_SIZE		13 // bytes
-#define MCP_CAN_MSG_HEADER_SIZE 5
-#define MCP_CAN_MSG_DATA_SIZE	8
-
 //following the convention that functions return 0 if successful, >0 for fail states
 #define MCP_RETURN_SUCCESS		0
 #define MCP_RETURN_FAIL			1
