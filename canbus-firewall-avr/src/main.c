@@ -123,8 +123,10 @@ static void init_rules(void)
 	// TODO: remember to parse ruleset boundaries for MCP filter programming...
 }
 
-/* Process function to be deprecated. Shows handling of messages based on
-* evaluation function included in filter
+/* Process function.
+ * Incoming message id is translated and compared against relevant rule set.
+ * An evaluation / recommendation is returned for how the message is to be treated.
+ * Message is then either ingested as a new rule (special case), filtered or discarded.
 */
 static inline void process(volatile struct MCP_message_t **rx, volatile struct MCP_message_t **proc, rule_t* ruleset, volatile struct MCP_message_t *que)
 {
