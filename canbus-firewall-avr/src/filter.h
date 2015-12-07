@@ -105,7 +105,6 @@ extern enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **o
  */
 extern enum Eval_t evaluate_msg_id(uint32_t msg_id, rule_t *ruleset, rule_t **out_rule);
 
-
 /**
  * \brief TODO
  * 

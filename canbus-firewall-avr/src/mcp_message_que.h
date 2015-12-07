@@ -9,7 +9,9 @@
 #ifndef MCP_MESSAGE_QUE_H_
 #define MCP_MESSAGE_QUE_H_
 
+
 #include <asf.h>
+#include <string.h>
 #include "mcp.h"
 
 // Direction, used for determining the target direction in a number of contexts
@@ -79,8 +81,17 @@ extern volatile pdca_channel_options_t PDCA_options_mcp_spi_msg_tx;
 
 // init ptrs func
 // TODO
-
 extern void init_message_que(void);
+
+/**
+ * \brief TODO
+ * 
+ * \param proc
+ * 
+ * \return void
+ */
+extern void wipe_msg_id(volatile struct MCP_message_t **proc);
+
 
 //testing messages in que
 

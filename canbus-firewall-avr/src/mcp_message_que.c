@@ -64,7 +64,11 @@ void que_advance_ptr(volatile struct MCP_message_t **ptr)
 	#endif
 }
 
-
+void wipe_msg_id(volatile struct MCP_message_t **proc)
+{
+	// wipe the message in question, it will not be transmitted
+	memset((void *)(*proc), 0, sizeof(struct MCP_message_t));
+}
 
 extern void init_message_que(void)
 {
