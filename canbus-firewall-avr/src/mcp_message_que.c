@@ -5,15 +5,6 @@
  *  Author: smiller6
  */ 
 
-/* We are trying an experiment here, to always have the SPI transaction settings
- * Receive to where ever the rx_ptr is, and transmit whatever is pointed to by
- * the tx_ptr. This means that extra care should be taken that the PDCA is not set
- * for reception when we want to upload a transmit message, or the rx_ptr location
- * would be overwritten with dummy bytes. Currently, our implementation for transmit
- * and receive using PDCA protects against this case, only enabling rx when we want
- * to receive a message.
- */
-
 #include "pdca_interface.h"
 #include "mcp_message_que.h"
 
@@ -70,7 +61,7 @@ void wipe_msg_id(volatile struct MCP_message_t **proc)
 	memset((void *)(*proc), 0, sizeof(struct MCP_message_t));
 }
 
-extern void init_message_que(void)
+extern void init_mcp_message_que(void)
 {
 	que_ptr_rx = &mcp_message_que[0];
 	que_ptr_proc = &mcp_message_que[0];

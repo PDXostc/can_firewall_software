@@ -330,7 +330,7 @@ int main (void)
 	init_mcp_module();
 	
 	// INIT MESSAGING QUE
-	init_message_que();
+	init_mcp_message_que();
 
 	// INIT ALL INTERRUPTS AND INTERRUPT DRIVEN STATE MACHINES
 	// This will also initiate the jobs for the MCP start and program
@@ -389,9 +389,7 @@ int main (void)
 	while (1)
 	{
 		run_firewall();
-		//delay_ms(2);
-		//PRINT_NEWLINE()
-		//print_dbg("_PROC_INT_EXIT_");
+
 		sleep_mode_start();
 	}
 }

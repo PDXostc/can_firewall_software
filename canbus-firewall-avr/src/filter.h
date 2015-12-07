@@ -106,37 +106,42 @@ extern enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **o
 extern enum Eval_t evaluate_msg_id(uint32_t msg_id, rule_t *ruleset, rule_t **out_rule);
 
 /**
- * \brief TODO
+ * \brief Translation function for converting the MCP specific format to generic
+ * 32b number for filter matching and processing.
  * 
- * \param msg
- * \param out_id
+ * \param msg Pointer to array storing 13 byte MCP format message
+ * \param out_id Pointer to id variable designated to store converted id. This is
+ * usually temporary
  * 
  * \return extern void
  */
 extern void translate_id_mcp_to_U32(volatile uint8_t *msg, uint32_t *out_id);
 /**
- * \brief TODO
+ * \brief Translation function for converting generic 32b number to MCP specific
+ * format.
  * 
- * \param msg
- * \param in_id
+ * \param msg Pointer to array storing 13 byte MCP format message
+ * \param in_id Pointer to 32b variable storing id to be copied
  * 
  * \return extern void
  */
 extern void translate_id_U32_to_mcp(volatile uint8_t *msg, uint32_t *in_id);
 /**
- * \brief TODO
+ * \brief Translation function for converting MCP specific format to generic
+ * 64b number for data processing
  * 
- * \param msg
- * \param out_data
+ * \param msg  Pointer to array storing 13 byte MCP format message
+ * \param out_data Pointer to 64b variable designed to store converted message data
  * 
  * \return extern void
  */
 extern void translate_data_mcp_to_U64(volatile uint8_t *msg, U64 *out_data);
 /**
- * \brief TODO
+ * \brief Translation function for converting generic 64b number to MCP format
+ * data bytes.
  * 
- * \param msg
- * \param in_data
+ * \param msg Pointer to array storing 13 byte MCP format message
+ * \param in_data Pointer to 64b variable from which to copy data
  * 
  * \return extern void
  */

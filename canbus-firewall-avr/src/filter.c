@@ -8,7 +8,7 @@
 #include "filter.h"
 
 
-
+// deprecated function for direct operation on an id contained in an Atmel storage structure
 inline int operate_transform_id_atmel(volatile can_msg_t *msg, U32 *rule_operand, int xform)
 {
 	
@@ -52,6 +52,7 @@ inline int operate_transform_id_atmel(volatile can_msg_t *msg, U32 *rule_operand
 	return 0;
 }
 
+// transform a generic 32b id number according the the CAN firewall xform
 inline int operate_transform_id(uint32_t *msg_id, uint32_t *rule_operand, int xform)
 {
 	
@@ -97,6 +98,7 @@ inline int operate_transform_id(uint32_t *msg_id, uint32_t *rule_operand, int xf
 	return 0;
 }
 
+// transform a generic 64b data var according to the CAN firewall xform
 inline int operate_transform_u64(U64 *data, U64 *rule_operand, int xform)
 {
 	switch(xform)
@@ -138,42 +140,45 @@ inline int operate_transform_u64(U64 *data, U64 *rule_operand, int xform)
 	return 0;
 }
 
-inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **out_rule){
-	//note: does not handle extended CAN yet
-	
-	//if new rule case, check for shunt connection	
-	if (msg->can_msg->id == msg_new_rule.id)
-	{
-		if (test_loopback() == true)
-		{
-			return NEW;
-		} else {
-			//new rule attempted without proper connection; no mercy.
-			return DISCARD;
-		}
-	}
-	
-	int i = 0;
-	while(i != SIZE_RULESET){
-		//look for match
-		//test of values:
-		// 		int and_msg = msg->can_msg->id & ruleset[i].mask;
-		// 		int filter = ruleset[i].filter;
-		
-		if((msg->can_msg->id & ruleset[i].mask) == ruleset[i].filter)
-		{
-			//match found, set out_rule and return evaluation case
-			*out_rule = &ruleset[i];
-			return FILTER;
-		}
-		
-		i += 1;
-	}
-	
-	//got here without any match
-	return DISCARD;
-}
+// deprecated function for evaluation of an Atmel stored CAN message
+// inline enum Eval_t evaluate(volatile can_mob_t *msg, rule_t *ruleset, rule_t **out_rule){
+// 	//note: does not handle extended CAN yet
+// 	
+// 	//if new rule case, check for shunt connection	
+// 	if (msg->can_msg->id == msg_new_rule.id)
+// 	{
+// 		if (test_loopback() == true)
+// 		{
+// 			return NEW;
+// 		} else {
+// 			//new rule attempted without proper connection; no mercy.
+// 			return DISCARD;
+// 		}
+// 	}
+// 	
+// 	int i = 0;
+// 	while(i != SIZE_RULESET){
+// 		//look for match
+// 		//test of values:
+// 		// 		int and_msg = msg->can_msg->id & ruleset[i].mask;
+// 		// 		int filter = ruleset[i].filter;
+// 		
+// 		if((msg->can_msg->id & ruleset[i].mask) == ruleset[i].filter)
+// 		{
+// 			//match found, set out_rule and return evaluation case
+// 			*out_rule = &ruleset[i];
+// 			return FILTER;
+// 		}
+// 		
+// 		i += 1;
+// 	}
+// 	
+// 	//got here without any match
+// 	return DISCARD;
+// }
 
+// evaluate a 32b message id against a provided CAN firewall ruleset. provide a
+// pointer to applicable rule, if found
 enum Eval_t evaluate_msg_id(uint32_t msg_id, rule_t *ruleset, rule_t **out_rule)
 {
 	//if new rule case, check for shunt connection
@@ -209,7 +214,7 @@ enum Eval_t evaluate_msg_id(uint32_t msg_id, rule_t *ruleset, rule_t **out_rule)
 	return DISCARD;
 }
 
-// to build an id from bits
+// to build a 32b id from MCP bits
 #define OFFSET_IN_EID_TO_32_17_16	(27)
 #define OFFSET_IN_EID_TO_32_15_8	(19)
 #define OFFSET_IN_EID_TO_32_7_0		(11)
@@ -247,14 +252,20 @@ void translate_id_mcp_to_U32(volatile uint8_t *msg, uint32_t *out_id)
 	}
 }
 
-
+// defines for translating a 32b to MCP standard
+#define CAN_ID_STD_MASK				0x7FF
+#define CAN_ID_STD_BITS_10_3_MASK	0x7F8
+#define CAN_ID_EXT_BITS_17_16_MASK	0x1800000
+#define CAN_ID_STD_BITS_2_0_MASK	0x07
+#define CAN_ID_EXT_BITS_15_8_MASK	0x07F80000
+#define CAN_ID_EXT_BITS_7_0_MASK	0x0007F800
 // copy from an unsigned 32b int to the MCP id message byte format
 // TODO: provide definitions for the hard coded numbers (masks) in this function
 void translate_id_U32_to_mcp(volatile uint8_t *msg, uint32_t *in_id)
 {
 	//if id is greater than 11b, it is in extended format
 	uint8_t extid = 0x00;
-	if (*in_id > 0x7FF)
+	if (*in_id > CAN_ID_STD_MASK)
 	{
 		extid = 0x01;
 	}
@@ -264,23 +275,23 @@ void translate_id_U32_to_mcp(volatile uint8_t *msg, uint32_t *in_id)
 		// treat as extended, copy the 29b into the MCP byte format
 		*in_id &= 0x1FFFFFFF;
 		// most significant bits of std go in SIDH
-		msg[MCP_BYTE_SIDH] = (uint8_t)((*in_id & 0x7F8) >> 3);
+		msg[MCP_BYTE_SIDH] = (uint8_t)((*in_id & CAN_ID_STD_BITS_10_3_MASK) >> 3);
 		// most significant bits of eid, and least of standard go in SIDL register
-		msg[MCP_BYTE_SIDL] = ((uint8_t)((*in_id & 0x1800000) >> 27)) |\
+		msg[MCP_BYTE_SIDL] = ((uint8_t)((*in_id & CAN_ID_EXT_BITS_17_16_MASK) >> 27)) |\
 							 ((uint8_t)((extid & 0x01) << 3)) |\
-							 ((uint8_t)((*in_id & 0x07) << 5));
+							 ((uint8_t)((*in_id & CAN_ID_STD_BITS_2_0_MASK) << 5));
 		// bits 15:8 (26:19) of eid go in EID8 register, can be shifted out by the same offset used to create the U32
-		msg[MCP_BYTE_EID8] = (uint8_t)((*in_id & 0x07F80000) >> OFFSET_IN_EID_TO_32_15_8);
+		msg[MCP_BYTE_EID8] = (uint8_t)((*in_id & CAN_ID_EXT_BITS_15_8_MASK) >> OFFSET_IN_EID_TO_32_15_8);
 		// bits 7:0 (18:11) of eid go in EID0 register, can be shifted out by the same offset used to create the U32
-		msg[MCP_BYTE_EID0] = (uint8_t)((*in_id & 0x0007F800) >> OFFSET_IN_EID_TO_32_7_0);
+		msg[MCP_BYTE_EID0] = (uint8_t)((*in_id & CAN_ID_EXT_BITS_7_0_MASK) >> OFFSET_IN_EID_TO_32_7_0);
 	} 
 	else
 	{
 		// treat as standard format, copy only 11b into the MCP byte format
 		*in_id &= 0x7FF;
 		// consider only SIDH and SIDL and care only about the standard id
-		msg[MCP_BYTE_SIDH] = (uint8_t)((*in_id & 0x7F8) >> 3);
-		msg[MCP_BYTE_SIDL] = ((uint8_t)((*in_id & 0x07) << 5) |\
+		msg[MCP_BYTE_SIDH] = (uint8_t)((*in_id & CAN_ID_STD_BITS_10_3_MASK) >> 3);
+		msg[MCP_BYTE_SIDL] = ((uint8_t)((*in_id & CAN_ID_STD_BITS_2_0_MASK) << 5) |\
 							 ((uint8_t)(extid)));
 	}
 }
