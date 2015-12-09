@@ -15,8 +15,20 @@
 #include "polarssl/sha2.h"
 #include "hmac.h"
 
+/* NOTE on firewall default implementation
+ * The firewall should block by default. 
+ * Rules define traffic that is allowed to pass through the system.
+ * Not providing a ruleset means that the values inialize to zero. The implementation
+ * of the standard means that if a ruleset consists of entirely 0, the filtered message
+ * will be overwritten to 0. This driver treats zeroed data as data marked for discard
+ * and will not retransmit any message that has been zeroed.
+ * 
+ */
+
 /* Defines for extraction methods */
+/*
 #define REF_                        0x0807060504030201
+*/
 #define DATA_PRIO_MASK              0xFF00000000000000                            
 #define DATA_PRIO_OFFSET            56
 
@@ -226,6 +238,8 @@ static int stored_sequence
 @ "USERPAGE"
 #endif
 ;
+
+
 
 //extern rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 /**
