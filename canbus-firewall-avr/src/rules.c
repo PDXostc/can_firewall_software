@@ -214,21 +214,15 @@ void print_ruleset(rule_t *ruleset, int numrules) {
     
 }
 
-bool save_rule_to_flash(rule_t *source_rule, rule_t *dest_rule)
+extern bool save_rule_to_flash(volatile rule_t *source_rule, rule_t *dest_rule)
 {
     #if DBG_FLASH
     print_dbg("\n\r Saving rule to flash...\n\r");
     #endif
 
     bool success = false;
-    
-    flashc_memcpy((void *)&dest_rule->prio,      &source_rule->prio,      sizeof(source_rule->prio),      true);
-    flashc_memcpy((void *)&dest_rule->mask,      &source_rule->mask,      sizeof(source_rule->mask),      true);
-    flashc_memcpy((void *)&dest_rule->filter,    &source_rule->filter,    sizeof(source_rule->filter),    true);
-    flashc_memcpy((void *)&dest_rule->xform,     &source_rule->xform,     sizeof(source_rule->xform),     true);
-    flashc_memcpy((void *)&dest_rule->idoperand, &source_rule->idoperand, sizeof(source_rule->idoperand), true);
-    flashc_memcpy((void *)&dest_rule->dtoperand, &source_rule->dtoperand, sizeof(source_rule->dtoperand), true);
-    
+
+	flashc_memcpy(dest_rule, source_rule, sizeof(*source_rule), true);
     //methods should have returned an assert if unsuccessful
     #if DBG_FLASH
     print_dbg("\n\r Rule Saved.\n\r");
@@ -327,7 +321,7 @@ rule_t create_rule_from_working_set(rule_working_t *working) {
 
 inline void load_rule(rule_t *source_rule, rule_t *dest_rule)
 {
-    *dest_rule = *source_rule;
+	memcpy(dest_rule, source_rule, sizeof(*source_rule));
 }
 
 void load_ruleset(rule_t *source, rule_t *dest, int num)
@@ -707,10 +701,13 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
         if (success == true)
         {
             store_new_sequence_number(rules_in_progress.working_sets[working_set_index]);
-            rule_t rule_to_save = create_rule_from_working_set(rules_in_progress.working_sets[working_set_index]);            
-            success = save_rule_to_flash(&rule_to_save, &flash_can_ruleset[(int)rule_to_save.prio]);
+            volatile rule_t rule_to_save = create_rule_from_working_set(rules_in_progress.working_sets[working_set_index]);            
+            success = save_rule_to_flash( /*(volatile *)*/&rule_to_save, &flash_can_ruleset[(int)rule_to_save.prio]);
 			
-			// set new rule success case reset timer. 
+			// set new rule success case reset timer.
+			#if DBG_WDT
+			print_dbg("\n\rTriggering reset");
+			#endif
             set_wdt_new_rule_success();
         }
         
