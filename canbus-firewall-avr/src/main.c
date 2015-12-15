@@ -342,6 +342,17 @@ int main (void)
 	set_led(LED_01, LED_OFF);
 	set_led(LED_02, LED_OFF);
 	
+	#if DBG_LED_USE_LED_LOOPBACK
+		if (test_loopback() == true)
+		{
+			set_led(LED_02, LED_ON);
+		} 
+		else
+		{
+			set_led(LED_01, LED_ON);
+		}
+	#endif
+	
 	// INIT MCP MODULE
 	init_mcp_module();
 	
