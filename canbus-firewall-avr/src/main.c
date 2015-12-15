@@ -115,6 +115,17 @@ static void init_rules(void)
 	load_ruleset(&flash_can_ruleset[0], can_ruleset_northbound, SIZE_RULESET);
 	load_ruleset(&flash_can_ruleset[SIZE_RULESET], can_ruleset_southbound, SIZE_RULESET);
 	
+	#if DBG_RULESET
+	print_ruleset(&flash_can_ruleset, 32 /*4*/);
+	#endif
+	
+	#if DBG_RULESET_MEM
+	print_dbg("\n\rRuleset Memory North\n\r");
+	print_ruleset(&can_ruleset_northbound, SIZE_RULESET);
+	print_dbg("\n\rRuleset Memory South\n\r");
+	print_ruleset(&can_ruleset_southbound, SIZE_RULESET);
+	#endif
+	
 	/************************************************************************/
 	/* test rules manually                                                  */
 	/************************************************************************/
