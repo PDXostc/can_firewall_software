@@ -726,7 +726,7 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
 //assumes this data has already been identified as belonging to a new rule frame
 bool handle_new_rule_data(Union64 *data)
 {
-    Disable_global_interrupt();
+    // Disable_global_interrupt();
     //successful handling
     bool success = false;
     //determine prio, ie which rule this frame should correspond to
@@ -764,11 +764,13 @@ bool handle_new_rule_data(Union64 *data)
             //set prio of newly created working set to prio in frame we created with
             rules_in_progress.working_sets[working_set_index]->prio = frame_prio;
             success = handle_new_rule_data_cmd(data, working_set_index);
-            } else {
-            //creation unsuccessful
-            success = false;
-        }
+        } 
+		else 
+		{
+			//creation unsuccessful
+			success = false;
+		}
     }
-    Enable_global_interrupt();
+    // Enable_global_interrupt();
     return success;
 }
