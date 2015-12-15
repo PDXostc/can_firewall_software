@@ -30,10 +30,21 @@ bool test_loopback_delayed(unsigned long delay)
 	{
 		//disable output for safety of port
 		gpio_local_disable_pin_output_driver(LOOP_B);
+		
+		#if DBG_LED_USE_LED_LOOPBACK
+		set_led(LED_02, LED_ON);
+		#endif
+		
 		return true;
 	}
 	//disable output for safety of port
 	gpio_local_disable_pin_output_driver(LOOP_B);
+	
+	#if DBG_LED_USE_LED_LOOPBACK
+	set_led(LED_02, LED_OFF);
+	set_led(LED_01, LED_ON);
+	#endif
+	
 	return false;
 }
 

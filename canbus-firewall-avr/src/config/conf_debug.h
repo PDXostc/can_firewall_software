@@ -41,8 +41,13 @@
 #define DBG_INT_GLBL_SWITCH_MCP		DBG_INT_GLBL_SWITCH && 0 // disable global interrupts in respective handler
 #define DBG_PROC					DBG_ON		&& 0
 #define DBG_RX_PTR					DBG_ON		&& 0
+#define DBG_WDT						DBG_ON		&& 0
+#define DBG_LED						DBG_ON		&& 0
 
-#define DBG_TRACE					DBG_ON		&& 1
+#define DBG_TRACE					DBG_ON		&& 0
+
+//led dbg behaviour
+#define DBG_LED_USE_LED_LOOPBACK	1
 
 #define PRINT_NEWLINE()       { if(DBG_ON) {print_dbg("\n\r");} }
 
