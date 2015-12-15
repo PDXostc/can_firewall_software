@@ -318,6 +318,9 @@ int main (void)
 	InitTraceBuffer();
 	#endif
 	
+	//disable wdt if running
+	wdt_disable();
+	
 	//setup
 	init();
 	init_rules();
