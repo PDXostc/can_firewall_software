@@ -74,9 +74,13 @@ static void init(void) {
 	flashc_set_flash_waitstate_and_readmode(sysclk_get_cpu_hz());
 	
 	//init debug printing for usart
+	#if DBG_ON
 	init_dbg_rs232(sysclk_get_pba_hz());
+	#endif
 	
+	#if DBG_INIT
 	print_dbg("\r======INITIALIZED======\n\r");
+	#endif
 	
 	#if DBG_CLKS
 	/* test return of clocks */
@@ -411,7 +415,9 @@ int main (void)
 #endif // if DBG_MSG_QUE
 	
 	/* SETUP AND INITS COMPLETE. ENABLE ALL INTERRUPTS */
+	#if DBG_TIME
 	set_timestamp("start", Get_sys_count());
+	#endif
 	
 	Enable_global_interrupt();
 	
