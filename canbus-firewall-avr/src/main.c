@@ -157,6 +157,7 @@ static inline void process(volatile struct MCP_message_t **rx, volatile struct M
 		rule_t *rule_match = NULL;
 		U32 xform = 0;
 		int success = -1;
+		bool handled = false;
 		
 		//U32 msg_id;
 		// Uses temporary structure for storing the id of the message currently being evaluated.
@@ -177,7 +178,11 @@ static inline void process(volatile struct MCP_message_t **rx, volatile struct M
 				// data stored in MCP format must be moved to a 64b number for processing
 				translate_data_mcp_to_U64((*proc)->msg, &Eval_temp.data.u64);
 				// provide translated data to rule handler
-				handle_new_rule_data(&Eval_temp.data);
+				handled = handle_new_rule_data(&Eval_temp.data);
+				if (false)
+				{
+					wipe_msg_id(&(*proc));
+				}
 				
 			}
 			break;
