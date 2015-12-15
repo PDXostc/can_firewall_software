@@ -565,7 +565,7 @@ extern rule_t create_rule_from_working_set(rule_working_t *working);
 * \param dest_rule structure to copy to
 * \return bool Successful copy
 */
-extern bool save_rule_to_flash(rule_t *source_rule, rule_t *dest_rule);
+extern bool save_rule_to_flash(volatile rule_t *source_rule, rule_t *dest_rule);
 
 /*! \breif Save ruleset, multiple rules from one location to another, assumes saving to flash memory
  * Simple copy
