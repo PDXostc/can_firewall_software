@@ -20,6 +20,37 @@ rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 //init to zero for now. this should become a secret number pulled from flash
 static int stored_sequence = 0;
 
+// options specific to the new rule watchdog reset case
+wdt_opt_t wdt_opt_new_rule ={
+	// time until reset
+	.us_timeout_period = WDT_TIME_NEW_RULE_RESET,
+	// clock source is internal rc oscillator
+	.cssel = WDT_CLOCK_SOURCE_SELECT_RCSYS,
+	// recalibrate flash on restart
+	.fcd = false,
+	// do not lock control register
+	.sfv = false,
+	// use PSEL mode
+	.mode = WDT_BASIC_MODE,
+	// disable wdt after a reset
+	.dar = true
+	};
+
+// Used in the event of a new rule being successfully stored. This means that the
+// ruleset will have to be reprogrammed. The reset should be enabled for a period
+// of time that allows other new rules to be received, which will call this function,
+// resetting the timer. If no further new rules are received, then the reset
+// should take place.
+void set_wdt_new_rule_success(void)
+{
+	// reset wdt in progress
+	wdt_clear();
+	
+	//set new wdt according to options for new rule case
+	wdt_enable(&wdt_opt_new_rule);
+}
+
+
 /* Useful extraction methods for getting what we need out of the CAN frame data field */
  inline void get_frame_prio(const Union64 *data, uint8_t *prio) {
     get_frame_data_u8(data, prio, DATA_PRIO_MASK, DATA_PRIO_OFFSET);
@@ -678,7 +709,9 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
             store_new_sequence_number(rules_in_progress.working_sets[working_set_index]);
             rule_t rule_to_save = create_rule_from_working_set(rules_in_progress.working_sets[working_set_index]);            
             success = save_rule_to_flash(&rule_to_save, &flash_can_ruleset[(int)rule_to_save.prio]);
-            
+			
+			// set new rule success case reset timer. 
+            set_wdt_new_rule_success();
         }
         
         //we got here because of a store command. whether or not we are successful, we should destroy the work in progress

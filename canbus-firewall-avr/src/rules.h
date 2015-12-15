@@ -14,6 +14,7 @@
 #include "conf_debug.h"
 #include "polarssl/sha2.h"
 #include "hmac.h"
+#include "reset.h"
 
 /* NOTE on firewall default implementation
  * The firewall should block by default. 
@@ -22,7 +23,8 @@
  * of the standard means that if a ruleset consists of entirely 0, the filtered message
  * will be overwritten to 0. This driver treats zeroed data as data marked for discard
  * and will not retransmit any message that has been zeroed.
- * 
+ * NOTE: we are hoping to change the standard and the implementation to make the 
+ * uninit zero case be BLOCK by default.
  */
 
 /* Defines for extraction methods */
@@ -239,7 +241,39 @@ static int stored_sequence
 #endif
 ;
 
+/* Watchdog resetting.
+ * Should force the driver to reset the entire device and initiate full start up
+ * and reprogram when new rules have been ingested. After successfully storing a 
+ * new rule, a timer should be started for a sufficient length after which if no
+ * further new rules have been provided, a full reset should be triggered.
+ */
+// reset time of 3 seconds is probably enough to account for new rule transmission 
+// and ingestion processing.
+#define WDT_TIME_NEW_RULE_RESET_US		3000000			
 
+#define WDT_TIME_NEW_RULE_TEST_RESET_US 15000000  // really long wait for new rule ingestion testing
+
+#ifndef WDT_TIME_NEW_RULE_RESET
+#define WDT_TIME_NEW_RULE_RESET			WDT_TIME_NEW_RULE_RESET_US
+//#define WDT_TIME_NEW_RULE_RESET			WDT_TIME_NEW_RULE_TEST_RESET_US
+#endif
+
+// options specific to the new rule watchdog reset case
+wdt_opt_t wdt_opt_new_rule;
+
+
+/**
+ * \brief Used in the event of a new rule being successfully stored. This means that the
+ * ruleset will have to be reprogrammed. The reset should be enabled for a period
+ * of time that allows other new rules to be received, which will call this function,
+ * resetting the timer. If no further new rules are received, then the reset
+ * should take place.
+ * 
+ * \param Options for the watchdog timer, according to the operational needs for a new rule case.
+ * 
+ * \return void
+ */
+void set_wdt_new_rule_success(void);
 
 //extern rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 /**
