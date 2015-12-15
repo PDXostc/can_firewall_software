@@ -89,6 +89,7 @@ static void init(void) {
 	#endif
 
 	init_led_gpio_ports();
+	init_loopback_gpio_ports();
 	
 }
 
