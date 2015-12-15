@@ -20,6 +20,37 @@ rule_t flash_can_ruleset[(SIZE_RULESET*2)];
 //init to zero for now. this should become a secret number pulled from flash
 static int stored_sequence = 0;
 
+// options specific to the new rule watchdog reset case
+wdt_opt_t wdt_opt_new_rule ={
+	// time until reset
+	.us_timeout_period = WDT_TIME_NEW_RULE_RESET,
+	// clock source is internal rc oscillator
+	.cssel = WDT_CLOCK_SOURCE_SELECT_RCSYS,
+	// recalibrate flash on restart
+	.fcd = false,
+	// do not lock control register
+	.sfv = false,
+	// use PSEL mode
+	.mode = WDT_BASIC_MODE,
+	// disable wdt after a reset
+	.dar = true
+	};
+
+// Used in the event of a new rule being successfully stored. This means that the
+// ruleset will have to be reprogrammed. The reset should be enabled for a period
+// of time that allows other new rules to be received, which will call this function,
+// resetting the timer. If no further new rules are received, then the reset
+// should take place.
+void set_wdt_new_rule_success(void)
+{
+	// reset wdt in progress
+	wdt_clear();
+	
+	//set new wdt according to options for new rule case
+	wdt_enable(&wdt_opt_new_rule);
+}
+
+
 /* Useful extraction methods for getting what we need out of the CAN frame data field */
  inline void get_frame_prio(const Union64 *data, uint8_t *prio) {
     get_frame_data_u8(data, prio, DATA_PRIO_MASK, DATA_PRIO_OFFSET);
@@ -183,21 +214,15 @@ void print_ruleset(rule_t *ruleset, int numrules) {
     
 }
 
-bool save_rule_to_flash(rule_t *source_rule, rule_t *dest_rule)
+extern bool save_rule_to_flash(volatile rule_t *source_rule, rule_t *dest_rule)
 {
     #if DBG_FLASH
     print_dbg("\n\r Saving rule to flash...\n\r");
     #endif
 
     bool success = false;
-    
-    flashc_memcpy((void *)&dest_rule->prio,      &source_rule->prio,      sizeof(source_rule->prio),      true);
-    flashc_memcpy((void *)&dest_rule->mask,      &source_rule->mask,      sizeof(source_rule->mask),      true);
-    flashc_memcpy((void *)&dest_rule->filter,    &source_rule->filter,    sizeof(source_rule->filter),    true);
-    flashc_memcpy((void *)&dest_rule->xform,     &source_rule->xform,     sizeof(source_rule->xform),     true);
-    flashc_memcpy((void *)&dest_rule->idoperand, &source_rule->idoperand, sizeof(source_rule->idoperand), true);
-    flashc_memcpy((void *)&dest_rule->dtoperand, &source_rule->dtoperand, sizeof(source_rule->dtoperand), true);
-    
+
+	flashc_memcpy(dest_rule, source_rule, sizeof(*source_rule), true);
     //methods should have returned an assert if unsuccessful
     #if DBG_FLASH
     print_dbg("\n\r Rule Saved.\n\r");
@@ -296,7 +321,7 @@ rule_t create_rule_from_working_set(rule_working_t *working) {
 
 inline void load_rule(rule_t *source_rule, rule_t *dest_rule)
 {
-    *dest_rule = *source_rule;
+	memcpy(dest_rule, source_rule, sizeof(*source_rule));
 }
 
 void load_ruleset(rule_t *source, rule_t *dest, int num)
@@ -676,9 +701,14 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
         if (success == true)
         {
             store_new_sequence_number(rules_in_progress.working_sets[working_set_index]);
-            rule_t rule_to_save = create_rule_from_working_set(rules_in_progress.working_sets[working_set_index]);            
-            success = save_rule_to_flash(&rule_to_save, &flash_can_ruleset[(int)rule_to_save.prio]);
-            
+            volatile rule_t rule_to_save = create_rule_from_working_set(rules_in_progress.working_sets[working_set_index]);            
+            success = save_rule_to_flash( /*(volatile *)*/&rule_to_save, &flash_can_ruleset[(int)rule_to_save.prio]);
+			
+			// set new rule success case reset timer.
+			#if DBG_WDT
+			print_dbg("\n\rTriggering reset");
+			#endif
+            set_wdt_new_rule_success();
         }
         
         //we got here because of a store command. whether or not we are successful, we should destroy the work in progress
@@ -696,7 +726,7 @@ bool handle_new_rule_data_cmd(Union64 *data, int working_set_index)
 //assumes this data has already been identified as belonging to a new rule frame
 bool handle_new_rule_data(Union64 *data)
 {
-    Disable_global_interrupt();
+    // Disable_global_interrupt();
     //successful handling
     bool success = false;
     //determine prio, ie which rule this frame should correspond to
@@ -734,11 +764,13 @@ bool handle_new_rule_data(Union64 *data)
             //set prio of newly created working set to prio in frame we created with
             rules_in_progress.working_sets[working_set_index]->prio = frame_prio;
             success = handle_new_rule_data_cmd(data, working_set_index);
-            } else {
-            //creation unsuccessful
-            success = false;
-        }
+        } 
+		else 
+		{
+			//creation unsuccessful
+			success = false;
+		}
     }
-    Enable_global_interrupt();
+    // Enable_global_interrupt();
     return success;
 }

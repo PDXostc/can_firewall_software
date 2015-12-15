@@ -15,12 +15,15 @@
 #include <asf.h>
 
 #define DBG_ON						1			//master enable debug
+#define DBG_INIT					DBG_ON		
 #define DBG_TEST					1			//temp, misc
 #define DBG_CLKS					DBG_ON		&& 1 //clocks
 #define DBG_CAN_MSG					DBG_ON		&& 0 //can messages
 #define DBG_FLASH					DBG_ON		&& 0 //flash
 #define DBG_HMAC					DBG_ON		&& 0 //hmac
 #define DBG_RULES					DBG_ON		&& 0 //rules
+#define DBG_RULESET					DBG_ON		&& 1 //ruleset load
+#define DBG_RULESET_MEM				DBG_ON		&& 0 //ruleset in memory
 #define DBG_MCP						DBG_ON		&& 0 //mcp chipsets
 #define DBG_MCP_CAN_RX				DBG_MCP		&& 0 //messages received
 #define DBG_MCP_CAN_TX				DBG_MCP		&& 0 //messages sent
@@ -41,8 +44,13 @@
 #define DBG_INT_GLBL_SWITCH_MCP		DBG_INT_GLBL_SWITCH && 0 // disable global interrupts in respective handler
 #define DBG_PROC					DBG_ON		&& 0
 #define DBG_RX_PTR					DBG_ON		&& 0
+#define DBG_WDT						DBG_ON		&& 0
+#define DBG_LED						DBG_ON		&& 0
 
-#define DBG_TRACE					DBG_ON		&& 1
+#define DBG_TRACE					DBG_ON		&& 0
+
+//led dbg behaviour
+#define DBG_LED_USE_LED_LOOPBACK	1
 
 #define PRINT_NEWLINE()       { if(DBG_ON) {print_dbg("\n\r");} }
 

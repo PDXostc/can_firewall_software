@@ -7,7 +7,7 @@
 
 #include "hmac.h"
 
-unsigned char hmac_key[HMAC_KEY_LEN] = "qgu1lF7k3q4i2bpwS4NGA87Jh2PQMtvFu9k6X6lj";
+unsigned char hmac_key[HMAC_KEY_LEN] = "QbA8Q,&GM!#(Uiv'4b'6G^HCKL@Fi[@ZAU_C`qb8";
 
 unsigned char payload_signature_buffer[PAYLOAD_SIG_BUF_LEN] = {0};
 

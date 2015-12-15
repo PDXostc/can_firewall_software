@@ -227,7 +227,7 @@ void translate_id_mcp_to_U32(volatile uint8_t *msg, uint32_t *out_id)
 	*out_id = 0;
 	
 	// IDE bit is << 3 in component [1] of MCP msg
-	uint8_t extid = ((msg[MCP_BYTE_DLC] & MCP_MASK_IDE_BIT) >> MCP_OFFSET_OUT_IDE_BIT);
+	uint8_t extid = ((msg[MCP_BYTE_SIDL] & MCP_MASK_IDE_BIT) >> MCP_OFFSET_OUT_IDE_BIT);
 	
 	if (extid > 0)
 	{

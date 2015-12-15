@@ -28,11 +28,11 @@
 
 //hmac keys live in flash
 #if defined (__GNUC__)
-__attribute__((__section__(".flash_rsvd")))
+__attribute__((__section__(".userpage")))
 #endif
 extern unsigned char hmac_key[HMAC_KEY_LEN]
 #if defined (__ICAVR32__)
-@ "FLASHRSVD"
+@ "USERPAGE"
 #endif
 ;
 

@@ -74,9 +74,13 @@ static void init(void) {
 	flashc_set_flash_waitstate_and_readmode(sysclk_get_cpu_hz());
 	
 	//init debug printing for usart
+	#if DBG_ON
 	init_dbg_rs232(sysclk_get_pba_hz());
+	#endif
 	
+	#if DBG_INIT
 	print_dbg("\r======INITIALIZED======\n\r");
+	#endif
 	
 	#if DBG_CLKS
 	/* test return of clocks */
@@ -89,6 +93,7 @@ static void init(void) {
 	#endif
 
 	init_led_gpio_ports();
+	init_loopback_gpio_ports();
 	
 }
 
@@ -114,6 +119,17 @@ static void init_rules(void)
 	//Southbound[SIZE_RULESET : (SIZERULESET*2)-1]
 	load_ruleset(&flash_can_ruleset[0], can_ruleset_northbound, SIZE_RULESET);
 	load_ruleset(&flash_can_ruleset[SIZE_RULESET], can_ruleset_southbound, SIZE_RULESET);
+	
+	#if DBG_RULESET
+	print_ruleset(&flash_can_ruleset, 32 /*4*/);
+	#endif
+	
+	#if DBG_RULESET_MEM
+	print_dbg("\n\rRuleset Memory North\n\r");
+	print_ruleset(&can_ruleset_northbound, SIZE_RULESET);
+	print_dbg("\n\rRuleset Memory South\n\r");
+	print_ruleset(&can_ruleset_southbound, SIZE_RULESET);
+	#endif
 	
 	/************************************************************************/
 	/* test rules manually                                                  */
@@ -146,6 +162,7 @@ static inline void process(volatile struct MCP_message_t **rx, volatile struct M
 		rule_t *rule_match = NULL;
 		U32 xform = 0;
 		int success = -1;
+		bool handled = false;
 		
 		//U32 msg_id;
 		// Uses temporary structure for storing the id of the message currently being evaluated.
@@ -166,7 +183,11 @@ static inline void process(volatile struct MCP_message_t **rx, volatile struct M
 				// data stored in MCP format must be moved to a 64b number for processing
 				translate_data_mcp_to_U64((*proc)->msg, &Eval_temp.data.u64);
 				// provide translated data to rule handler
-				handle_new_rule_data(&Eval_temp.data);
+				handled = handle_new_rule_data(&Eval_temp.data);
+				if (false)
+				{
+					wipe_msg_id(&(*proc));
+				}
 				
 			}
 			break;
@@ -318,6 +339,9 @@ int main (void)
 	InitTraceBuffer();
 	#endif
 	
+	//disable wdt if running
+	wdt_disable();
+	
 	//setup
 	init();
 	init_rules();
@@ -327,6 +351,17 @@ int main (void)
 	set_led(LED_02, LED_ON);
 	set_led(LED_01, LED_OFF);
 	set_led(LED_02, LED_OFF);
+	
+	#if DBG_LED_USE_LED_LOOPBACK
+		if (test_loopback() == true)
+		{
+			set_led(LED_02, LED_ON);
+		} 
+		else
+		{
+			set_led(LED_01, LED_ON);
+		}
+	#endif
 	
 	// INIT MCP MODULE
 	init_mcp_module();
@@ -380,7 +415,9 @@ int main (void)
 #endif // if DBG_MSG_QUE
 	
 	/* SETUP AND INITS COMPLETE. ENABLE ALL INTERRUPTS */
+	#if DBG_TIME
 	set_timestamp("start", Get_sys_count());
+	#endif
 	
 	Enable_global_interrupt();
 	
