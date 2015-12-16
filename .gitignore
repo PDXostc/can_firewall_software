@@ -1,0 +1,9 @@
+################
+## Atmel Studio
+################
+
+#Atmel Studio solution and user files
+*.atsuo
+ASF
+asf.h
+*.hex
