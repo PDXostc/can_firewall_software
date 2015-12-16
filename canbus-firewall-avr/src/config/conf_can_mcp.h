@@ -1,8 +1,13 @@
 /*
+  Copyright (C) 2015, Jaguar Land Rover
+  This program is licensed under the terms and conditions of the
+  Mozilla Public License, version 2.0.  The full text of the 
+  Mozilla Public License is at https://www.mozilla.org/MPL/2.0/
+*/
+
+/*
  * conf_can_mcp.h
  *
- * Created: 10/20/2015 1:42:07 PM
- *  Author: smiller6
  */ 
 
 
