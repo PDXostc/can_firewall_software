@@ -6,12 +6,14 @@
 */
 
 /*
- * conf_rules.h
+ * timestamp.c
+ *
  */ 
 
+#include "timestamp.h"
 
-#ifndef CONF_RULES_H_
-#define CONF_RULES_H_
+volatile struct timestamp_t timestamps[NUM_TIMESTAMPS] = {0};
 
+volatile struct timestamp_t *timestamp_ptr_current = &timestamps[0];
 
-#endif /* CONF_RULES_H_ */
+volatile uint32_t timestamp_count = 0;

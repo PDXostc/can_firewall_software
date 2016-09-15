@@ -1,8 +1,13 @@
 /*
+  Copyright (C) 2015, Jaguar Land Rover
+  This program is licensed under the terms and conditions of the
+  Mozilla Public License, version 2.0.  The full text of the 
+  Mozilla Public License is at https://www.mozilla.org/MPL/2.0/
+*/
+
+/*
  * rules_test.h
  *
- * Created: 10/8/2015 11:54:51 AM
- *  Author: smiller6
  */ 
 
 
@@ -13,6 +18,7 @@
 
 //test pass all rule
 rule_t rule_test_pass;
+rule_t rule_test_modify_id_and_data;
 rule_t rule_test_block;
 rule_t rule_test_inside_range_allow;
 rule_t rule_test_inside_range_xform_id_set;

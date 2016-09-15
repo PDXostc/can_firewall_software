@@ -1,13 +1,18 @@
 /*
+  Copyright (C) 2015, Jaguar Land Rover
+  This program is licensed under the terms and conditions of the
+  Mozilla Public License, version 2.0.  The full text of the 
+  Mozilla Public License is at https://www.mozilla.org/MPL/2.0/
+*/
+
+/*
  * hmac.c
  *
- * Created: 9/16/2015 2:52:37 PM
- *  Author: smiller6
  */ 
 
 #include "hmac.h"
 
-unsigned char hmac_key[HMAC_KEY_LEN] = "qgu1lF7k3q4i2bpwS4NGA87Jh2PQMtvFu9k6X6lj";
+unsigned char hmac_key[HMAC_KEY_LEN] = "QbA8Q,&GM!#(Uiv'4b'6G^HCKL@Fi[@ZAU_C`qb8";
 
 unsigned char payload_signature_buffer[PAYLOAD_SIG_BUF_LEN] = {0};
 

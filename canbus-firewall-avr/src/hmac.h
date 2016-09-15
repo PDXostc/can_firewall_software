@@ -1,8 +1,13 @@
 /*
+  Copyright (C) 2015, Jaguar Land Rover
+  This program is licensed under the terms and conditions of the
+  Mozilla Public License, version 2.0.  The full text of the 
+  Mozilla Public License is at https://www.mozilla.org/MPL/2.0/
+*/
+
+/*
  * hmac.h
  *
- * Created: 9/16/2015 2:52:24 PM
- *  Author: smiller6
  */ 
 
 
@@ -28,11 +33,11 @@
 
 //hmac keys live in flash
 #if defined (__GNUC__)
-__attribute__((__section__(".flash_rsvd")))
+__attribute__((__section__(".userpage")))
 #endif
 extern unsigned char hmac_key[HMAC_KEY_LEN]
 #if defined (__ICAVR32__)
-@ "FLASHRSVD"
+@ "USERPAGE"
 #endif
 ;
 

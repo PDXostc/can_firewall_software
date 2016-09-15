@@ -1,8 +1,13 @@
 /*
+  Copyright (C) 2015, Jaguar Land Rover
+  This program is licensed under the terms and conditions of the
+  Mozilla Public License, version 2.0.  The full text of the 
+  Mozilla Public License is at https://www.mozilla.org/MPL/2.0/
+*/
+
+/*
  * sleep.c
  *
- * Created: 9/14/2015 12:08:08 PM
- *  Author: smiller6
  */ 
 
 #include "sleep.h"
@@ -22,5 +27,5 @@ void sleep_mode_start()
     CANIF_enable_wakeup(1);
     
     //Go to sleep
-    SLEEP(AVR32_PM_SMODE_STANDBY);
+    SLEEP(AVR32_PM_SMODE_IDLE);
 }
