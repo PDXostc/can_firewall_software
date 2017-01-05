@@ -1050,7 +1050,7 @@ void run_mcp_state_machine(void)
 		 * 
 		 * Above statement invalid. Attention should be cleared when we think the 
 		 * Interrupt flag on an MCP could result in the pin lowering. Therefore 
-		 * the attn flag should be cleared when we’ve used the Read RX Buffer 
+		 * the attn flag should be cleared when weÂ’ve used the Read RX Buffer 
 		 * instruction to get a CAN msg, which clears the flag on the MCP.
 		 * Please remember to clear the attention when on the receive message callback state
 		 */
@@ -1276,17 +1276,17 @@ void run_mcp_state_machine(void)
 				{
 					// set to upload for whichever is free. if none found we need
 					// a refreshed status
-					if( ((mcp_status.status_byte_north >> 2) & 0x01) == 0x00 )
+					if( ((mcp_status.status_byte_south >> 2) & 0x01) == 0x00 )
 					{
 						// first buffer not pending, choose for upload
 						mcp_stm_set_state(&mcp_stm, LOAD_TXB_0_SOUTH);
 					}
-					else if (((mcp_status.status_byte_north >> 4) & 0x01) == 0x00 )
+					else if (((mcp_status.status_byte_south >> 4) & 0x01) == 0x00 )
 					{
 						// second buffer not pending, choose for upload
 						mcp_stm_set_state(&mcp_stm, LOAD_TXB_1_SOUTH);
 					}
-					else if (((mcp_status.status_byte_north >> 6) & 0x01) == 0x00 )
+					else if (((mcp_status.status_byte_south >> 6) & 0x01) == 0x00 )
 					{
 						// second buffer not pending, choose for upload
 						mcp_stm_set_state(&mcp_stm, LOAD_TXB_2_SOUTH);
