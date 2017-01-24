@@ -7,3 +7,6 @@
 ASF
 asf.h
 *.hex
+
+Debug/
+Release/
